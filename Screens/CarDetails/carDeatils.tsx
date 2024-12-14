@@ -1,6 +1,12 @@
 import React from 'react';
-import {View, Text, Image, TouchableOpacity, StyleSheet} from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+  ViewBase,
+} from 'react-native';
 
 const Details = () => {
   return (
@@ -58,18 +64,34 @@ const Details = () => {
       <View style={styles.contactContainer}>
         <Text style={styles.contactTitle}>Contact Seller Via</Text>
         <View style={styles.contactIcons}>
-          <TouchableOpacity style={styles.contactButton}>
-            <Icon name="call" size={20} color="#FFF" />
+          <View>
+            <TouchableOpacity style={[styles.contactButton, styles.callButton]}>
+              <Image
+                source={require('../../assets/telephone.png')}
+                style={styles.icon}
+              />
+            </TouchableOpacity>
             <Text style={styles.contactText}>Call</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.contactButton}>
-            <Icon name="logo-whatsapp" size={20} color="#FFF" />
+          </View>
+          <View>
+            <TouchableOpacity
+              style={[styles.contactButton, styles.whatsappButton]}>
+              <Image
+                source={require('../../assets/whatsapp.png')}
+                style={styles.icon}
+              />
+            </TouchableOpacity>
             <Text style={styles.contactText}>WhatsApp</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.contactButton}>
-            <Icon name="chatbubbles" size={20} color="#FFF" />
+          </View>
+          <View>
+            <TouchableOpacity style={[styles.contactButton, styles.textButton]}>
+              <Image
+                source={require('../../assets/messenger.png')}
+                style={styles.icon}
+              />
+            </TouchableOpacity>
             <Text style={styles.contactText}>Text</Text>
-          </TouchableOpacity>
+          </View>
         </View>
       </View>
     </View>
@@ -154,17 +176,33 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
   },
   contactButton: {
-    backgroundColor: '#007BFF',
-    borderRadius: 8,
+    borderRadius: 50,
     padding: 10,
     alignItems: 'center',
-    width: 80,
+    width: 60,
+    height: 60,
+    justifyContent: 'center',
+  },
+  callButton: {
+    backgroundColor: '#3A58E84A', // Blue color
+  },
+  whatsappButton: {
+    backgroundColor: '#49CAA34A', // Green color
+  },
+  textButton: {
+    backgroundColor: '#FF4B4A3B', // Red color
+  },
+  icon: {
+    width: 30,
+    height: 30,
+    resizeMode: 'contain',
   },
   contactText: {
-    color: '#FFF',
-    fontWeight: 'bold',
     marginTop: 5,
-    fontSize: 12,
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#333',
+    textAlign: 'center',
   },
 });
 
