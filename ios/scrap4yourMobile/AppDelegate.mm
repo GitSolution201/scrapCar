@@ -1,6 +1,7 @@
 #import "AppDelegate.h"
 
 #import <React/RCTBundleURLProvider.h>
+#import <GoogleMaps/GoogleMaps.h>
 
 @implementation AppDelegate
 
@@ -12,6 +13,7 @@
   self.initialProps = @{};
 
   return [super application:application didFinishLaunchingWithOptions:launchOptions];
+  [GMSServices provideAPIKey:@"AIzaSyC9PCVumxPB8jcTCo15qDfq2aRLto7Eivs"];
 }
 
 - (NSURL *)sourceURLForBridge:(RCTBridge *)bridge
