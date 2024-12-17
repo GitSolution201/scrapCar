@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Image,
 } from 'react-native';
+import Colors from '../../Helper/Colors';
 
 const listingsData = [
   {
@@ -35,19 +36,51 @@ const listingsData = [
     transmission: 'MANUAL 6 Gears',
     distance: '107 mi',
     views: '8',
+    image: require('../../assets/car2.png'),
+  },
+  {
+    id: '1',
+    title: 'S 500 Sedan',
+    price: '$548',
+    registration: 'DN63WPZ',
+    postCode: 'S63',
+    weight: '1320 KG',
+    engineCode: 'M472D20C',
+    engineSize: '1995',
+    transmission: 'MANUAL 6 Gears',
+    distance: '107 mi',
+    views: '8',
     image: require('../../assets/car.png'),
+  },
+  {
+    id: '2',
+    title: 'GLA 250 SUV',
+    price: '$548',
+    registration: 'DN63WPZ',
+    postCode: 'S63',
+    weight: '1320 KG',
+    engineCode: 'M472D20C',
+    engineSize: '1995',
+    transmission: 'MANUAL 6 Gears',
+    distance: '107 mi',
+    views: '8',
+    image: require('../../assets/car2.png'),
   },
 ];
 
 const Listings = ({navigation}: {navigation: any}) => {
+  const [activeFilter, setActiveFilter] = useState('Scrap'); // State for active button
+
   const renderItem = ({item}) => (
     <TouchableOpacity
       onPress={() => navigation.navigate('CarDeatils')}
       style={styles.listingCard}>
+      {/* Car Image Positioned */}
       <Image source={item.image} style={styles.carImage} />
+
+      {/* Card Details */}
       <View style={styles.detailsContainer}>
         <Text style={styles.carTitle}>{item.title}</Text>
-        <Text style={styles.price}>Quoted Price: {item.price}</Text>
         <Text style={styles.details}>
           Registration: {item.registration} | Post Code: {item.postCode}
         </Text>
@@ -56,6 +89,8 @@ const Listings = ({navigation}: {navigation: any}) => {
         </Text>
         <Text style={styles.details}>Engine Size: {item.engineSize}</Text>
         <Text style={styles.details}>Transmission: {item.transmission}</Text>
+
+        {/* Footer */}
         <View style={styles.footer}>
           <Text style={styles.footerText}>{item.distance}</Text>
           <Text style={styles.footerText}>{item.views} Views</Text>
@@ -73,15 +108,24 @@ const Listings = ({navigation}: {navigation: any}) => {
 
       {/* Filters */}
       <View style={styles.filterContainer}>
-        <TouchableOpacity style={styles.filterButtonActive}>
-          <Text style={styles.filterTextActive}>Scrap</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.filterButton}>
-          <Text style={styles.filterText}>Salvage</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.filterButton}>
-          <Text style={styles.filterText}>Both</Text>
-        </TouchableOpacity>
+        {['Scrap', 'Salvage', 'Both'].map(filter => (
+          <TouchableOpacity
+            key={filter}
+            style={[
+              styles.filterButton,
+              activeFilter === filter && styles.filterButtonActive,
+            ]}
+            activeOpacity={0.7}
+            onPress={() => setActiveFilter(filter)}>
+            <Text
+              style={[
+                styles.filterText,
+                activeFilter === filter && styles.filterTextActive,
+              ]}>
+              {filter}
+            </Text>
+          </TouchableOpacity>
+        ))}
       </View>
 
       {/* Sorting */}
@@ -103,21 +147,23 @@ const Listings = ({navigation}: {navigation: any}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingTop: 20,
     backgroundColor: '#F5F5F5',
   },
   header: {
     marginBottom: 20,
+    marginTop: 40,
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 28, // Increased font size
     fontWeight: 'bold',
     color: '#333',
   },
   filterContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 10,
+    marginBottom: 20,
   },
   filterButton: {
     flex: 1,
@@ -137,14 +183,14 @@ const styles = StyleSheet.create({
   },
   filterText: {
     color: '#555',
-    fontSize: 14,
+    fontSize: 16, // Increased font size
   },
   filterTextActive: {
     color: '#FFF',
-    fontSize: 14,
+    fontSize: 16, // Increased font size
   },
   sortContainer: {
-    marginBottom: 10,
+    marginBottom: 20,
   },
   sortText: {
     fontSize: 14,
@@ -152,39 +198,43 @@ const styles = StyleSheet.create({
   },
   list: {
     paddingBottom: 20,
+    marginTop: 20,
   },
   listingCard: {
     backgroundColor: '#FFF',
     borderRadius: 15,
-    marginBottom: 20,
-    overflow: 'hidden',
+    marginTop: 20,
+    marginBottom: 30, // Increased space between cards
+    paddingTop: 30, // Extra padding at the top for the image
+    paddingHorizontal: 15,
+    paddingBottom: 15,
+    overflow: 'visible', // Allow content to go outside the card
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowRadius: 4,
     shadowOffset: {width: 0, height: 2},
-    elevation: 3,
+    elevation: 3, // Android shadow
+    position: 'relative',
   },
   carImage: {
-    width: '100%',
-    height: 150,
-    resizeMode: 'cover',
+    position: 'absolute', // Position image outside card
+    top: -80, // Move image upwards (adjust as needed)
+    right: -50, // Slightly align to the right
+    width: '90%', // Increased width
+    height: '90%', // Increased height
+    resizeMode: 'contain', // Ensure the aspect ratio is maintained
   },
   detailsContainer: {
-    padding: 15,
+    padding: 10,
   },
   carTitle: {
-    fontSize: 18,
+    fontSize: 18, // Increased font size
     fontWeight: 'bold',
-    marginBottom: 5,
-    color: '#333',
-  },
-  price: {
-    fontSize: 16,
-    color: '#007BFF',
     marginBottom: 10,
+    color: Colors.primary,
   },
   details: {
-    fontSize: 14,
+    fontSize: 14, // Increased font size
     color: '#555',
     marginBottom: 5,
   },
@@ -194,7 +244,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   footerText: {
-    fontSize: 12,
+    fontSize: 14,
     color: '#757575',
   },
 });

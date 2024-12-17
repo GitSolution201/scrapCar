@@ -8,12 +8,14 @@ import {
   ViewBase,
 } from 'react-native';
 
-const Details = () => {
+const Details = ({navigation}: {navigation: any}) => {
   return (
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.backButton}>
           <Text style={styles.backText}>←</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Details</Text>
@@ -107,7 +109,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 20,
+    marginTop: 40,
   },
   backButton: {
     marginRight: 10,

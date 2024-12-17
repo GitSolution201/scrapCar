@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from 'react-native';
-
+import Colors from '../../Helper/Colors';
 const Login = ({navigation}: {navigation: any}) => {
   const handleLogin = () => {
     navigation.replace('MainTabs'); // Ensure MainTabs is part of the registered navigation
@@ -54,20 +54,19 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    justifyContent: 'center',
+    paddingTop: '50%',
     backgroundColor: '#FFF',
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
     marginBottom: 20,
-    textAlign: 'center',
+    color: Colors.primary,
   },
   subtitle: {
     fontSize: 16,
     color: '#757575',
     marginBottom: 30,
-    textAlign: 'center',
   },
   input: {
     height: 50,
@@ -84,7 +83,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   buttonText: {color: '#FFF', fontSize: 16, fontWeight: 'bold'},
-  link: {marginTop: 20, alignItems: 'center'},
+  link: {
+    position: 'absolute',
+    bottom: 40,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+  },
   linkText: {color: '#007BFF', fontWeight: 'bold'},
 });
 

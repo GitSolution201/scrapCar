@@ -6,8 +6,9 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from 'react-native';
+import Colors from '../../Helper/Colors';
 
-const Register = () => {
+const Register = ({navigation}: {navigation: any}) => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Register</Text>
@@ -49,7 +50,9 @@ const Register = () => {
         <Text style={styles.buttonText}>Register</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.link}>
+      <TouchableOpacity
+        onPress={() => navigation.navigate('Login')}
+        style={styles.link}>
         <Text>
           Already have an account? <Text style={styles.linkText}>Log In</Text>
         </Text>
@@ -66,17 +69,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
     marginBottom: 10,
-    color: '#333',
-    textAlign: 'center',
+    color: Colors.primary,
   },
   subtitle: {
     fontSize: 16,
     color: '#757575',
     marginBottom: 30,
-    textAlign: 'center',
   },
   input: {
     height: 50,
@@ -104,6 +105,10 @@ const styles = StyleSheet.create({
   link: {
     marginTop: 20,
     alignItems: 'center',
+    position: 'absolute',
+    bottom: 40,
+    left: 0,
+    right: 0,
   },
   linkText: {
     color: '#007BFF',
