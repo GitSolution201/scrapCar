@@ -48,7 +48,7 @@ const MapListings = () => {
 
       {/* Bottom Modal */}
       <Modal visible={!!selectedCar} animationType="slide" transparent>
-        <View style={styles.modalOverlay}>
+        <TouchableOpacity onPress={closeModal} style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             {/* Blue Header */}
             <View style={styles.header}>
@@ -84,10 +84,8 @@ const MapListings = () => {
                 </View>
               </View>
             </View>
-
-            {/* Close Button */}
           </View>
-        </View>
+        </TouchableOpacity>
       </Modal>
     </View>
   );
@@ -100,10 +98,11 @@ const styles = StyleSheet.create({
 
   // Modal Styles
   modalOverlay: {
+    // Removed background color completely
     flex: 1,
     justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0,0,0,0.4)',
   },
+
   modalContent: {
     backgroundColor: '#FFF',
     borderTopLeftRadius: 20,
@@ -111,7 +110,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     paddingBottom: 20,
   },
-
   // Header Section
   header: {
     backgroundColor: '#007BFF',

@@ -9,6 +9,7 @@ import Notifications from './Screens/Notifications/notifications';
 import MapListings from './Screens/MapListings/mapListings';
 import CarListings from './Screens/carListings/carListings';
 import CarDeatils from './Screens/CarDetails/carDeatils';
+import Dashboard from './Screens/Dashboard/dashboard';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -27,7 +28,7 @@ const MainTabs = () => (
   <Tab.Navigator screenOptions={{headerShown: false}}>
     <Tab.Screen name="CarListings" component={CarListings} />
     <Tab.Screen name="MapListings" component={MapListings} />
-    <Tab.Screen name="Notifications" component={Notifications} />
+    <Tab.Screen name="Dashboard" component={Dashboard} />
     <Tab.Screen name="Profile" component={Profile} />
   </Tab.Navigator>
 );

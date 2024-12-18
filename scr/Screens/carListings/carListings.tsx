@@ -67,18 +67,15 @@ const listingsData = [
     image: require('../../assets/car2.png'),
   },
 ];
-
 const Listings = ({navigation}: {navigation: any}) => {
   const [activeFilter, setActiveFilter] = useState('Scrap'); // State for active button
+  const [activeSort, setActiveSort] = useState(false); // State for sorting
 
   const renderItem = ({item}) => (
     <TouchableOpacity
       onPress={() => navigation.navigate('CarDeatils')}
       style={styles.listingCard}>
-      {/* Car Image Positioned */}
       <Image source={item.image} style={styles.carImage} />
-
-      {/* Card Details */}
       <View style={styles.detailsContainer}>
         <Text style={styles.carTitle}>{item.title}</Text>
         <Text style={styles.details}>
@@ -89,8 +86,6 @@ const Listings = ({navigation}: {navigation: any}) => {
         </Text>
         <Text style={styles.details}>Engine Size: {item.engineSize}</Text>
         <Text style={styles.details}>Transmission: {item.transmission}</Text>
-
-        {/* Footer */}
         <View style={styles.footer}>
           <Text style={styles.footerText}>{item.distance}</Text>
           <Text style={styles.footerText}>{item.views} Views</Text>
@@ -104,6 +99,7 @@ const Listings = ({navigation}: {navigation: any}) => {
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Listings</Text>
+        <Text>Subscribe to Contact Customers</Text>
       </View>
 
       {/* Filters */}
@@ -130,7 +126,22 @@ const Listings = ({navigation}: {navigation: any}) => {
 
       {/* Sorting */}
       <View style={styles.sortContainer}>
-        <Text style={styles.sortText}>Filter: Newest to oldest</Text>
+        <TouchableOpacity
+          style={[
+            {flexDirection: 'row'},
+            styles.sortButton,
+
+            activeSort === true && styles.sortButtonActive,
+          ]}
+          onPress={() => setActiveSort(!activeSort)}>
+          <Text
+            style={[
+              styles.sortText,
+              activeSort === false && styles.sortTextActive,
+            ]}>
+            Newest to oldest
+          </Text>
+        </TouchableOpacity>
       </View>
 
       {/* Listings */}
@@ -153,10 +164,13 @@ const styles = StyleSheet.create({
   },
   header: {
     marginBottom: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     marginTop: 40,
+    alignItems: 'center',
   },
   headerTitle: {
-    fontSize: 28, // Increased font size
+    fontSize: 26,
     fontWeight: 'bold',
     color: '#333',
   },
@@ -174,28 +188,33 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   filterButtonActive: {
-    flex: 1,
-    marginHorizontal: 5,
-    paddingVertical: 10,
     backgroundColor: '#007BFF',
-    borderRadius: 8,
-    alignItems: 'center',
   },
   filterText: {
     color: '#555',
-    fontSize: 16, // Increased font size
+    fontSize: 16,
   },
   filterTextActive: {
     color: '#FFF',
-    fontSize: 16, // Increased font size
   },
   sortContainer: {
     marginBottom: 20,
+    alignItems: 'flex-start',
+  },
+  sortButton: {
+    paddingHorizontal: 15,
+    backgroundColor: '#E0E0E0',
+    borderRadius: 8,
+    padding: 4,
+  },
+
+  sortButtonActive: {
+    backgroundColor: '#007BFF',
   },
   sortText: {
     fontSize: 14,
-    color: '#555',
   },
+  sortTextActive: {},
   list: {
     paddingBottom: 20,
     marginTop: 20,
@@ -204,37 +223,35 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
     borderRadius: 15,
     marginTop: 20,
-    marginBottom: 30, // Increased space between cards
-    paddingTop: 30, // Extra padding at the top for the image
+    marginBottom: 30,
+    paddingTop: 30,
     paddingHorizontal: 15,
     paddingBottom: 15,
-    overflow: 'visible', // Allow content to go outside the card
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowRadius: 4,
     shadowOffset: {width: 0, height: 2},
-    elevation: 3, // Android shadow
-    position: 'relative',
+    elevation: 3,
   },
   carImage: {
-    position: 'absolute', // Position image outside card
-    top: -80, // Move image upwards (adjust as needed)
-    right: -50, // Slightly align to the right
-    width: '90%', // Increased width
-    height: '90%', // Increased height
-    resizeMode: 'contain', // Ensure the aspect ratio is maintained
+    position: 'absolute',
+    top: -80,
+    right: -50,
+    width: '90%',
+    height: '90%',
+    resizeMode: 'contain',
   },
   detailsContainer: {
     padding: 10,
   },
   carTitle: {
-    fontSize: 18, // Increased font size
+    fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
     color: Colors.primary,
   },
   details: {
-    fontSize: 14, // Increased font size
+    fontSize: 14,
     color: '#555',
     marginBottom: 5,
   },

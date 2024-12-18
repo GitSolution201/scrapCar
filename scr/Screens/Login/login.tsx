@@ -5,8 +5,10 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  ImageBackground,
 } from 'react-native';
 import Colors from '../../Helper/Colors';
+
 const Login = ({navigation}: {navigation: any}) => {
   const handleLogin = () => {
     navigation.replace('MainTabs'); // Ensure MainTabs is part of the registered navigation
@@ -17,45 +19,57 @@ const Login = ({navigation}: {navigation: any}) => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Sign in to your Account</Text>
-      <Text style={styles.subtitle}>
-        Enter your email and password to log in
-      </Text>
-
-      <TextInput
-        style={styles.input}
-        placeholder="Email Address"
-        keyboardType="email-address"
-        autoCapitalize="none"
-        placeholderTextColor="#9E9E9E"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        secureTextEntry
-        placeholderTextColor="#9E9E9E"
-      />
-
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Log In</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.link} onPress={goToRegister}>
-        <Text>
-          Don't have an account? <Text style={styles.linkText}>Sign Up</Text>
+    <ImageBackground
+      source={require('../../assets/background.jpeg')} // Path to your background image
+      style={styles.background}
+      resizeMode="cover">
+      <View style={styles.container}>
+        <Text style={styles.title}>Sign in to your Account</Text>
+        <Text style={styles.subtitle}>
+          Enter your email and password to log in
         </Text>
-      </TouchableOpacity>
-    </View>
+
+        <TextInput
+          style={styles.input}
+          placeholder="Email Address"
+          keyboardType="email-address"
+          autoCapitalize="none"
+          placeholderTextColor="#9E9E9E"
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Password"
+          secureTextEntry
+          placeholderTextColor="#9E9E9E"
+        />
+
+        <TouchableOpacity style={styles.button} onPress={handleLogin}>
+          <Text style={styles.buttonText}>Log In</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.link} onPress={goToRegister}>
+          <Text>
+            Don't have an account? <Text style={styles.linkText}>Sign Up</Text>
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  background: {
     flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  container: {
+    width: '100%',
     padding: 20,
-    paddingTop: '50%',
-    backgroundColor: '#FFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.9)', // Slight transparency over background
+    borderRadius: 10,
+    marginHorizontal: 20,
+    elevation: 5,
   },
   title: {
     fontSize: 28,
@@ -75,6 +89,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 10,
     marginBottom: 15,
+    backgroundColor: '#FFF',
   },
   button: {
     backgroundColor: '#007BFF',
@@ -82,15 +97,19 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
   },
-  buttonText: {color: '#FFF', fontSize: 16, fontWeight: 'bold'},
+  buttonText: {
+    color: '#FFF',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
   link: {
-    position: 'absolute',
-    bottom: 40,
-    left: 0,
-    right: 0,
+    marginTop: 15,
     alignItems: 'center',
   },
-  linkText: {color: '#007BFF', fontWeight: 'bold'},
+  linkText: {
+    color: '#007BFF',
+    fontWeight: 'bold',
+  },
 });
 
 export default Login;

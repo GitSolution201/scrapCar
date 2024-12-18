@@ -8,12 +8,14 @@ import {
   StyleSheet,
 } from 'react-native';
 
-const Profile = () => {
+const Profile = ({navigation}: {navigation: any}) => {
   return (
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.headerTitleStyle}>
-        <TouchableOpacity style={styles.backButton}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.backButton}>
           <Text style={styles.backText}>←</Text>
         </TouchableOpacity>
 
@@ -91,6 +93,7 @@ const styles = StyleSheet.create({
   headerTitleStyle: {
     flexDirection: 'row',
     marginBottom: 20,
+    marginTop: 50,
   },
 
   header: {
