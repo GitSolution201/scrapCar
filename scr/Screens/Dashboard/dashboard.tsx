@@ -1,6 +1,6 @@
 import React from 'react';
-import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
-import {Ionicons} from '@expo/vector-icons'; // For icons
+import {View, Text, TouchableOpacity, StyleSheet, Image} from 'react-native';
+// import {Ionicons} from '@expo/vector-icons'; // For icons
 
 const Dashboard = ({navigation}: {navigation: any}) => {
   return (
@@ -9,7 +9,11 @@ const Dashboard = ({navigation}: {navigation: any}) => {
 
       {/* Dashboard Items */}
       <TouchableOpacity style={styles.card}>
-        <Ionicons name="bar-chart" size={24} color="#007BFF" />
+        <Image
+          source={require('../../assets/pie-chart.png')}
+          style={styles.icon}
+        />
+
         <View style={styles.cardContent}>
           <Text style={styles.cardTitle}>Analytics</Text>
           <Text style={styles.cardSubtitle}>
@@ -19,7 +23,11 @@ const Dashboard = ({navigation}: {navigation: any}) => {
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.card}>
-        <Ionicons name="chatbubble-ellipses" size={24} color="#007BFF" />
+        <Image
+          source={require('../../assets/messenger.png')}
+          style={styles.icon}
+        />
+
         <View style={styles.cardContent}>
           <Text style={styles.cardTitle}>Messages</Text>
           <Text style={styles.cardSubtitle}>
@@ -29,7 +37,8 @@ const Dashboard = ({navigation}: {navigation: any}) => {
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.card}>
-        <Ionicons name="notifications" size={24} color="#007BFF" />
+        <Image source={require('../../assets/bell.png')} style={styles.icon} />
+
         <View style={styles.cardContent}>
           <Text style={styles.cardTitle}>User Announcements</Text>
           <Text style={styles.cardSubtitle}>Latest News from app</Text>
@@ -51,6 +60,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 30,
     color: '#333',
+  },
+  icon: {
+    width: 20,
+    height: 20,
   },
   card: {
     flexDirection: 'row',

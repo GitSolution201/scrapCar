@@ -87,8 +87,23 @@ const Listings = ({navigation}: {navigation: any}) => {
         <Text style={styles.details}>Engine Size: {item.engineSize}</Text>
         <Text style={styles.details}>Transmission: {item.transmission}</Text>
         <View style={styles.footer}>
-          <Text style={styles.footerText}>{item.distance}</Text>
-          <Text style={styles.footerText}>{item.views} Views</Text>
+          <View style={{flexDirection: 'row'}}>
+            <Image
+              source={require('../../assets/compass.png')}
+              style={styles.icon}
+            />
+
+            <Text style={styles.footerText}>{item.distance}</Text>
+          </View>
+
+          <View style={{flexDirection: 'row'}}>
+            <Image
+              source={require('../../assets/user2.png')}
+              style={styles.icon}
+            />
+
+            <Text style={styles.footerText}>{item.views} Views</Text>
+          </View>
         </View>
       </View>
     </TouchableOpacity>
@@ -99,7 +114,7 @@ const Listings = ({navigation}: {navigation: any}) => {
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Listings</Text>
-        <Text>Subscribe to Contact Customers</Text>
+        <Text style={{paddingTop: 10}}>Subscribe to Contact Customers</Text>
       </View>
 
       {/* Filters */}
@@ -161,6 +176,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 20,
     backgroundColor: '#F5F5F5',
+  },
+  icon: {
+    width: 20,
+    height: 20,
+    marginRight: 10,
   },
   header: {
     marginBottom: 20,

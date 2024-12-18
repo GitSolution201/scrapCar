@@ -1,4 +1,5 @@
 import React from 'react';
+import {Image} from 'react-native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {NavigationContainer} from '@react-navigation/native';
@@ -14,6 +15,14 @@ import Dashboard from './Screens/Dashboard/dashboard';
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
+/* Load Images from Assets */
+const icons = {
+  CarListings: require('./assets/home.png'),
+  MapListings: require('./assets/placeholder.png'),
+  Dashboard: require('./assets/dashboard.png'),
+  Profile: require('./assets/user.png'),
+};
+
 /* Auth Stack */
 const AuthStack = () => (
   <Stack.Navigator screenOptions={{headerShown: false}}>
@@ -25,7 +34,27 @@ const AuthStack = () => (
 
 /* Main Tabs */
 const MainTabs = () => (
-  <Tab.Navigator screenOptions={{headerShown: false}}>
+  <Tab.Navigator
+    screenOptions={({route}) => ({
+      headerShown: false,
+      tabBarIcon: ({focused}) => {
+        // Get the respective image based on route name
+        const icon = icons[route.name];
+        return (
+          <Image
+            source={icon}
+            style={{
+              width: 24,
+              height: 24,
+              tintColor: focused ? '#007BFF' : '#888',
+            }}
+            resizeMode="contain"
+          />
+        );
+      },
+      tabBarActiveTintColor: '#007BFF',
+      tabBarInactiveTintColor: '#888',
+    })}>
     <Tab.Screen name="CarListings" component={CarListings} />
     <Tab.Screen name="MapListings" component={MapListings} />
     <Tab.Screen name="Dashboard" component={Dashboard} />
@@ -37,7 +66,7 @@ const MainTabs = () => (
 const MainStack = () => (
   <Stack.Navigator screenOptions={{headerShown: false}}>
     <Stack.Screen name="MainTabs" component={MainTabs} />
-    <Tab.Screen name="CarDeatils" component={CarDeatils} />
+    <Stack.Screen name="CarDeatils" component={CarDeatils} />
   </Stack.Navigator>
 );
 

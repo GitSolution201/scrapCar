@@ -71,12 +71,18 @@ const MapListings = () => {
 
               <View style={styles.featuresContainer}>
                 <View style={styles.featureCard}>
-                  <Text style={styles.featureIcon}>⛽</Text>
+                  <Image
+                    source={require('../../assets/diesel.png')}
+                    style={styles.icon}
+                  />
                   <Text style={styles.featureTitle}>Diesel</Text>
                   <Text style={styles.featureSubText}>{selectedCar?.fuel}</Text>
                 </View>
                 <View style={styles.featureCard}>
-                  <Text style={styles.featureIcon}>⚡</Text>
+                  <Image
+                    source={require('../../assets/speedometer1.png')}
+                    style={styles.icon}
+                  />
                   <Text style={styles.featureTitle}>Acceleration</Text>
                   <Text style={styles.featureSubText}>
                     {selectedCar?.acceleration}
@@ -102,7 +108,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-end',
   },
-
+  icon: {
+    width: 40,
+    height: 40,
+    marginRight: 10,
+  },
   modalContent: {
     backgroundColor: '#FFF',
     borderTopLeftRadius: 20,
