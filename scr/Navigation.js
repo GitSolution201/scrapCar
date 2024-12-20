@@ -11,6 +11,7 @@ import MapListings from './Screens/MapListings/mapListings';
 import CarListings from './Screens/carListings/carListings';
 import CarDeatils from './Screens/CarDetails/carDeatils';
 import Dashboard from './Screens/Dashboard/dashboard';
+import SubscriptionScreen from './Screens/Subscriptions/subscriptions';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -67,6 +68,7 @@ const MainStack = () => (
   <Stack.Navigator screenOptions={{headerShown: false}}>
     <Stack.Screen name="MainTabs" component={MainTabs} />
     <Stack.Screen name="CarDeatils" component={CarDeatils} />
+    <Stack.Screen name="Subscriptions" component={SubscriptionScreen} />
   </Stack.Navigator>
 );
 

@@ -114,7 +114,9 @@ const Listings = ({navigation}: {navigation: any}) => {
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Listings</Text>
-        <Text style={{paddingTop: 10}}>Subscribe to Contact Customers</Text>
+        <TouchableOpacity onPress={() => navigation.navigate('Subscriptions')}>
+          <Text style={{paddingTop: 10}}>Subscribe to Contact Customers</Text>
+        </TouchableOpacity>
       </View>
 
       {/* Filters */}
