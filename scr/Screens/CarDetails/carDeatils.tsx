@@ -7,10 +7,11 @@ import {
   StyleSheet,
   ViewBase,
 } from 'react-native';
+import {ScrollView} from 'react-native-gesture-handler';
 
 const Details = ({navigation}: {navigation: any}) => {
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity
@@ -19,6 +20,7 @@ const Details = ({navigation}: {navigation: any}) => {
           <Text style={styles.backText}>←</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Details</Text>
+        <View></View>
       </View>
 
       {/* Car Image */}
@@ -96,7 +98,7 @@ const Details = ({navigation}: {navigation: any}) => {
           </View>
         </View>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
@@ -108,7 +110,7 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: 'row',
-    alignItems: 'center',
+    justifyContent: 'space-between',
     marginTop: 40,
   },
   backButton: {
@@ -165,6 +167,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
     padding: 20,
     borderRadius: 8,
+    marginBottom: 70,
   },
   contactTitle: {
     fontSize: 18,
