@@ -5,6 +5,7 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  Image,
   ImageBackground,
 } from 'react-native';
 import Colors from '../../Helper/Colors';
@@ -16,6 +17,11 @@ const Register = ({navigation}: {navigation: any}) => {
       style={styles.background}
       resizeMode="cover">
       <View style={styles.container}>
+        <Image
+          source={require('../../assets/logo.png')} // Path to your logo
+          style={styles.logo}
+        />
+
         <Text style={styles.title}>Register</Text>
         <Text style={styles.subtitle}>Create an account to continue!</Text>
 
@@ -73,6 +79,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  logo: {
+    width: 40,
+    height: 40,
+    alignSelf: 'center',
+    marginBottom: 20,
+  },
+
   container: {
     width: '100%',
     padding: 20,

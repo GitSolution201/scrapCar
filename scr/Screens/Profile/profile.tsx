@@ -7,10 +7,11 @@ import {
   Image,
   StyleSheet,
 } from 'react-native';
+import {ScrollView} from 'react-native-gesture-handler';
 
 const Profile = ({navigation}: {navigation: any}) => {
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       {/* Header */}
       <View style={styles.headerTitleStyle}>
         <TouchableOpacity
@@ -80,7 +81,7 @@ const Profile = ({navigation}: {navigation: any}) => {
       <TouchableOpacity style={styles.saveButton}>
         <Text style={styles.saveButtonText}>Save</Text>
       </TouchableOpacity>
-    </View>
+    </ScrollView>
   );
 };
 

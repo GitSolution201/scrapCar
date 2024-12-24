@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   ImageBackground,
+  Image,
 } from 'react-native';
 import Colors from '../../Helper/Colors';
 
@@ -24,6 +25,12 @@ const Login = ({navigation}: {navigation: any}) => {
       style={styles.background}
       resizeMode="cover">
       <View style={styles.container}>
+        {/* Logo */}
+        <Image
+          source={require('../../assets/logo.png')} // Path to your logo
+          style={styles.logo}
+        />
+
         <Text style={styles.title}>Sign in to your Account</Text>
         <Text style={styles.subtitle}>
           Enter your email and password to log in
@@ -71,16 +78,24 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     elevation: 5,
   },
+  logo: {
+    width: 40,
+    height: 40,
+    alignSelf: 'center',
+    marginBottom: 20,
+  },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
     marginBottom: 20,
     color: Colors.primary,
+    textAlign: 'center',
   },
   subtitle: {
     fontSize: 16,
     color: '#757575',
     marginBottom: 30,
+    textAlign: 'center',
   },
   input: {
     height: 50,

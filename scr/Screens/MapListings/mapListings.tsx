@@ -154,12 +154,11 @@ const styles = StyleSheet.create({
   },
   featureCard: {
     borderColor: 'grey',
-    borderWidth: 0.2,
-    borderRadius: 15,
+    borderWidth: 0.5,
+    borderRadius: 10,
+
     padding: 10,
     width: '45%',
-    elevation: 3,
-    shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowOffset: {width: 0, height: 2},
     shadowRadius: 4,
