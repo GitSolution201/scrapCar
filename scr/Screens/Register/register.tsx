@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -6,13 +6,41 @@ import {
   TouchableOpacity,
   StyleSheet,
   ImageBackground,
+  Alert,
 } from 'react-native';
+import {useDispatch} from 'react-redux'; // Import to dispatch actions
+import {registerRequest} from '../../redux/slices/authSlice'; // Update path if needed
 import Colors from '../../Helper/Colors';
 
 const Register = ({navigation}: {navigation: any}) => {
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [password, setPassword] = useState('');
+  const dispatch = useDispatch();
+
+  const handleRegister = () => {
+    // if (!firstName || !lastName || !email || !phone || !password) {
+    //   Alert.alert('Error', 'Please fill all the fields.');
+    //   return;
+    // }
+
+    const userData = {
+      firstName,
+      lastName,
+      email,
+      phone,
+      password,
+    };
+
+    // Dispatch the register action
+    dispatch(registerRequest(userData));
+  };
+
   return (
     <ImageBackground
-      source={require('../../assets/background.jpeg')} // Replace with your actual background image path
+      source={require('../../assets/background.jpeg')}
       style={styles.background}
       resizeMode="cover">
       <View style={styles.container}>
@@ -22,18 +50,24 @@ const Register = ({navigation}: {navigation: any}) => {
         <TextInput
           style={styles.input}
           placeholder="First Name"
+          value={firstName}
+          onChangeText={setFirstName}
           autoCapitalize="words"
           placeholderTextColor="#9E9E9E"
         />
         <TextInput
           style={styles.input}
           placeholder="Last Name"
+          value={lastName}
+          onChangeText={setLastName}
           autoCapitalize="words"
           placeholderTextColor="#9E9E9E"
         />
         <TextInput
           style={styles.input}
           placeholder="Email Address"
+          value={email}
+          onChangeText={setEmail}
           keyboardType="email-address"
           autoCapitalize="none"
           placeholderTextColor="#9E9E9E"
@@ -41,17 +75,21 @@ const Register = ({navigation}: {navigation: any}) => {
         <TextInput
           style={styles.input}
           placeholder="Phone Number"
+          value={phone}
+          onChangeText={setPhone}
           keyboardType="phone-pad"
           placeholderTextColor="#9E9E9E"
         />
         <TextInput
           style={styles.input}
           placeholder="Password"
+          value={password}
+          onChangeText={setPassword}
           secureTextEntry
           placeholderTextColor="#9E9E9E"
         />
 
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity style={styles.button} onPress={handleRegister}>
           <Text style={styles.buttonText}>Register</Text>
         </TouchableOpacity>
 
@@ -76,7 +114,7 @@ const styles = StyleSheet.create({
   container: {
     width: '100%',
     padding: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)', // Slight transparency over background
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
     borderRadius: 10,
     marginHorizontal: 20,
     elevation: 5,

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -7,11 +7,18 @@ import {
   StyleSheet,
   ImageBackground,
 } from 'react-native';
-import Colors from '../../Helper/Colors';
+import {useDispatch} from 'react-redux';
+import {loginRequest} from '../../redux/slices/authSlice'; // Import your action
 
 const Login = ({navigation}: {navigation: any}) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const dispatch = useDispatch();
+
   const handleLogin = () => {
-    navigation.replace('MainTabs'); // Ensure MainTabs is part of the registered navigation
+    // Dispatch the loginRequest action with email and password
+    dispatch(loginRequest({email, password}));
+    navigation.replace('MainTabs');
   };
 
   const goToRegister = () => {
@@ -32,6 +39,8 @@ const Login = ({navigation}: {navigation: any}) => {
         <TextInput
           style={styles.input}
           placeholder="Email Address"
+          value={email}
+          onChangeText={setEmail}
           keyboardType="email-address"
           autoCapitalize="none"
           placeholderTextColor="#9E9E9E"
@@ -39,6 +48,8 @@ const Login = ({navigation}: {navigation: any}) => {
         <TextInput
           style={styles.input}
           placeholder="Password"
+          value={password}
+          onChangeText={setPassword}
           secureTextEntry
           placeholderTextColor="#9E9E9E"
         />
@@ -75,7 +86,7 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: 'bold',
     marginBottom: 20,
-    color: Colors.primary,
+    color: '#007BFF',
   },
   subtitle: {
     fontSize: 16,
