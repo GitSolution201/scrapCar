@@ -14,7 +14,6 @@ export const login = async credentials => {
   try {
     // const response = await api.post('/login', credentials);
     // return response.data;
-    console.log('Login ---------------------');
   } catch (error) {
     throw error.response?.data || 'Login failed';
   }
@@ -25,7 +24,6 @@ export const register = async userData => {
   try {
     // const response = await api.post('/register', userData);
     // return response.data;
-    console.log('Register ---------------------');
   } catch (error) {
     throw error.response?.data || 'Register failed';
   }
