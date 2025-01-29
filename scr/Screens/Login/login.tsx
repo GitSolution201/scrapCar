@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -6,28 +6,58 @@ import {
   TouchableOpacity,
   StyleSheet,
   ImageBackground,
+  Alert,
 } from 'react-native';
-import {useDispatch} from 'react-redux';
-import {loginRequest} from '../../redux/slices/authSlice'; // Import your action
+import {useDispatch, useSelector} from 'react-redux';
+import {loginRequest} from '../../redux/slices/authSlice';
 
 const Login = ({navigation}: {navigation: any}) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  
   const dispatch = useDispatch();
+  const {loading, loginResponse} = useSelector((state: any) => state.auth);
 
-  const handleLogin = () => {
-    // Dispatch the loginRequest action with email and password
-    dispatch(loginRequest({email, password}));
-    navigation.replace('MainTabs');
+  useEffect(() => {
+    if (loginResponse) {
+      if (loginResponse.success) {
+        navigation.replace('MainTabs');
+      } else if (loginResponse.error) {
+        Alert.alert('Error', loginResponse.error);
+      }
+    }
+  }, [loginResponse]);
+
+  const validateForm = () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!email || !password) {
+      Alert.alert('Error', 'Please fill all the fields.');
+      return false;
+    } else if (!emailRegex.test(email)) {
+      Alert.alert('Error', 'Please enter a valid email address.');
+      return false;
+    } else if (password.length < 6) {
+      Alert.alert('Error', 'Password must be at least 6 characters long.');
+      return false;
+    } else {
+      return true;
+    }
   };
 
-  const goToRegister = () => {
-    navigation.navigate('Register');
+  const handleLogin = () => {
+    if (!validateForm()) return;
+
+    const userData = {
+      email,
+      password,
+    };
+    dispatch(loginRequest(userData));
   };
 
   return (
     <ImageBackground
-      source={require('../../assets/background.jpeg')} // Path to your background image
+      source={require('../../assets/background.jpeg')}
       style={styles.background}
       resizeMode="cover">
       <View style={styles.container}>
@@ -54,13 +84,20 @@ const Login = ({navigation}: {navigation: any}) => {
           placeholderTextColor="#9E9E9E"
         />
 
-        <TouchableOpacity style={styles.button} onPress={handleLogin}>
-          <Text style={styles.buttonText}>Log In</Text>
+        <TouchableOpacity 
+          style={[styles.button, loading && styles.disabledButton]} 
+          onPress={handleLogin}
+          disabled={loading}>
+          <Text style={styles.buttonText}>
+            {loading ? 'Please wait...' : 'Log In'}
+          </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.link} onPress={goToRegister}>
-          <Text>
-            Don't have an account? <Text style={styles.linkText}>Sign Up</Text>
+        <TouchableOpacity 
+          style={styles.link} 
+          onPress={() => navigation.navigate('Register')}>
+          <Text style={styles.linkText}>
+            Don't have an account? <Text style={styles.linkBold}>Sign Up</Text>
           </Text>
         </TouchableOpacity>
       </View>
@@ -119,6 +156,12 @@ const styles = StyleSheet.create({
   },
   linkText: {
     color: '#007BFF',
+    fontWeight: 'bold',
+  },
+  disabledButton: {
+    backgroundColor: '#cccccc',
+  },
+  linkBold: {
     fontWeight: 'bold',
   },
 });

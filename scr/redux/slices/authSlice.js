@@ -4,6 +4,8 @@ const initialState = {
   loading: false,
   user: null,
   error: null,
+  registerResponse: null,
+  loginResponse: null,
 };
 
 const authSlice = createSlice({
@@ -12,27 +14,41 @@ const authSlice = createSlice({
   reducers: {
     loginRequest: state => {
       state.loading = true;
-      state.error = null;
+      state.loginResponse = null;
     },
     loginSuccess: (state, action) => {
       state.loading = false;
-      state.user = action.payload;
+      state.loginResponse = {
+        success: true,
+        message: action.payload.message,
+        user: action.payload.user
+      };
     },
     loginFailure: (state, action) => {
       state.loading = false;
-      state.error = action.payload;
+      state.loginResponse = {
+        success: false,
+        error: action.payload
+      };
     },
     registerRequest: state => {
       state.loading = true;
-      state.error = null;
+      state.registerResponse = null;
     },
     registerSuccess: (state, action) => {
       state.loading = false;
-      state.user = action.payload;
+      state.registerResponse = {
+        success: true,
+        message: action.payload.message,
+        user: action.payload.user
+      };
     },
     registerFailure: (state, action) => {
       state.loading = false;
-      state.error = action.payload;
+      state.registerResponse = {
+        success: false,
+        error: action.payload
+      };
     },
   },
 });

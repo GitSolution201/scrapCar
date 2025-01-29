@@ -22,10 +22,10 @@ function* handleLogin(action) {
 // Worker saga for register
 function* handleRegister(action) {
   try {
-    const response = yield call(register, action.payload); // Call the register API
-    yield put(registerSuccess(response)); // Dispatch success action with API response
+    const response = yield call(register, action.payload);
+    yield put(registerSuccess(response));
   } catch (error) {
-    yield put(registerFailure(error.message || 'Register failed')); // Dispatch failure action
+    yield put(registerFailure(error.message));
   }
 }
 

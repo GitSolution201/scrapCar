@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -8,8 +8,8 @@ import {
   ImageBackground,
   Alert,
 } from 'react-native';
-import {useDispatch} from 'react-redux'; // Import to dispatch actions
-import {registerRequest} from '../../redux/slices/authSlice'; // Update path if needed
+import {useDispatch, useSelector} from 'react-redux';
+import {registerRequest} from '../../redux/slices/authSlice';
 import Colors from '../../Helper/Colors';
 
 const Register = ({navigation}: {navigation: any}) => {
@@ -18,23 +18,52 @@ const Register = ({navigation}: {navigation: any}) => {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
+
   const dispatch = useDispatch();
+  const {loading, registerResponse} = useSelector((state: any) => state.auth);
+
+  useEffect(() => {
+    if (registerResponse) {
+      if (registerResponse.success) {
+        Alert.alert('Success', registerResponse.message, [
+          {
+            text: 'OK',
+            onPress: () => navigation.navigate('Login')
+          }
+        ]);
+      } else if (registerResponse.error) {
+        Alert.alert('Error', registerResponse.error);
+      }
+    }
+  }, [registerResponse]);
+
+  const validateForm = () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!firstName || !lastName || !email || !phone || !password) {
+      Alert.alert('Error', 'Please fill all the fields.');
+      return false;
+    } else if (password.length < 6) {
+      Alert.alert('Error', 'Password must be at least 6 characters long.');
+      return false;
+    } else if (!emailRegex.test(email)) {
+      Alert.alert('Error', 'Please enter a valid email address.');
+      return false;
+    }else {
+      return true;
+    }
+  };
 
   const handleRegister = () => {
-    // if (!firstName || !lastName || !email || !phone || !password) {
-    //   Alert.alert('Error', 'Please fill all the fields.');
-    //   return;
-    // }
+    if (!validateForm()) return;
 
     const userData = {
-      firstName,
-      lastName,
+      first_name: firstName,
+      last_name: lastName,
       email,
       phone,
       password,
     };
-
-    // Dispatch the register action
     dispatch(registerRequest(userData));
   };
 
@@ -89,15 +118,20 @@ const Register = ({navigation}: {navigation: any}) => {
           placeholderTextColor="#9E9E9E"
         />
 
-        <TouchableOpacity style={styles.button} onPress={handleRegister}>
-          <Text style={styles.buttonText}>Register</Text>
+        <TouchableOpacity 
+          style={[styles.button, loading && styles.disabledButton]} 
+          onPress={handleRegister}
+          disabled={loading}>
+          <Text style={styles.buttonText}>
+            {loading ? 'Please wait...' : 'Register'}
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           onPress={() => navigation.navigate('Login')}
           style={styles.link}>
-          <Text>
-            Already have an account? <Text style={styles.linkText}>Log In</Text>
+          <Text style={styles.linkText}>
+            Already have an account? <Text style={styles.linkBold}>Log In</Text>
           </Text>
         </TouchableOpacity>
       </View>
@@ -159,7 +193,12 @@ const styles = StyleSheet.create({
   },
   linkText: {
     color: '#007BFF',
+  },
+  linkBold: {
     fontWeight: 'bold',
+  },
+  disabledButton: {
+    backgroundColor: '#cccccc',
   },
 });
 
