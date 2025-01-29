@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -6,8 +6,11 @@ import {
   FlatList,
   StyleSheet,
   Image,
+  ActivityIndicator,
 } from 'react-native';
 import Colors from '../../Helper/Colors';
+import {useDispatch, useSelector} from 'react-redux';
+import {getUserRequest} from '../../redux/slices/carListingsSlice';
 
 const listingsData = [
   {
@@ -68,9 +71,20 @@ const listingsData = [
   },
 ];
 const Listings = ({navigation}: {navigation: any}) => {
+  const dispatch = useDispatch();
+  const { loginResponse} = useSelector((state: any) => state.auth);
+  const {loading,error,data} = useSelector((state: any) => state.carListings);
   const [activeFilter, setActiveFilter] = useState('Scrap'); // State for active button
   const [activeSort, setActiveSort] = useState(false); // State for sorting
-
+  useEffect(() => {
+    getUser();
+  }, [loginResponse]);
+  const getUser = () => {
+    if (loginResponse?.token) {
+      console.log('condition')
+      dispatch(getUserRequest(loginResponse?.token));
+    }
+  };
   const renderItem = ({item}) => (
     <TouchableOpacity
       onPress={() => navigation.navigate('CarDeatils')}
@@ -162,12 +176,19 @@ const Listings = ({navigation}: {navigation: any}) => {
       </View>
 
       {/* Listings */}
-      <FlatList
-        data={listingsData}
-        renderItem={renderItem}
-        keyExtractor={item => item.id}
-        contentContainerStyle={styles.list}
-      />
+      {loading ? (
+        <ActivityIndicator size="large" color="#0000ff" style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }} />
+      ) : error ? (
+        <Text style={{ color: 'red', textAlign: 'center' }}>{error}</Text>
+      ) : (
+        <FlatList
+          data={listingsData} // Use data fetched from the API
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.list}
+        />
+      )}
     </View>
   );
 };

@@ -12,6 +12,7 @@ import CarListings from './Screens/carListings/carListings';
 import CarDeatils from './Screens/CarDetails/carDeatils';
 import Dashboard from './Screens/Dashboard/dashboard';
 import SubscriptionScreen from './Screens/Subscriptions/subscriptions';
+import { useSelector } from 'react-redux';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -74,7 +75,9 @@ const MainStack = () => (
 
 /* App Navigation */
 const AppNavigation = () => {
-  const isAuthenticated = false; // Replace with your actual authentication logic
+  const { loginResponse } = useSelector((state: any) => state.auth);
+  const isAuthenticated = loginResponse?.message=='Login successful'; 
+  // const isAuthenticated = false; // Replace with your actual authentication logic
 
   return (
     <NavigationContainer>

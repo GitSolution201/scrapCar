@@ -1,58 +1,91 @@
-import React, {useState, useEffect} from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  ImageBackground,
-  Alert,
-} from 'react-native';
-import {useDispatch, useSelector} from 'react-redux';
-import {loginRequest} from '../../redux/slices/authSlice';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import { loginRequest } from '../../redux/slices/authSlice';
+import Icon from 'react-native-vector-icons/FontAwesome'; // Import FontAwesome icons
+import Colors from '../../Helper/Colors';
 
-const Login = ({navigation}: {navigation: any}) => {
+const Login = ({ navigation }: { navigation: any }) => {
+  const dispatch = useDispatch();
+  const { loading, loginResponse } = useSelector((state: any) => state.auth);
+
+  // Form state
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  
-  const dispatch = useDispatch();
-  const {loading, loginResponse} = useSelector((state: any) => state.auth);
 
+  // Error state to store validation messages
+  const [formErrors, setFormErrors] = useState<any>({
+    email: '',
+    password: ''
+  });
+
+  // State for API error message
+  const [apiError, setApiError] = useState('');
+
+  // State to toggle password visibility
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+
+  // Handle form validation
+  const validateForm = () => {
+    let errors: any = {};
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!email) {
+      errors.email = 'Email is required';
+    } else if (!emailRegex.test(email)) {
+      errors.email = 'Please enter a valid email address';
+    }
+
+    if (!password) {
+      errors.password = 'Password is required';
+    } else if (password.length < 6) {
+      errors.password = 'Password must be at least 6 characters';
+    }
+
+    // Update formErrors state
+    setFormErrors(errors);
+
+    // If there are errors, return false
+    return Object.keys(errors).length === 0;
+  };
+
+  // Handle text change and validate
+  const handleEmailChange = (text: string) => {
+    setEmail(text);
+    // Clear the email error message whenever the text changes
+    setFormErrors((prevErrors: any) => ({ ...prevErrors, email: '' }));
+  };
+
+  const handlePasswordChange = (text: string) => {
+    setPassword(text);
+    // Clear the password error message whenever the text changes
+    setFormErrors((prevErrors: any) => ({ ...prevErrors, password: '' }));
+  };
+
+  // Handle login action
+  const handleLogin = () => {
+    const isValid = validateForm();
+    if (isValid) {
+      const userData = { email, password };
+      dispatch(loginRequest(userData));
+    }
+  };
+
+  // Handle login response and error
   useEffect(() => {
     if (loginResponse) {
       if (loginResponse.success) {
         navigation.replace('MainTabs');
       } else if (loginResponse.error) {
-        Alert.alert('Error', loginResponse.error);
+        // Set API error message
+        setApiError(loginResponse.error); // Store error in the state
       }
     }
   }, [loginResponse]);
 
-  const validateForm = () => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    if (!email || !password) {
-      Alert.alert('Error', 'Please fill all the fields.');
-      return false;
-    } else if (!emailRegex.test(email)) {
-      Alert.alert('Error', 'Please enter a valid email address.');
-      return false;
-    } else if (password.length < 6) {
-      Alert.alert('Error', 'Password must be at least 6 characters long.');
-      return false;
-    } else {
-      return true;
-    }
-  };
-
-  const handleLogin = () => {
-    if (!validateForm()) return;
-
-    const userData = {
-      email,
-      password,
-    };
-    dispatch(loginRequest(userData));
+  // Toggle password visibility
+  const togglePasswordVisibility = () => {
+    setIsPasswordVisible(!isPasswordVisible);
   };
 
   return (
@@ -65,27 +98,41 @@ const Login = ({navigation}: {navigation: any}) => {
         <Text style={styles.subtitle}>
           Enter your email and password to log in
         </Text>
-
+<Text style={{color:'#00000082',paddingBottom:8}}>Email Address</Text>
         <TextInput
           style={styles.input}
-          placeholder="Email Address"
+          placeholder="Enter your email address"
           value={email}
-          onChangeText={setEmail}
+          onChangeText={handleEmailChange} // Handle email change
           keyboardType="email-address"
           autoCapitalize="none"
           placeholderTextColor="#9E9E9E"
         />
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-          placeholderTextColor="#9E9E9E"
-        />
+        {formErrors.email && <Text style={styles.errorText}>{formErrors.email}</Text>}
 
-        <TouchableOpacity 
-          style={[styles.button, loading && styles.disabledButton]} 
+        <View style={styles.passwordContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter your password addressPassword"
+            value={password}
+            onChangeText={handlePasswordChange} // Handle password change
+            secureTextEntry={!isPasswordVisible} // Toggle password visibility
+            placeholderTextColor="#9E9E9E"
+          />
+          <TouchableOpacity onPress={togglePasswordVisibility} style={styles.eyeIcon}>
+            <Icon
+              name={isPasswordVisible ? 'eye' : 'eye-slash'} // Toggle icon based on visibility
+              size={20}
+              color={isPasswordVisible ?Colors.darkGray:'#ACB5BB'}
+            />
+          </TouchableOpacity>
+        </View>
+        {formErrors.password && <Text style={styles.errorText}>{formErrors.password}</Text>}
+
+        {apiError && <Text style={styles.apiErrorText}>{apiError}</Text>} 
+
+        <TouchableOpacity
+          style={[styles.button, loading && styles.disabledButton]}
           onPress={handleLogin}
           disabled={loading}>
           <Text style={styles.buttonText}>
@@ -93,8 +140,8 @@ const Login = ({navigation}: {navigation: any}) => {
           </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity 
-          style={styles.link} 
+        <TouchableOpacity
+          style={styles.link}
           onPress={() => navigation.navigate('Register')}>
           <Text style={styles.linkText}>
             Don't have an account? <Text style={styles.linkBold}>Sign Up</Text>
@@ -120,7 +167,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   title: {
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: 'bold',
     marginBottom: 20,
     color: '#007BFF',
@@ -138,6 +185,14 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 15,
     backgroundColor: '#FFF',
+  },
+  passwordContainer: {
+    position: 'relative',
+  },
+  eyeIcon: {
+    position: 'absolute',
+    right: 10,
+    top: 12,
   },
   button: {
     backgroundColor: '#007BFF',
@@ -163,6 +218,16 @@ const styles = StyleSheet.create({
   },
   linkBold: {
     fontWeight: 'bold',
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 12,
+    marginBottom: 10,
+  },
+  apiErrorText: {
+    color: 'red',
+    fontSize: 14,
+    marginBottom: 15,
   },
 });
 
