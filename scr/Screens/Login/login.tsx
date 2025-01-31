@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { loginRequest } from '../../redux/slices/authSlice';
@@ -98,7 +98,7 @@ const Login = ({ navigation }: { navigation: any }) => {
         <Text style={styles.subtitle}>
           Enter your email and password to log in
         </Text>
-<Text style={{color:'#00000082',paddingBottom:8}}>Email Address</Text>
+<Text style={styles.hidingColor}>Email Address</Text>
         <TextInput
           style={styles.input}
           placeholder="Enter your email address"
@@ -109,11 +109,12 @@ const Login = ({ navigation }: { navigation: any }) => {
           placeholderTextColor="#9E9E9E"
         />
         {formErrors.email && <Text style={styles.errorText}>{formErrors.email}</Text>}
+        <Text style={styles.hidingColor}>Password</Text>
 
         <View style={styles.passwordContainer}>
           <TextInput
             style={styles.input}
-            placeholder="Enter your password addressPassword"
+            placeholder="Enter your password"
             value={password}
             onChangeText={handlePasswordChange} // Handle password change
             secureTextEntry={!isPasswordVisible} // Toggle password visibility
@@ -162,9 +163,7 @@ const styles = StyleSheet.create({
     width: '100%',
     padding: 20,
     backgroundColor: 'rgba(255, 255, 255, 0.9)', // Slight transparency over background
-    borderRadius: 10,
     marginHorizontal: 20,
-    elevation: 5,
   },
   title: {
     fontSize: 32,
@@ -172,6 +171,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     color: '#007BFF',
   },
+  hidingColor:{color:'#000000AB',paddingBottom:8},
   subtitle: {
     fontSize: 16,
     color: '#757575',
@@ -207,16 +207,18 @@ const styles = StyleSheet.create({
   },
   link: {
     marginTop: 15,
+    justifyContent:'flex-end',
     alignItems: 'center',
   },
   linkText: {
-    color: '#007BFF',
+    color: '#6C7278',
     fontWeight: 'bold',
   },
   disabledButton: {
     backgroundColor: '#cccccc',
   },
   linkBold: {
+    color:'#007BFF',
     fontWeight: 'bold',
   },
   errorText: {
