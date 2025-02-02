@@ -1,33 +1,27 @@
- import React, { useState, useEffect } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { loginRequest } from '../../redux/slices/authSlice';
 import Icon from 'react-native-vector-icons/FontAwesome'; // Import FontAwesome icons
 import Colors from '../../Helper/Colors';
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
-const Login = ({ navigation }: { navigation: any }) => {
+const Login = ({ navigation }:{navigation:any}) => {
   const dispatch = useDispatch();
-  const { loading, loginResponse } = useSelector((state: any) => state.auth);
+  const { loading, loginResponse } = useSelector((state:any) => state.auth);
 
-  // Form state
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
-  // Error state to store validation messages
-  const [formErrors, setFormErrors] = useState<any>({
+  const [formErrors, setFormErrors] = useState<{ email: string; password: string }>({
     email: '',
-    password: ''
+    password: '',
   });
-
-  // State for API error message
-  const [apiError, setApiError] = useState('');
-
-  // State to toggle password visibility
+    const [apiError, setApiError] = useState('');
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
-  // Handle form validation
   const validateForm = () => {
-    let errors: any = {};
+    let errors = {};
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!email) {
@@ -42,51 +36,25 @@ const Login = ({ navigation }: { navigation: any }) => {
       errors.password = 'Password must be at least 6 characters';
     }
 
-    // Update formErrors state
     setFormErrors(errors);
-
-    // If there are errors, return false
     return Object.keys(errors).length === 0;
   };
 
-  // Handle text change and validate
-  const handleEmailChange = (text: string) => {
-    setEmail(text);
-    // Clear the email error message whenever the text changes
-    setFormErrors((prevErrors: any) => ({ ...prevErrors, email: '' }));
-  };
-
-  const handlePasswordChange = (text: string) => {
-    setPassword(text);
-    // Clear the password error message whenever the text changes
-    setFormErrors((prevErrors: any) => ({ ...prevErrors, password: '' }));
-  };
-
-  // Handle login action
   const handleLogin = () => {
-    const isValid = validateForm();
-    if (isValid) {
-      const userData = { email, password };
-      dispatch(loginRequest(userData));
+    if (validateForm()) {
+      dispatch(loginRequest({ email, password }));
     }
   };
 
-  // Handle login response and error
   useEffect(() => {
     if (loginResponse) {
       if (loginResponse.success) {
         navigation.replace('MainTabs');
       } else if (loginResponse.error) {
-        // Set API error message
-        setApiError(loginResponse.error); // Store error in the state
+        setApiError(loginResponse.error);
       }
     }
   }, [loginResponse]);
-
-  // Toggle password visibility
-  const togglePasswordVisibility = () => {
-    setIsPasswordVisible(!isPasswordVisible);
-  };
 
   return (
     <ImageBackground
@@ -95,58 +63,53 @@ const Login = ({ navigation }: { navigation: any }) => {
       resizeMode="cover">
       <View style={styles.container}>
         <Text style={styles.title}>Sign in to your Account</Text>
-        <Text style={styles.subtitle}>
-          Enter your email and password to log in
-        </Text>
-<Text style={styles.hidingColor}>Email Address</Text>
+        <Text style={styles.subtitle}>Enter your email and password to log in</Text>
+        
+        <Text style={styles.hidingColor}>Email Address</Text>
+
         <TextInput
           style={styles.input}
           placeholder="Enter your email address"
           value={email}
-          onChangeText={handleEmailChange} // Handle email change
+          onChangeText={setEmail}
           keyboardType="email-address"
           autoCapitalize="none"
           placeholderTextColor="#9E9E9E"
         />
         {formErrors.email && <Text style={styles.errorText}>{formErrors.email}</Text>}
+        
         <Text style={styles.hidingColor}>Password</Text>
-
         <View style={styles.passwordContainer}>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter your password"
-            value={password}
-            onChangeText={handlePasswordChange} // Handle password change
-            secureTextEntry={!isPasswordVisible} // Toggle password visibility
-            placeholderTextColor="#9E9E9E"
-          />
-          <TouchableOpacity onPress={togglePasswordVisibility} style={styles.eyeIcon}>
-            <Icon
-              name={isPasswordVisible ? 'eye' : 'eye-slash'} // Toggle icon based on visibility
-              size={20}
-              color={isPasswordVisible ?Colors.darkGray:'#ACB5BB'}
-            />
-          </TouchableOpacity>
-        </View>
+  <TextInput
+    style={styles.passwordInput}
+    placeholder="Enter your password"
+    value={password}
+    onChangeText={setPassword}
+    secureTextEntry={!isPasswordVisible}
+    placeholderTextColor="#9E9E9E"
+  />
+  <TouchableOpacity onPress={() => setIsPasswordVisible(!isPasswordVisible)} style={styles.eyeIcon}>
+    <Icon
+      name={isPasswordVisible ? 'eye' : 'eye-slash'}
+      size={wp(5)}
+      color={isPasswordVisible ? Colors.darkGray : '#ACB5BB'}
+    />
+  </TouchableOpacity>
+</View>
+
         {formErrors.password && <Text style={styles.errorText}>{formErrors.password}</Text>}
 
-        {apiError && <Text style={styles.apiErrorText}>{apiError}</Text>} 
+        {apiError && <Text style={styles.apiErrorText}>{apiError}</Text>}
 
         <TouchableOpacity
           style={[styles.button, loading && styles.disabledButton]}
           onPress={handleLogin}
           disabled={loading}>
-          <Text style={styles.buttonText}>
-            {loading ? 'Please wait...' : 'Log In'}
-          </Text>
+          <Text style={styles.buttonText}>{loading ? 'Please wait...' : 'Log In'}</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.link}
-          onPress={() => navigation.navigate('Register')}>
-          <Text style={styles.linkText}>
-            Don't have an account? <Text style={styles.linkBold}>Sign Up</Text>
-          </Text>
+        <TouchableOpacity style={styles.link} onPress={() => navigation.navigate('Register')}>
+          <Text style={styles.linkText}>Don't have an account? <Text style={styles.linkBold}>Sign Up</Text></Text>
         </TouchableOpacity>
       </View>
     </ImageBackground>
@@ -160,54 +123,73 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   container: {
-    width: '100%',
-    padding: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)', // Slight transparency over background
-    marginHorizontal: 20,
+    width: wp(90),
+    paddingHorizontal: wp(3),
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
   },
   title: {
-    fontSize: 32,
+    fontSize: wp(8),
     fontWeight: 'bold',
-    marginBottom: 20,
+    marginBottom: hp(2),
     color: '#007BFF',
   },
-  hidingColor:{color:'#000000AB',paddingBottom:8},
+  hidingColor: {
+    color: '#000000AB',
+    paddingBottom: hp(1),
+  },
   subtitle: {
-    fontSize: 16,
+    fontSize: wp(4),
     color: '#757575',
-    marginBottom: 30,
+    marginBottom: hp(3),
   },
   input: {
-    height: 50,
     borderWidth: 1,
     borderColor: '#E0E0E0',
-    borderRadius: 8,
-    padding: 10,
-    marginBottom: 15,
+    borderRadius: wp(2),
+    height: hp(6),
+    paddingHorizontal:wp(3),
+    marginBottom: hp(2),
     backgroundColor: '#FFF',
   },
   passwordContainer: {
-    position: 'relative',
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    borderRadius: wp(2),
+    backgroundColor: '#FFF',
+  marginBottom:wp(3),
   },
+  
+  passwordInput: {
+    flex: 1, // Ensures the input takes full width and text doesn't overlap the icon
+    height: hp(6),
+    fontSize: wp(4),
+    paddingRight: wp(10), // Reserves space for the eye icon
+    color: '#000',
+
+  },
+  
   eyeIcon: {
     position: 'absolute',
-    right: 10,
-    top: 12,
+    right: wp(3),
+    top: hp(2),
   },
+  
   button: {
     backgroundColor: '#007BFF',
-    padding: 15,
-    borderRadius: 8,
+    padding: hp(2),
+    marginTop:hp(5),
+    borderRadius: wp(2),
     alignItems: 'center',
   },
   buttonText: {
     color: '#FFF',
-    fontSize: 16,
+    fontSize: wp(4),
     fontWeight: 'bold',
   },
   link: {
-    marginTop: 15,
-    justifyContent:'flex-end',
+    marginTop: hp(2),
     alignItems: 'center',
   },
   linkText: {
@@ -218,18 +200,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#cccccc',
   },
   linkBold: {
-    color:'#007BFF',
+    color: '#007BFF',
     fontWeight: 'bold',
   },
   errorText: {
     color: 'red',
-    fontSize: 12,
-    marginBottom: 10,
+    fontSize: wp(3),
+    marginBottom: hp(1),
   },
   apiErrorText: {
     color: 'red',
-    fontSize: 14,
-    marginBottom: 15,
+    fontSize: wp(3.5),
+    marginBottom: hp(2),
   },
 });
 
