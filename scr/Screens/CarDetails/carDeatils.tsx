@@ -15,7 +15,7 @@ const defaultImage = require('../../assets/car.png');
 
 const Details = ({route, navigation}: {route: any; navigation: any}) => {
 
-  const {car} = route.params; // Receive car details
+  const {car} = route.params; 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       {/* Header */}

@@ -43,18 +43,38 @@ const MapListings = () => {
             latitudeDelta: 0.0922,
             longitudeDelta: 0.0421,
           }}>
-          {data?.map((car, index) => (
+          {data?.map((car, index) => {
+            const offset = index * 0.0003;
+
+            return (
+              <Marker
+                key={car.uniqueId}
+                coordinate={{
+                  latitude: parseFloat(car.latitude) + offset,
+                  longitude: parseFloat(car.longitude) + offset,
+                }}
+                title={`${car.make} ${car.model}`}
+                description={
+                  car.problem ? `Issue: ${car.problem}` : 'No issues reported'
+                }
+                onPress={() => setSelectedCar(car)}
+              />
+            );
+          })}
+          {/* {data?.map((car, index) => {
+
+const offset = index * 0.0003; 
             <Marker
               key={index}
               coordinate={{
-                latitude: parseFloat(car?.latitude),
-                longitude: parseFloat(car?.longitude),
+                latitude: parseFloat(car?.latitude)+offset,
+                longitude: parseFloat(car?.longitude)+offset,
               }}
-              title="Fortuner GR"
-              description="Current Location"
-              onPress={() => openModal(car)}
+              title={`${car?.make} ${car?.model} (${car?.yearOfManufacture})`}
+              description={car?.problem ? `Issue: ${car?.problem}` : "No issues reported"}
+              onPress={() => setSelectedCar(car)}
             />
-          ))}
+          })} */}
 
           {/* {data?.map((car, index) =>*
 (          (<Marker
@@ -72,11 +92,17 @@ const MapListings = () => {
           <View style={styles.modalContent}>
             {/* Blue Header */}
             <View style={styles.header}>
-              <Text style={styles.headerTitle}>{selectedCar?.title}</Text>
-              <Text style={styles.headerSubText}>
-                Quoted Price: {selectedCar?.price}
+              <Text style={styles.headerTitle}>
+                {selectedCar?.make} {selectedCar?.model}{' '}
+                {selectedCar?.yearOfManufacture}
               </Text>
-              <Image source={selectedCar?.image} style={styles.carImage} />
+              <Text style={styles.headerSubText}>
+                Quoted Price: {selectedCar?.price || 'N/A'}
+              </Text>
+              <Image
+                source={require('../../assets/landcruser.png')}
+                style={styles.carImage}
+              />
             </View>
 
             {/* Features Section */}
@@ -95,17 +121,19 @@ const MapListings = () => {
                     source={require('../../assets/diesel.png')}
                     style={styles.icon}
                   />
-                  <Text style={styles.featureTitle}>Diesel</Text>
-                  <Text style={styles.featureSubText}>{selectedCar?.fuel}</Text>
+                  <Text style={styles.featureTitle}>Fuel Type</Text>
+                  <Text style={styles.featureSubText}>
+                    {selectedCar?.fuelType}
+                  </Text>
                 </View>
                 <View style={styles.featureCard}>
                   <Image
                     source={require('../../assets/speedometer1.png')}
                     style={styles.icon}
                   />
-                  <Text style={styles.featureTitle}>Acceleration</Text>
+                  <Text style={styles.featureTitle}>Engine</Text>
                   <Text style={styles.featureSubText}>
-                    {selectedCar?.acceleration}
+                    {selectedCar?.engineCapacity} cc
                   </Text>
                 </View>
               </View>

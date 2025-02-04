@@ -410,12 +410,12 @@ import {
   Alert,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
-import {registerRequest} from '../../redux/slices/authSlice';
+import {registerRequest, registerSuccess} from '../../redux/slices/authSlice';
 import Icon from 'react-native-vector-icons/Feather';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import CountryPicker from 'react-native-country-picker-modal'; // Import Country Picker
 
- const Register = ({navigation}: {navigation: any}) => {
+const Register = ({navigation}: {navigation: any}) => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -426,47 +426,65 @@ import CountryPicker from 'react-native-country-picker-modal'; // Import Country
   const [callingCode, setCallingCode] = useState('1'); // Default calling code
   const [visible, setVisible] = useState(false); // Modal visibility state
 
-  const [formErrors, setFormErrors] = useState<any>({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    password: '',
+  const [errorMessage, setErrorMessages] = useState<any>({
+    firstNameError: '',
+    lastNameError: '',
+    emailError: '',
+    phoneError: '',
+    passwordError: '',
   });
 
   const dispatch = useDispatch();
   const {loading, registerResponse} = useSelector((state: any) => state.auth);
-
-  // useEffect(() => {
-  //   if (registerResponse) {
-  //     if (registerResponse.success) {
-  //       Alert.alert('Success', registerResponse.message, [
-  //         { text: 'OK', onPress: () => navigation.navigate('Login') }
-  //       ]);
-  //     } else if (registerResponse.error) {
-  //       Alert.alert('Error', registerResponse.error);
-  //     }
-  //   }
-  // }, [registerResponse]);
-   const validateForm = () => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    if (!firstName || !lastName || !email || !phone || !password) {
-      Alert.alert('Error', 'Please fill all the fields.');
-      return false;
-    } else if (password.length < 6) {
-      Alert.alert('Error', 'Password must be at least 6 characters long.');
-      return false;
-    } else if (!emailRegex.test(email)) {
-      Alert.alert('Error', 'Please enter a valid email address.');
-      return false;
+  useEffect(() => {
+    if (registerResponse) {
+      if (registerResponse.success ) {
+        Alert.alert('Success', registerResponse.message, [
+          {text: 'OK', onPress: () => navigation.navigate('Login')},
+        ]);
+      } else if (registerResponse.error) {
+        Alert.alert('Error', registerResponse.error);
+      }
     }
-    return true;
-  };
+  }, [registerResponse]);
 
-  const handleRegister = async () => {
-    if (!validateForm()) return;
-  
+  const handleRegister = () => {
+    const Regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!firstName) {
+      setErrorMessages(prev => ({
+        ...prev,
+        firstNameError: 'Please enter your name',
+      }));
+    } else if (!lastName) {
+      setErrorMessages(prev => ({
+        ...prev,
+        lastNameError: 'Please enter your last name',
+      }));
+    } else if (!email) {
+      setErrorMessages(prev => ({
+        ...prev,
+        emailError: 'Please enter your email',
+      }));
+    } else if (!Regex.test(email)) {
+      setErrorMessages(prev => ({
+        ...prev,
+        emailError: 'Please enter a valid email',
+      }));
+    } else if (!phone) {
+      setErrorMessages(prev => ({
+        ...prev,
+        phoneError: 'Please enter your phone number',
+      }));
+    } else if (!password) {
+      setErrorMessages(prev => ({
+        ...prev,
+        passwordError: 'Please enter your password',
+      }));
+    } else {
+      apiCall();
+    }
+  };
+  const apiCall = () => {
     const userData = {
       first_name: firstName,
       last_name: lastName,
@@ -474,50 +492,7 @@ import CountryPicker from 'react-native-country-picker-modal'; // Import Country
       phone,
       password,
     };
-  
-    try {
-      // Dispatch API request and wait for response
-      const response = await dispatch(registerRequest(userData))
-  
-      if (response.success) {
-        Alert.alert('Success', response.message, [
-          {text: 'OK', onPress: () => navigation.navigate('Login')},
-        ]);
-      } else {
-        Alert.alert('Error', response.error || 'Something went wrong');
-      }
-    } catch (error) {
-      Alert.alert('Error', error?.message || 'Registration failed');
-    }
-  };
-  
-
-  const handleChange = (field: string, value: string) => {
-    // Update the value of the field and clear its error message
-    switch (field) {
-      case 'firstName':
-        setFirstName(value);
-        setFormErrors((prevErrors: any) => ({...prevErrors, firstName: ''}));
-        break;
-      case 'lastName':
-        setLastName(value);
-        setFormErrors((prevErrors: any) => ({...prevErrors, lastName: ''}));
-        break;
-      case 'email':
-        setEmail(value);
-        setFormErrors((prevErrors: any) => ({...prevErrors, email: ''}));
-        break;
-      case 'phone':
-        setPhone(value);
-        setFormErrors((prevErrors: any) => ({...prevErrors, phone: ''}));
-        break;
-      case 'password':
-        setPassword(value);
-        setFormErrors((prevErrors: any) => ({...prevErrors, password: ''}));
-        break;
-      default:
-        break;
-    }
+    dispatch(registerRequest(userData));
   };
 
   return (
@@ -538,50 +513,67 @@ import CountryPicker from 'react-native-country-picker-modal'; // Import Country
               <Text style={styles.subtitle}>
                 Create an account to continue!
               </Text>
-              {/* First Name */}
               <Text style={styles.label}>First Name</Text>
               <TextInput
                 style={styles.input}
                 placeholder="First Name"
                 value={firstName}
-                onChangeText={text => handleChange('firstName', text)}
+                onChangeText={text => {
+                  setErrorMessages(prevState => ({
+                    ...prevState,
+                    firstNameError: null,
+                  }));
+                  setFirstName(text);
+                }}
                 autoCapitalize="words"
                 placeholderTextColor="#9E9E9E"
               />
-              {formErrors.firstName && (
-                <Text style={styles.errorText}>{formErrors.firstName}</Text>
+              {errorMessage.firstNameError && (
+                <Text style={styles.errorText}>
+                  {errorMessage.firstNameError}
+                </Text>
               )}
-              {/* Last Name */}
               <Text style={styles.label}>Last Name</Text>
               <TextInput
                 style={styles.input}
                 placeholder="Last Name"
                 value={lastName}
-                onChangeText={text => handleChange('lastName', text)}
+                onChangeText={text => {
+                  setErrorMessages(prevState => ({
+                    ...prevState,
+                    lastNameError: null,
+                  }));
+                  setLastName(text);
+                }}
                 autoCapitalize="words"
                 placeholderTextColor="#9E9E9E"
               />
-              {formErrors.lastName && (
-                <Text style={styles.errorText}>{formErrors.lastName}</Text>
+              {errorMessage.lastNameError && (
+                <Text style={styles.errorText}>
+                  {errorMessage.lastNameError}
+                </Text>
               )}
-              {/* Email Address */}
               <Text style={styles.label}>Email Address</Text>
               <TextInput
                 style={styles.input}
                 placeholder="Email Address"
                 value={email}
-                onChangeText={text => handleChange('email', text)}
+                onChangeText={text => {
+                  setErrorMessages(prevState => ({
+                    ...prevState,
+                    emailError: null,
+                  }));
+                  setEmail(text);
+                }}
                 keyboardType="email-address"
                 autoCapitalize="none"
                 placeholderTextColor="#9E9E9E"
               />
-              {formErrors.email && (
-                <Text style={styles.errorText}>{formErrors.email}</Text>
+              {errorMessage.emailError && (
+                <Text style={styles.errorText}>{errorMessage.emailError}</Text>
               )}
-              {/* Phone Number */}
               <Text style={styles.label}>Phone Number</Text>{' '}
               <View style={styles.phoneContainer}>
-                {/* Country Picker Button */}
                 <TouchableOpacity
                   onPress={() => setVisible(true)}
                   style={styles.countryPicker}>
@@ -602,35 +594,37 @@ import CountryPicker from 'react-native-country-picker-modal'; // Import Country
                   <Text style={styles.callingCode}>+{callingCode}</Text>
                 </TouchableOpacity>
 
-                {/* Phone Number Input */}
                 <TextInput
                   style={styles.phoneInput}
                   placeholder="Phone Number"
                   value={phone}
-                  onChangeText={setPhone}
+                  onChangeText={text => {
+                    setErrorMessages(prevState => ({
+                      ...prevState,
+                      phoneError: null,
+                    }));
+                    setPhone(text);
+                  }}
                   keyboardType="phone-pad"
                   placeholderTextColor="#9E9E9E"
                 />
               </View>
-              {/* <TextInput
-                style={styles.input}
-                placeholder="Phone Number"
-                value={phone}
-                onChangeText={text => handleChange('phone', text)}
-                keyboardType="phone-pad"
-                placeholderTextColor="#9E9E9E"
-              /> */}
-              {formErrors.phone && (
-                <Text style={styles.errorText}>{formErrors.phone}</Text>
+              {errorMessage.phoneError && (
+                <Text style={styles.errorText}>{errorMessage.phoneError}</Text>
               )}
-              {/* Password Field with Eye Icon */}
               <Text style={styles.label}>Password</Text>
               <View style={styles.passwordContainer}>
                 <TextInput
                   style={styles.passwordInput}
                   placeholder="Password"
                   value={password}
-                  onChangeText={text => handleChange('password', text)}
+                  onChangeText={text => {
+                    setErrorMessages(prevState => ({
+                      ...prevState,
+                      passwordError: null,
+                    }));
+                    setPassword(text);
+                  }}
                   secureTextEntry={!showPassword}
                   placeholderTextColor="#9E9E9E"
                 />
@@ -644,8 +638,10 @@ import CountryPicker from 'react-native-country-picker-modal'; // Import Country
                   />
                 </TouchableOpacity>
               </View>
-              {formErrors.password && (
-                <Text style={styles.errorText}>{formErrors.password}</Text>
+              {errorMessage.passwordError && (
+                <Text style={styles.errorText}>
+                  {errorMessage.passwordError}
+                </Text>
               )}
               {/* Register Button */}
               <TouchableOpacity

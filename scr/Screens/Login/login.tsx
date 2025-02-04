@@ -190,6 +190,7 @@ const styles = StyleSheet.create({
     flex: 1, // Ensures the input takes full width and text doesn't overlap the icon
     height: hp(6),
     fontSize: wp(4),
+    paddingLeft:hp(2),
     paddingRight: wp(10), // Reserves space for the eye icon
     color: '#000',
   },
