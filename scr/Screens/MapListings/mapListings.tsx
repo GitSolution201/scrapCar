@@ -9,19 +9,16 @@ import {
 } from 'react-native';
 import MapView, {Marker} from 'react-native-maps';
 import Colors from '../../Helper/Colors';
+import {useIsFocused} from '@react-navigation/native';
 import {useDispatch, useSelector} from 'react-redux';
-import {getUserRequest} from '../../redux/slices/carListingsSlice';
 
 const MapListings = () => {
-  const dispatch = useDispatch();
-  const {loginResponse} = useSelector(state => state.auth);
-  const {loading, error, data} = useSelector(state => state.carListings);
   const [selectedCar, setSelectedCar] = useState(null);
-  useEffect(() => {
-    if (loginResponse?.token) {
-      dispatch(getUserRequest(loginResponse?.token));
-    }
-  }, [loginResponse]);
+  const isFocused = useIsFocused();
+  const dispatch = useDispatch();
+  const {loginResponse} = useSelector((state: any) => state.auth);
+  const {loading, error, data} = useSelector((state: any) => state.carListings);
+
   const openModal = () => {
     setSelectedCar({
       title: 'Fortuner GR',
@@ -36,73 +33,87 @@ const MapListings = () => {
 
   return (
     <View style={styles.container}>
-    {/* Map Section */}
-    <View style={styles.mapContainer}>
-      <MapView
-        style={styles.map}
-        initialRegion={{
-          latitude: 37.78825,
-          longitude: -122.4324,
-          latitudeDelta: 0.0922,
-          longitudeDelta: 0.0421,
-        }}>
-        {/* Create Marker for each car from the API data */}
-        {data.map((car, index) => (
-          <Marker
-            key={index}
-            coordinate={{ latitude: car.latitude, longitude: car.longitude }} // Assuming `lat` and `lng` are the coordinates
-            title={car.title}
-            description={car.description}
-            onPress={() => openModal(car)}
-          />
-        ))}
-      </MapView>
-    </View>
+      {/* Map Section */}
+      <View style={styles.mapContainer}>
+        <MapView
+          style={styles.map}
+          initialRegion={{
+            latitude: 51.451696,
+            longitude: 0.190079,
+            latitudeDelta: 0.0922,
+            longitudeDelta: 0.0421,
+          }}>
+          {data?.map((car, index) => (
+            <Marker
+              key={index}
+              coordinate={{
+                latitude: parseFloat(car?.latitude),
+                longitude: parseFloat(car?.longitude),
+              }}
+              title="Fortuner GR"
+              description="Current Location"
+              onPress={() => openModal(car)}
+            />
+          ))}
 
-    {/* Bottom Modal */}
-    <Modal visible={!!selectedCar} animationType="slide" transparent>
-      <TouchableOpacity onPress={closeModal} style={styles.modalOverlay}>
-        <View style={styles.modalContent}>
-          {/* Blue Header */}
-          <View style={styles.header}>
-            <Text style={styles.headerTitle}>{selectedCar?.title}</Text>
-            <Text style={styles.headerSubText}>
-              Quoted Price: {selectedCar?.price}
-            </Text>
-            <Image source={{ uri: selectedCar?.image }} style={styles.carImage} />
-          </View>
+          {/* {data?.map((car, index) =>*
+(          (<Marker
+            coordinate={{latitude: 51.451696, longitude: 0.190079}}
+            title="Fortuner GR"
+            description="Current Location"
+            onPress={openModal}
+          />)} */}
+        </MapView>
+      </View>
 
-          {/* Features Section */}
-          <View>
-            <Text style={[styles.headerTitle, { color: Colors.primary, padding: 20 }]}>
-              Features
-            </Text>
+      {/* Bottom Modal */}
+      <Modal visible={!!selectedCar} animationType="slide" transparent>
+        <TouchableOpacity onPress={closeModal} style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            {/* Blue Header */}
+            <View style={styles.header}>
+              <Text style={styles.headerTitle}>{selectedCar?.title}</Text>
+              <Text style={styles.headerSubText}>
+                Quoted Price: {selectedCar?.price}
+              </Text>
+              <Image source={selectedCar?.image} style={styles.carImage} />
+            </View>
 
-            <View style={styles.featuresContainer}>
-              <View style={styles.featureCard}>
-                <Image
-                  source={require('../../assets/diesel.png')}
-                  style={styles.icon}
-                />
-                <Text style={styles.featureTitle}>Fuel Type</Text>
-                <Text style={styles.featureSubText}>{selectedCar?.fuel}</Text>
-              </View>
-              <View style={styles.featureCard}>
-                <Image
-                  source={require('../../assets/speedometer1.png')}
-                  style={styles.icon}
-                />
-                <Text style={styles.featureTitle}>Acceleration</Text>
-                <Text style={styles.featureSubText}>
-                  {selectedCar?.acceleration}
-                </Text>
+            {/* Features Section */}
+            <View>
+              <Text
+                style={[
+                  styles.headerTitle,
+                  {color: Colors.primary, padding: 20},
+                ]}>
+                Features
+              </Text>
+
+              <View style={styles.featuresContainer}>
+                <View style={styles.featureCard}>
+                  <Image
+                    source={require('../../assets/diesel.png')}
+                    style={styles.icon}
+                  />
+                  <Text style={styles.featureTitle}>Diesel</Text>
+                  <Text style={styles.featureSubText}>{selectedCar?.fuel}</Text>
+                </View>
+                <View style={styles.featureCard}>
+                  <Image
+                    source={require('../../assets/speedometer1.png')}
+                    style={styles.icon}
+                  />
+                  <Text style={styles.featureTitle}>Acceleration</Text>
+                  <Text style={styles.featureSubText}>
+                    {selectedCar?.acceleration}
+                  </Text>
+                </View>
               </View>
             </View>
           </View>
-        </View>
-      </TouchableOpacity>
-    </Modal>
-  </View>
+        </TouchableOpacity>
+      </Modal>
+    </View>
   );
 };
 
