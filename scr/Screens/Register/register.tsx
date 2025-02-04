@@ -394,7 +394,7 @@
 // });
 
 // export default Register;
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -407,6 +407,7 @@ import {
   ScrollView,
   TouchableWithoutFeedback,
   Keyboard,
+  Alert,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {registerRequest} from '../../redux/slices/authSlice';
@@ -414,7 +415,7 @@ import Icon from 'react-native-vector-icons/Feather';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import CountryPicker from 'react-native-country-picker-modal'; // Import Country Picker
 
-const Register = ({navigation}: {navigation: any}) => {
+ const Register = ({navigation}: {navigation: any}) => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -434,31 +435,38 @@ const Register = ({navigation}: {navigation: any}) => {
   });
 
   const dispatch = useDispatch();
-  const {loading} = useSelector((state: any) => state.auth);
+  const {loading, registerResponse} = useSelector((state: any) => state.auth);
 
-  const validateForm = () => {
-    let errors: any = {};
+  // useEffect(() => {
+  //   if (registerResponse) {
+  //     if (registerResponse.success) {
+  //       Alert.alert('Success', registerResponse.message, [
+  //         { text: 'OK', onPress: () => navigation.navigate('Login') }
+  //       ]);
+  //     } else if (registerResponse.error) {
+  //       Alert.alert('Error', registerResponse.error);
+  //     }
+  //   }
+  // }, [registerResponse]);
+   const validateForm = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if (!firstName) errors.firstName = 'First Name is required';
-    if (!lastName) errors.lastName = 'Last Name is required';
-    if (!email) {
-      errors.email = 'Email is required';
+    if (!firstName || !lastName || !email || !phone || !password) {
+      Alert.alert('Error', 'Please fill all the fields.');
+      return false;
+    } else if (password.length < 6) {
+      Alert.alert('Error', 'Password must be at least 6 characters long.');
+      return false;
     } else if (!emailRegex.test(email)) {
-      errors.email = 'Please enter a valid email address';
+      Alert.alert('Error', 'Please enter a valid email address.');
+      return false;
     }
-    if (!phone) errors.phone = 'Phone number is required';
-    if (!password) errors.password = 'Password is required';
-    else if (password.length < 6)
-      errors.password = 'Password must be at least 6 characters';
-
-    setFormErrors(errors);
-    return Object.keys(errors).length === 0;
+    return true;
   };
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     if (!validateForm()) return;
-
+  
     const userData = {
       first_name: firstName,
       last_name: lastName,
@@ -466,8 +474,23 @@ const Register = ({navigation}: {navigation: any}) => {
       phone,
       password,
     };
-    dispatch(registerRequest(userData));
+  
+    try {
+      // Dispatch API request and wait for response
+      const response = await dispatch(registerRequest(userData))
+  
+      if (response.success) {
+        Alert.alert('Success', response.message, [
+          {text: 'OK', onPress: () => navigation.navigate('Login')},
+        ]);
+      } else {
+        Alert.alert('Error', response.error || 'Something went wrong');
+      }
+    } catch (error) {
+      Alert.alert('Error', error?.message || 'Registration failed');
+    }
   };
+  
 
   const handleChange = (field: string, value: string) => {
     // Update the value of the field and clear its error message
