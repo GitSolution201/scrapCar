@@ -21,14 +21,14 @@ const authSlice = createSlice({
       state.loginResponse = {
         success: true,
         message: action.payload.message,
-        token: action.payload.access_token
+        token: action.payload.access_token,
       };
     },
     loginFailure: (state, action) => {
       state.loading = false;
       state.loginResponse = {
         success: false,
-        error: action.payload
+        error: action.payload,
       };
     },
     registerRequest: state => {
@@ -40,14 +40,14 @@ const authSlice = createSlice({
       state.registerResponse = {
         success: true,
         message: action.payload.message,
-        user: action.payload.user
+        user: action.payload.user,
       };
     },
     registerFailure: (state, action) => {
       state.loading = false;
       state.registerResponse = {
         success: false,
-        error: action.payload
+        error: action.payload,
       };
     },
   },
