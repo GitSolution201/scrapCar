@@ -45,8 +45,7 @@ const Listings = ({navigation}: {navigation: any}) => {
     return (
       <TouchableOpacity
         onPress={() => {
-          // navigation.navigate('CarDeatils', {car: item})
-          console.log(JSON.stringify(item, null, 4));
+          navigation.navigate('CarDeatils', {car: item});
         }}
         style={styles.listingCard}>
         <Image source={{uri: item.carImage}} style={styles.carImage} />
@@ -185,8 +184,11 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   carImage: {
-    width: '100%',
-    height: hp(25),
+    position: 'absolute',
+    top: -30,
+    right: -50,
+    width: '70%',
+    height: '30%',
     resizeMode: 'contain',
   },
   detailsContainer: {

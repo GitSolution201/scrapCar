@@ -14,8 +14,7 @@ import Colors from '../../Helper/Colors';
 const defaultImage = require('../../assets/car.png');
 
 const Details = ({route, navigation}: {route: any; navigation: any}) => {
-
-  const {car} = route.params; 
+  const {car} = route.params;
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       {/* Header */}
@@ -30,7 +29,7 @@ const Details = ({route, navigation}: {route: any; navigation: any}) => {
       </View>
 
       {/* Car Image */}
-      <Image source={defaultImage} style={styles.carImage} />
+      <Image source={{uri: car?.carImage}} style={styles.carImage} />
       {/* Car Info */}
 
       <View style={styles.detailsContainer}>
@@ -134,7 +133,9 @@ const styles = StyleSheet.create({
     height: hp(25),
     resizeMode: 'contain',
     marginBottom: hp(2),
+    borderRadius: 20,
   },
+
   detailsContainer: {
     backgroundColor: Colors.white,
     padding: wp(5),

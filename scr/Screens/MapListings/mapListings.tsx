@@ -100,7 +100,7 @@ const offset = index * 0.0003;
                 Quoted Price: {selectedCar?.price || 'N/A'}
               </Text>
               <Image
-                source={require('../../assets/landcruser.png')}
+                source={{uri: selectedCar?.carImage}}
                 style={styles.carImage}
               />
             </View>
