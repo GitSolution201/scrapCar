@@ -30,12 +30,14 @@ const Details = ({route, navigation}: {route: any; navigation: any}) => {
       </View>
 
       {/* Car Image */}
-      <Image source={defaultImage} style={styles.carImage} />
+      <Image 
+          source={{uri: car?.carImage}}
+          style={styles.carImage} />
       {/* Car Info */}
 
       <View style={styles.detailsContainer}>
         <Text style={styles.carTitle}>
-          {car.model || 'Model Not Available'}
+          {car.make || 'Model Not Available'}
         </Text>
         <Text style={styles.scrapText}>{car.tag || 'Unknown'}</Text>
 
@@ -50,8 +52,27 @@ const Details = ({route, navigation}: {route: any; navigation: any}) => {
           <Text style={styles.value}>{car.yearOfManufacture || 'N/A'}</Text>
         </View>
         <View style={styles.infoRow}>
-          <Text style={styles.label}>Weight:</Text>
-          <Text style={styles.value}>{car.weight || 'N/A'}</Text>
+          <Text style={styles.label}>PostCode:</Text>
+          <Text style={styles.value}>{car.postcode || 'N/A'}</Text>
+        </View>
+        <View style={styles.infoRow}>
+          <Text style={styles.label}>Colors:</Text>
+          <Text style={styles.value}>
+            {car.color ? `${car.color}` : 'N/A'}
+          </Text>
+        </View>
+        <View style={styles.infoRow}>
+          <Text style={styles.label}>Model:</Text>
+          <Text style={styles.value}>
+            {car.model ? `${car.model}` : 'N/A'}
+          </Text>
+        </View>
+        
+        <View style={styles.infoRow}>
+          <Text style={styles.label}>Fuel Type:</Text>
+          <Text style={styles.value}>
+            {car.fuelType ? `${car.fuelType}` : 'N/A'}
+          </Text>
         </View>
         <View style={styles.infoRow}>
           <Text style={styles.label}>Engine Size:</Text>
