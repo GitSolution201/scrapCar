@@ -222,20 +222,20 @@ import {
   TouchableOpacity,
   FlatList,
   StyleSheet,
-  Image,
   ActivityIndicator,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {getUserRequest} from '../../redux/slices/carListingsSlice';
 import Colors from '../../Helper/Colors';
 import {hp, wp} from '../../Helper/Responsive';
+import CarList from '../../Components/CarList';
+import HomeHeader from '../../Components/HomeHeader';
 
-const defaultImage = require('../../assets/car.png');
 
-const Listings = ({navigation}) => {
+const Listings = ({navigation}:{navigation:any}) => {
   const dispatch = useDispatch();
-  const {loginResponse} = useSelector(state => state.auth);
-  const {loading, error, data} = useSelector(state => state.carListings);
+  const {loginResponse} = useSelector((state:any) => state.auth);
+  const {loading, error, data} = useSelector((state:any)  => state.carListings);
   const [activeFilter, setActiveFilter] = useState('Scrape');
 
   useEffect(() => {
@@ -244,53 +244,9 @@ const Listings = ({navigation}) => {
     }
   }, [loginResponse]);
 
-  const renderItem = ({item}) => {
-    return (
-      <TouchableOpacity
-        onPress={() => navigation.navigate('CarDeatils', {car: item})}
-        style={styles.listingCard}>
-        <Image
-          source={{uri: item.carImage}}
-          style={styles.carImage}
-          onError={() => defaultImage}
-        />
-        <View style={styles.detailsContainer}>
-          <Text style={styles.carTitle}>{item.make || 'Unknown Make'}</Text>
-          <Text style={styles.details}>
-            Registration: {item.registrationNumber || 'N/A'}
-          </Text>
-          <Text style={styles.details}>Postcode: {item.postcode || 'N/A'}</Text>
-          <Text style={styles.details}>Color: {item.color || 'N/A'}</Text>
-          <Text style={styles.details}>Model: {item.model || 'N/A'}</Text>
-          <Text style={styles.details}>
-            Fuel Type: {item.fuelType || 'N/A'}
-          </Text>
-          <Text style={styles.details}>
-            Year: {item.yearOfManufacture || 'N/A'}
-          </Text>
-          <Text style={styles.details}>
-            Problem: {item.problem || 'No issues reported'}
-          </Text>
-          <Text style={styles.details}>
-            Engine Capacity:{' '}
-            {item.engineCapacity ? `${item.engineCapacity} cc` : 'N/A'}
-          </Text>
-          <Text style={styles.details}>
-            MOT Status: {item.motStatus || 'N/A'}
-          </Text>
-          <Text style={styles.details}>
-            MOT Expiry: {item.motExpiryDate || 'N/A'}
-          </Text>
-        </View>
-      </TouchableOpacity>
-    );
-  };
-
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Listings</Text>
-      </View>
+      <HomeHeader />
       <View style={styles.filterContainer}>
         {['Scrape', 'Salvage', 'Both'].map(filter => (
           <TouchableOpacity
@@ -317,12 +273,12 @@ const Listings = ({navigation}) => {
       ) : (
         <FlatList
           data={data?.filter(
-            item =>
+            (item:any) =>
               item.tag === activeFilter.toLowerCase() ||
               activeFilter === 'Both',
           )}
-          renderItem={renderItem}
-          showsVerticalScrollIndicator={false}
+          renderItem={({item}) => <CarList item={item} />}
+           showsVerticalScrollIndicator={false}
           keyExtractor={item => item._id}
         />
       )}
@@ -331,9 +287,12 @@ const Listings = ({navigation}) => {
 };
 
 const styles = StyleSheet.create({
-  container: {flex: 1, padding: wp(5), backgroundColor: Colors.gray},
-  header: {marginTop: hp(5), marginBottom: hp(2)},
-  headerTitle: {fontSize: wp(6), fontWeight: 'bold', color: Colors.darkGray},
+  container: {
+    flex: 1,  
+    backgroundColor: Colors.gray,
+    paddingHorizontal:hp(2)
+  },
+ 
   filterContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -347,35 +306,27 @@ const styles = StyleSheet.create({
     borderRadius: wp(2),
     alignItems: 'center',
   },
-  filterButtonActive: {backgroundColor: Colors.primary},
-  filterText: {color: Colors.textGray, fontSize: wp(4.5)},
-  filterTextActive: {color: Colors.white},
-  listingCard: {
-    backgroundColor: Colors.white,
-    borderRadius: wp(4),
-    marginBottom: hp(2),
-    padding: wp(4),
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+  filterButtonActive: {
+    backgroundColor: Colors.primary
   },
-  carImage: {
-    width: '100%',
-    height: hp(25),
-    resizeMode: 'contain',
-    borderRadius: wp(2),
+  filterText: {
+    color: Colors.textGray,
+     fontSize: wp(4.5)
+    },
+  filterTextActive: {
+    color: Colors.white
   },
-  detailsContainer: {padding: wp(2)},
-  carTitle: {
-    fontSize: wp(5),
-    fontWeight: 'bold',
-    color: Colors.darkGray,
-    marginBottom: hp(1),
-  },
-  details: {fontSize: wp(3.5), color: Colors.textGray, marginBottom: hp(1)},
-  loader: {flex: 1, justifyContent: 'center', alignItems: 'center'},
-  errorText: {color: 'red', textAlign: 'center'},
+ 
+  loader: {
+    flex: 1, 
+    justifyContent: 'center',
+     alignItems: 'center'
+    },
+  errorText: {
+    color: 'red',
+     textAlign: 'center'
+    },
+  
 });
 
 export default Listings;

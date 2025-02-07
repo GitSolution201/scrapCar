@@ -11,7 +11,6 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import {hp, wp} from '../../Helper/Responsive';
 import Colors from '../../Helper/Colors';
 
-const defaultImage = require('../../assets/car.png');
 
 const Details = ({route, navigation}: {route: any; navigation: any}) => {
 
@@ -75,19 +74,26 @@ const Details = ({route, navigation}: {route: any; navigation: any}) => {
           </Text>
         </View>
         <View style={styles.infoRow}>
-          <Text style={styles.label}>Engine Size:</Text>
+          <Text style={styles.label}>Problem:</Text>
+          <Text style={styles.value}>
+            {car.problem ? `${car.problem}` : 'N/A'}
+          </Text>
+        </View>
+        <View style={styles.infoRow}>
+          <Text style={styles.label}>Engine Capacity:</Text>
           <Text style={styles.value}>
             {car.engineCapacity ? `${car.engineCapacity} cc` : 'N/A'}
           </Text>
         </View>
+        
         <View style={styles.infoRow}>
-          <Text style={styles.label}>Transmission:</Text>
-          <Text style={styles.value}>{car.transmission || 'N/A'}</Text>
+          <Text style={styles.label}>MOT Status:</Text>
+          <Text style={styles.value}>{car.motStatus || 'N/A'}</Text>
         </View>
         <View style={styles.infoRow}>
-          <Text style={styles.label}>Problem:</Text>
+          <Text style={styles.label}>MOT Expiry:</Text>
           <Text style={styles.value}>
-            {car.problem || 'No issues reported'}
+            {car.motExpiryDate || 'No issues reported'}
           </Text>
         </View>
       </View>
@@ -139,7 +145,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: hp(4),
+    marginTop: hp(2),
     alignItems: 'center',
   },
   backButton: {
@@ -155,6 +161,7 @@ const styles = StyleSheet.create({
     height: hp(25),
     resizeMode: 'contain',
     marginBottom: hp(2),
+    marginTop:hp(2)
   },
   detailsContainer: {
     backgroundColor: Colors.white,
