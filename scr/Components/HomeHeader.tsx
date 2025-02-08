@@ -1,16 +1,20 @@
-import {Image, StyleSheet, Text, View} from 'react-native';
+import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import React from 'react';
 import Colors from '../Helper/Colors';
 import {hp, wp} from '../Helper/Responsive';
+import {useNavigation} from '@react-navigation/native';
 
 export default function HomeHeader() {
+  const navigation = useNavigation();
   return (
     <View style={styles.header}>
       <Text style={styles.headerTitle}>Listings</Text>
-      <Image
-        source={require('../assets/dp.jpeg')}
-        style={styles.profileImage}
-      />
+      <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
+        <Image
+          source={require('../assets/dp.jpeg')}
+          style={styles.profileImage}
+        />
+      </TouchableOpacity>
     </View>
   );
 }

@@ -410,7 +410,7 @@ import {
   Alert,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
-import {registerRequest, registerSuccess} from '../../redux/slices/authSlice';
+import {registerRequest, registerSuccess, resetRegisterResponse} from '../../redux/slices/authSlice';
 import Icon from 'react-native-vector-icons/Feather';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import CountryPicker from 'react-native-country-picker-modal'; // Import Country Picker
@@ -440,7 +440,9 @@ const Register = ({navigation}: {navigation: any}) => {
     if (registerResponse) {
       if (registerResponse.success ) {
         Alert.alert('Success', registerResponse.message, [
-          {text: 'OK', onPress: () => navigation.navigate('Login')},
+          {text: 'OK', onPress: () => {
+            dispatch(resetRegisterResponse());
+            navigation.navigate('Login')}},
         ]);
       } else if (registerResponse.error) {
         Alert.alert('Error', registerResponse.error);

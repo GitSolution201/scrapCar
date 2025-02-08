@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -9,21 +9,18 @@ import {
 } from 'react-native';
 import MapView, {Marker} from 'react-native-maps';
 import Colors from '../../Helper/Colors';
-import {useIsFocused, useNavigation} from '@react-navigation/native';
-import {useDispatch, useSelector} from 'react-redux';
+import {useNavigation} from '@react-navigation/native';
+import {useSelector} from 'react-redux';
 import Slider from '@react-native-community/slider';
 import {hp, wp} from '../../Helper/Responsive';
 
 const MapListings = () => {
   const navigation = useNavigation();
   const [selectedCar, setSelectedCar] = useState(null);
-  const isFocused = useIsFocused();
-  const dispatch = useDispatch();
-  const {loginResponse} = useSelector((state: any) => state.auth);
-  const {loading, error, data} = useSelector((state: any) => state.carListings);
+  const {data} = useSelector((state: any) => state.carListings);
   const [distance, setDistance] = useState(5);
-
   const closeModal = () => {
+    navigation.navigate('CarDeatils', {car: selectedCar});
     setSelectedCar(null);
   };
 
@@ -44,7 +41,6 @@ const MapListings = () => {
           maximumTrackTintColor="gray"
           thumbTintColor="blue"
           onValueChange={value => {
-            console.log('New Distance:', value); // ✅ Check if this logs values
             setDistance(value);
           }}
         />
@@ -79,7 +75,7 @@ const MapListings = () => {
           })}
           {/* {data?.map((car, index) => {
 
-const offset = index * 0.0003; 
+            const offset = index * 0.0003; 
             <Marker
               key={index}
               coordinate={{
@@ -108,17 +104,13 @@ const offset = index * 0.0003;
           <View style={styles.modalContent}>
             {/* Blue Header */}
             <View style={styles.header}>
-              <View>
+              <TouchableOpacity onPress={() => setSelectedCar(false)}>
                 <Image
                   source={require('../../assets/cross.png')}
-                  style={{
-                    width: wp(10), 
-                    height: hp(3), 
-                    alignSelf: 'flex-end'
-                  }}
+                  style={styles.croosImage}
                   resizeMode="contain"
                 />
-              </View>
+              </TouchableOpacity>
               <Text style={styles.headerTitle}>
                 {selectedCar?.make} {selectedCar?.model}{' '}
                 {selectedCar?.yearOfManufacture}
@@ -137,10 +129,7 @@ const offset = index * 0.0003;
               <Text
                 style={[
                   styles.headerTitle,
-                  {
-                    color: Colors.primary,
-                     padding: 20
-                    },
+                 styles.headerFeatureText
                 ]}>
                 Features
               </Text>
@@ -235,9 +224,13 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 24,
-    paddingBottom:hp(2),
+    paddingBottom: hp(2),
     fontWeight: 'bold',
     color: '#FFF',
+  },
+  headerFeatureText: {
+    color: Colors.primary,
+    padding: 20,
   },
   headerSubText: {
     fontSize: 16,
@@ -298,7 +291,11 @@ const styles = StyleSheet.create({
     color: '#FFF',
     fontSize: 16,
     fontWeight: 'bold',
-  },
+  },croosImage:{
+    width: wp(10),
+    height: hp(3),
+    alignSelf: 'flex-end',
+  }
 });
 
 export default MapListings;
