@@ -1,22 +1,45 @@
-import { configureStore } from '@reduxjs/toolkit';
+import {configureStore, combineReducers} from '@reduxjs/toolkit';
 import createSagaMiddleware from 'redux-saga';
+import {persistStore, persistReducer} from 'redux-persist';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import authReducer from './slices/authSlice';
-import carListingsReducer from './slices/carListingsSlice'; // Import the carListings reducer
+import carListingsReducer from './slices/carListingsSlice';
 import authSaga from './sagas/authSaga';
 import userSaga from './sagas/carListingsSaga';
 
 const sagaMiddleware = createSagaMiddleware();
 
-const store = configureStore({
-  reducer: {
-    auth: authReducer,
-    carListings: carListingsReducer, // Add the carListings reducer here
-  },
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware({ thunk: false }).concat(sagaMiddleware), // Include the saga middleware
+// ✅ Redux Persist Configuration (For all reducers)
+const persistConfig = {
+  key: 'root',
+  storage: AsyncStorage,
+  whitelist: ['auth', 'carListings'], // ✨ List all reducers you want to persist
+};
+
+// ✅ Combine all reducers
+const rootReducer = combineReducers({
+  auth: authReducer,
+  carListings: carListingsReducer,
 });
 
-sagaMiddleware.run(authSaga); // Run the authSaga
-sagaMiddleware.run(userSaga); // Run the userSaga
+// ✅ Apply persistReducer to rootReducer
+const persistedReducer = persistReducer(persistConfig, rootReducer);
 
-export default store;
+// ✅ Configure store
+const store = configureStore({
+  reducer: persistedReducer,
+  middleware: getDefaultMiddleware =>
+    getDefaultMiddleware({
+      thunk: false,
+      serializableCheck: false, // 🔥 Required for redux-persist
+    }).concat(sagaMiddleware),
+});
+
+// ✅ Persistor
+const persistor = persistStore(store);
+
+// ✅ Run sagas
+sagaMiddleware.run(authSaga);
+sagaMiddleware.run(userSaga);
+
+export {store, persistor};
