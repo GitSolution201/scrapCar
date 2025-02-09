@@ -11,7 +11,6 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import {hp, wp} from '../../Helper/Responsive';
 import Colors from '../../Helper/Colors';
 
-const defaultImage = require('../../assets/car.png');
 
 const Details = ({route, navigation}: {route: any; navigation: any}) => {
   const {car} = route.params;
@@ -29,12 +28,18 @@ const Details = ({route, navigation}: {route: any; navigation: any}) => {
       </View>
 
       {/* Car Image */}
+<<<<<<< HEAD
       <Image source={{uri: car?.carImage}} style={styles.carImage} />
+=======
+      <Image 
+          source={{uri: car?.carImage}}
+          style={styles.carImage} />
+>>>>>>> origin/Auth_Api
       {/* Car Info */}
 
       <View style={styles.detailsContainer}>
         <Text style={styles.carTitle}>
-          {car.model || 'Model Not Available'}
+          {car.make || 'Model Not Available'}
         </Text>
         <Text style={styles.scrapText}>{car.tag || 'Unknown'}</Text>
 
@@ -49,23 +54,49 @@ const Details = ({route, navigation}: {route: any; navigation: any}) => {
           <Text style={styles.value}>{car.yearOfManufacture || 'N/A'}</Text>
         </View>
         <View style={styles.infoRow}>
-          <Text style={styles.label}>Weight:</Text>
-          <Text style={styles.value}>{car.weight || 'N/A'}</Text>
+          <Text style={styles.label}>PostCode:</Text>
+          <Text style={styles.value}>{car.postcode || 'N/A'}</Text>
         </View>
         <View style={styles.infoRow}>
-          <Text style={styles.label}>Engine Size:</Text>
+          <Text style={styles.label}>Colors:</Text>
           <Text style={styles.value}>
-            {car.engineCapacity ? `${car.engineCapacity} cc` : 'N/A'}
+            {car.color ? `${car.color}` : 'N/A'}
           </Text>
         </View>
         <View style={styles.infoRow}>
-          <Text style={styles.label}>Transmission:</Text>
-          <Text style={styles.value}>{car.transmission || 'N/A'}</Text>
+          <Text style={styles.label}>Model:</Text>
+          <Text style={styles.value}>
+            {car.model ? `${car.model}` : 'N/A'}
+          </Text>
+        </View>
+        
+        <View style={styles.infoRow}>
+          <Text style={styles.label}>Fuel Type:</Text>
+          <Text style={styles.value}>
+            {car.fuelType ? `${car.fuelType}` : 'N/A'}
+          </Text>
         </View>
         <View style={styles.infoRow}>
           <Text style={styles.label}>Problem:</Text>
           <Text style={styles.value}>
-            {car.problem || 'No issues reported'}
+            {car.problem ? `${car.problem}` : 'N/A'}
+          </Text>
+        </View>
+        <View style={styles.infoRow}>
+          <Text style={styles.label}>Engine Capacity:</Text>
+          <Text style={styles.value}>
+            {car.engineCapacity ? `${car.engineCapacity} cc` : 'N/A'}
+          </Text>
+        </View>
+        
+        <View style={styles.infoRow}>
+          <Text style={styles.label}>MOT Status:</Text>
+          <Text style={styles.value}>{car.motStatus || 'N/A'}</Text>
+        </View>
+        <View style={styles.infoRow}>
+          <Text style={styles.label}>MOT Expiry:</Text>
+          <Text style={styles.value}>
+            {car.motExpiryDate || 'No issues reported'}
           </Text>
         </View>
       </View>
@@ -117,7 +148,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: hp(4),
+    marginTop: hp(2),
     alignItems: 'center',
   },
   backButton: {
@@ -133,7 +164,7 @@ const styles = StyleSheet.create({
     height: hp(25),
     resizeMode: 'contain',
     marginBottom: hp(2),
-    borderRadius: 20,
+    marginTop:hp(2)
   },
 
   detailsContainer: {
