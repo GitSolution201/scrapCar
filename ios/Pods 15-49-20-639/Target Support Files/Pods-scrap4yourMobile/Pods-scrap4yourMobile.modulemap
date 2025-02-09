@@ -1,0 +1,6 @@
+module Pods_scrap4yourMobile {
+  umbrella header "Pods-scrap4yourMobile-umbrella.h"
+
+  export *
+  module * { export * }
+}
