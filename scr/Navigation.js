@@ -75,13 +75,11 @@ const MainStack = () => (
 
 /* App Navigation */
 const AppNavigation = () => {
-  const { loginResponse } = useSelector((state: any) => state.auth);
-  const isAuthenticated = loginResponse?.message=='Login successful'; 
-  // const isAuthenticated = false; // Replace with your actual authentication logic
+   const token = useSelector((state) => state.auth.token); // ✅ Directly Checking Token
 
   return (
     <NavigationContainer>
-      {isAuthenticated ? <MainStack /> : <AuthStack />}
+      {token ? <MainStack /> : <AuthStack />}
     </NavigationContainer>
   );
 };

@@ -234,15 +234,14 @@ import HomeHeader from '../../Components/HomeHeader';
 
 const Listings = ({navigation}:{navigation:any}) => {
   const dispatch = useDispatch();
-  const {loginResponse} = useSelector((state:any) => state.auth);
+  const token = useSelector((state:any) => state.auth?.token);
   const {loading, error, data} = useSelector((state:any)  => state.carListings);
   const [activeFilter, setActiveFilter] = useState('Scrape');
-
   useEffect(() => {
-    if (loginResponse?.token) {
-      dispatch(getUserRequest(loginResponse?.token));
+    if (token) {
+      dispatch(getUserRequest(token));
     }
-  }, [loginResponse]);
+  }, [token]);
 
   return (
     <View style={styles.container}>

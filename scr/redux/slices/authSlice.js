@@ -1,4 +1,4 @@
-import {createSlice} from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   loading: false,
@@ -6,32 +6,41 @@ const initialState = {
   error: null,
   registerResponse: null,
   loginResponse: null,
+  token: null, // ✅ Token stored in Redux only
 };
 
 const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    loginRequest: state => {
+    loginRequest: (state) => {
       state.loading = true;
       state.loginResponse = null;
     },
     loginSuccess: (state, action) => {
       state.loading = false;
+      state.token = action.payload.access_token; // ✅ Save token in Redux state
       state.loginResponse = {
         success: true,
         message: action.payload.message,
-        token: action.payload.access_token
       };
     },
     loginFailure: (state, action) => {
       state.loading = false;
+      state.token = null; // ✅ Ensure token is removed on failure
       state.loginResponse = {
         success: false,
-        error: action.payload
+        error: action.payload,
       };
     },
-    registerRequest: state => {
+    logout: (state) => {
+      state.loading = false;
+      state.user = null;
+      state.token = null; // ✅ Clear token on logout
+      state.loginResponse = null;
+      state.registerResponse = null;
+    },
+    registerRequest: (state) => {
       state.loading = true;
       state.registerResponse = null;
     },
@@ -40,15 +49,18 @@ const authSlice = createSlice({
       state.registerResponse = {
         success: true,
         message: action.payload.message,
-        user: action.payload.user
+        user: action.payload.user,
       };
     },
     registerFailure: (state, action) => {
       state.loading = false;
       state.registerResponse = {
         success: false,
-        error: action.payload
+        error: action.payload,
       };
+    },
+    resetRegisterResponse: (state) => {
+      state.registerResponse = null;
     },
   },
 });
@@ -57,9 +69,11 @@ export const {
   loginRequest,
   loginSuccess,
   loginFailure,
+  logout,
   registerRequest,
   registerSuccess,
   registerFailure,
+  resetRegisterResponse,
 } = authSlice.actions;
 
-export default authSlice.reducer;
+export default authSlice.reducer; // ✅ Persist removed
