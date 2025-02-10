@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -6,10 +6,36 @@ import {
   TouchableOpacity,
   Image,
   StyleSheet,
+  Pressable,
+  Modal,
 } from 'react-native';
 import {ScrollView} from 'react-native-gesture-handler';
+import {logout} from '../../redux/slices/authSlice';
+import {useDispatch} from 'react-redux';
+import Colors from '../../Helper/Colors';
+import {hp, wp} from '../../Helper/Responsive';
 
 const Profile = ({navigation}: {navigation: any}) => {
+  const dispatch = useDispatch();
+  const [modalVisible, setModalVisible] = useState(false);
+  // navigation.navigate('FlowNavigation', {
+  //   screen: 'DrawerNavigation',
+  //   params: {
+  //     screen: 'BottomNavigation',
+  //     params: {
+  //       screen: 'Profile',
+  //     },
+  //   },
+  // })
+  const handleLogout = () => {
+    setModalVisible(false);
+    dispatch(logout());
+    navigation.navigate('Login')
+    // navigation.reset({
+    //   index: 0,
+    //   routes: [{ name: 'Login' }],
+    // });
+  };
   return (
     <ScrollView style={styles.container}>
       {/* Header */}
@@ -21,7 +47,8 @@ const Profile = ({navigation}: {navigation: any}) => {
         </TouchableOpacity>
 
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Profile</Text>
+          <Text style={
+            styles.headerTitle}>Profile</Text>
         </View>
       </View>
 
@@ -72,7 +99,9 @@ const Profile = ({navigation}: {navigation: any}) => {
           secureTextEntry
           placeholderTextColor="#9E9E9E"
         />
-        <TouchableOpacity style={styles.logout}>
+        <TouchableOpacity
+          style={styles.logout}
+          onPress={() => setModalVisible(true)}>
           <Text style={styles.logoutText}>Logout</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.changePassword}>
@@ -84,6 +113,29 @@ const Profile = ({navigation}: {navigation: any}) => {
       <TouchableOpacity style={styles.saveButton}>
         <Text style={styles.saveButtonText}>Save</Text>
       </TouchableOpacity>
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalText}>
+              Are you sure you want to logout?
+            </Text>
+            <View style={styles.buttonRow}>
+              <Pressable style={styles.button} onPress={()=>handleLogout()}>
+                <Text style={styles.buttonText}>Yes</Text>
+              </Pressable>
+              <Pressable
+                style={[styles.button, styles.cancelButton]}
+                onPress={() => setModalVisible(false)}>
+                <Text style={styles.buttonText}>No</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 };
@@ -193,6 +245,49 @@ const styles = StyleSheet.create({
   saveButtonText: {
     color: '#FFF',
     fontSize: 16,
+    fontWeight: 'bold',
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: '80%',
+    backgroundColor: 'white',
+    padding: hp(3),
+    borderRadius: wp(2),
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalText: {
+    fontSize: wp(4.5),
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: hp(2),
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%',
+  },
+  button: {
+    backgroundColor: Colors.primary,
+    paddingVertical: hp(1.5),
+    paddingHorizontal: wp(5),
+    borderRadius: wp(2),
+  },
+  cancelButton: {
+    backgroundColor: Colors.footerGray,
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: wp(4),
     fontWeight: 'bold',
   },
 });

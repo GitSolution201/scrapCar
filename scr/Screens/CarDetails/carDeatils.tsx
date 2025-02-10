@@ -26,13 +26,25 @@ const Details = ({route, navigation}: {route: any; navigation: any}) => {
         <View></View>
       </View>
 
-      {/* Car Image */}
-      <Image source={{uri: car?.carImage}} style={styles.carImage} />
-      {/* Car Info */}
-
+   
       <View style={styles.detailsContainer}>
+      <Image
+        source={{uri:car?.carImage}}
+        style={styles.carImage}
+        resizeMode={'contain'}
+      />
+        <View
+          style={{
+            backgroundColor: Colors.gradientEnd, // 👈 Jo bhi color chahiye
+            borderRadius: wp(10),
+            paddingHorizontal: wp(2), // 👈 Andar ka padding
+marginVertical:hp(2),
+            // 👈 Thoda rounded look ke liye
+            alignSelf: 'center', // 👈 Center align agar chahiye
+          }}>
+          <Text style={styles.scrapText}>{car.tag || 'Unknown'}</Text>
+        </View>
         <Text style={styles.carTitle}>{car.make || 'Model Not Available'}</Text>
-        <Text style={styles.scrapText}>{car.tag || 'Unknown'}</Text>
 
         <View style={styles.infoRow}>
           <Text style={styles.label}>Registration:</Text>
@@ -70,9 +82,9 @@ const Details = ({route, navigation}: {route: any; navigation: any}) => {
           </Text>
         </View>
         <View style={styles.infoRow}>
-          <Text style={styles.label}>Engine Capacity:</Text>
+          <Text style={styles.label}>Phone:</Text>
           <Text style={styles.value}>
-            {car.engineCapacity ? `${car.engineCapacity} cc` : 'N/A'}
+            {car.phoneNumber ? `+${car.phoneNumber}` : 'N/A'}
           </Text>
         </View>
 
@@ -148,9 +160,7 @@ const styles = StyleSheet.create({
   },
   carImage: {
     width: '100%',
-    height: hp(25),
-    resizeMode: 'contain',
-    marginBottom: hp(2),
+    height: hp(20),
     marginTop: hp(2),
   },
 
@@ -158,20 +168,20 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     padding: wp(5),
     borderRadius: wp(3),
-    marginBottom: hp(3),
+    marginVertical: hp(3),
   },
   carTitle: {
     fontSize: wp(6),
     fontWeight: 'bold',
-    color: Colors.darkGray,
+    color: Colors.primary,
     marginBottom: hp(1),
     textAlign: 'center',
   },
   scrapText: {
+    textTransform: 'capitalize', // 👈 First letter will be capitalized
+    padding: hp(1),
     textAlign: 'center',
     color: Colors.primary,
-    fontWeight: 'bold',
-    marginBottom: hp(2),
   },
   infoRow: {
     flexDirection: 'row',

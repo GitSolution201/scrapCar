@@ -12,7 +12,7 @@ const api = axios.create({
 // Login API
 export const login = async userData => {
   const response = await api.post('/auth/login', userData);
-  if (response.data?.message == 'Login successful') {
+  if (response.data?.message === 'Login successful') {
     return response.data;
   }
 };
@@ -20,7 +20,7 @@ export const login = async userData => {
 // Register API
 export const register = async userData => {
   const response = await api.post('/auth/register', userData);
-  if (response.data?.message == 'Registration Successful') {
+  if (response.data?.message === 'Registration Successful') {
     return response.data;
   }
 };

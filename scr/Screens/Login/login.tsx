@@ -62,7 +62,7 @@ const Login = ({navigation}: {navigation: any}) => {
   useEffect(() => {
     if (loginResponse) {
       if (loginResponse.success) {
-        navigation.replace('MainTabs');
+        navigation.navigate('MainTabs');
       } else if (loginResponse.error) {
         setApiError(loginResponse.error);
       }
@@ -159,6 +159,16 @@ const styles = StyleSheet.create({
     width: wp(90),
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
   },
+  input: {
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 5,
+    backgroundColor: '#FFF',
+    fontSize: 16,
+    color: '#333',
+  },
   logo: {
     width: 40,
     height: 40,
@@ -178,7 +188,6 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: wp(4),
     color: '#757575',
-    marginBottom: 30,
     textAlign: 'center',
     borderRadius: wp(2),
     paddingHorizontal: wp(3),

@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Image,
   Modal,
+  Platform,
 } from 'react-native';
 import MapView, {Marker} from 'react-native-maps';
 import Colors from '../../Helper/Colors';
@@ -13,6 +14,8 @@ import {useNavigation} from '@react-navigation/native';
 import {useSelector} from 'react-redux';
 import Slider from '@react-native-community/slider';
 import {hp, wp} from '../../Helper/Responsive';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+
 
 const MapListings = () => {
   const navigation = useNavigation();
@@ -23,7 +26,32 @@ const MapListings = () => {
     navigation.navigate('CarDeatils', {car: selectedCar});
     setSelectedCar(null);
   };
+  const [region, setRegion] = useState({
+    latitude: 51.451696,
+    longitude: 0.190079,
+    latitudeDelta: 0.05, // Default zoom level
+    longitudeDelta: 0.05,
+  });
 
+  useEffect(() => {
+    const zoomLevel = Math.max(0.005, distance * 0.01); // Adjust zoom scale
+    setRegion((prevRegion) => ({
+      ...prevRegion,
+      latitudeDelta: zoomLevel,
+      longitudeDelta: zoomLevel,
+    }));
+  }, [distance]);
+  // Function to update zoom level based on distance
+  const updateZoomLevel = (value) => {
+    setDistance(value);
+
+    const zoomLevel = Math.max(0.005, value * 0.01); // Adjust zoom scale
+    setRegion((prevRegion) => ({
+      ...prevRegion,
+      latitudeDelta: zoomLevel,
+      longitudeDelta: zoomLevel,
+    }));
+  };
   return (
     <View style={styles.container}>
       {/* Map Section */}
@@ -40,21 +68,14 @@ const MapListings = () => {
           minimumTrackTintColor="blue"
           maximumTrackTintColor="gray"
           thumbTintColor="blue"
-          onValueChange={value => {
-            setDistance(value);
-          }}
+          onValueChange={updateZoomLevel}
         />
       </View>
 
       <View style={styles.mapContainer}>
         <MapView
           style={styles.map}
-          initialRegion={{
-            latitude: 51.451696,
-            longitude: 0.190079,
-            latitudeDelta: 0.0922,
-            longitudeDelta: 0.0421,
-          }}>
+      region={region}>
           {data?.map((car, index) => {
             const offset = index * 0.0003;
 
@@ -73,28 +94,6 @@ const MapListings = () => {
               />
             );
           })}
-          {/* {data?.map((car, index) => {
-
-            const offset = index * 0.0003; 
-            <Marker
-              key={index}
-              coordinate={{
-                latitude: parseFloat(car?.latitude)+offset,
-                longitude: parseFloat(car?.longitude)+offset,
-              }}
-              title={`${car?.make} ${car?.model} (${car?.yearOfManufacture})`}
-              description={car?.problem ? `Issue: ${car?.problem}` : "No issues reported"}
-              onPress={() => setSelectedCar(car)}
-            />
-          })} */}
-
-          {/* {data?.map((car, index) =>*
-(          (<Marker
-            coordinate={{latitude: 51.451696, longitude: 0.190079}}
-            title="Fortuner GR"
-            description="Current Location"
-            onPress={openModal}
-          />)} */}
         </MapView>
       </View>
 
@@ -104,41 +103,36 @@ const MapListings = () => {
           <View style={styles.modalContent}>
             {/* Blue Header */}
             <View style={styles.header}>
-              <TouchableOpacity onPress={() => setSelectedCar(false)}>
-                <Image
-                  source={require('../../assets/cross.png')}
-                  style={styles.croosImage}
-                  resizeMode="contain"
-                />
-              </TouchableOpacity>
-              <Text style={styles.headerTitle}>
-                {selectedCar?.make} {selectedCar?.model}{' '}
+              <Text style={styles.headerTitleStyle} numberOfLines={3} ellipsizeMode='tail'>
+           {selectedCar?.make} {selectedCar?.model}{' '}
                 {selectedCar?.yearOfManufacture}
               </Text>
-              {/* <Text style={styles.headerSubText}>
-                Quoted Price: {selectedCar?.price || 'N/A'}
-              </Text> */}
+              
+              <TouchableOpacity
+                style={styles.crossContainer}
+                onPress={() => setSelectedCar(false)}>
+                <Icon name="close" size={15} color="white" />
+              </TouchableOpacity>
+              
               <Image
-                source={{uri: selectedCar?.carImage}}
+                source={require('../../assets/landcruser.png')}
                 style={styles.carImage}
               />
             </View>
 
             {/* Features Section */}
             <View>
-              <Text
-                style={[
-                  styles.headerTitle,
-                 styles.headerFeatureText
-                ]}>
+              <Text style={[styles.headerTitle, styles.headerFeatureText]}>
                 Features
               </Text>
 
               <View style={styles.featuresContainer}>
                 <View style={styles.featureCard}>
                   <Image
-                    source={require('../../assets/diesel.png')}
+                    source={require('../../assets/Fuel.png')}
                     style={styles.icon}
+                    tintColor={Colors.primary}
+                    resizeMode="contain"
                   />
                   <Text style={styles.featureTitle}>Fuel Type</Text>
                   <Text style={styles.featureSubText}>
@@ -147,8 +141,9 @@ const MapListings = () => {
                 </View>
                 <View style={styles.featureCard}>
                   <Image
-                    source={require('../../assets/speedometer1.png')}
+                    source={require('../../assets/Accelator.png')}
                     style={styles.icon}
+                    resizeMode="contain"
                   />
                   <Text style={styles.featureTitle}>Engine</Text>
                   <Text style={styles.featureSubText}>
@@ -203,8 +198,9 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   icon: {
-    width: 40,
-    height: 40,
+    width: 30,
+    height: 30,
+    marginVertical: hp(0.5),
     marginRight: 10,
   },
   modalContent: {
@@ -220,12 +216,23 @@ const styles = StyleSheet.create({
     padding: 20,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    position: 'relative',
+    // position: 'relative',
+    justifyContent:'space-between',
+    alignItems:'center',
+    flexDirection:'row'
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 20,
     paddingBottom: hp(2),
+    marginBottom: hp(1),
     fontWeight: 'bold',
+    color: '#FFF',
+  },
+  headerTitleStyle:{
+    fontSize: 20,
+    paddingRight:hp(3),
+    fontWeight: 'bold',
+    width:wp(50),
     color: '#FFF',
   },
   headerFeatureText: {
@@ -258,9 +265,14 @@ const styles = StyleSheet.create({
 
     padding: 10,
     width: '45%',
-    shadowOpacity: 0.1,
-    shadowOffset: {width: 0, height: 2},
-    shadowRadius: 4,
+    ...(Platform.OS === 'android'
+      ? { elevation: 0 } // Elevation only for Android
+      : {
+          shadowColor: '#000', // Shadow only for iOS
+          shadowOpacity: 0.1,
+          shadowOffset: { width: 0, height: 2 },
+          shadowRadius: 4,
+        }),
   },
   featureIcon: {
     fontSize: 28,
@@ -276,25 +288,15 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#555',
   },
-
-  // Close Button
-  closeButton: {
-    backgroundColor: '#FF5A5F',
-    marginHorizontal: 20,
-    marginTop: 20,
-    borderRadius: 10,
-    alignItems: 'center',
-    paddingVertical: 12,
+  crossContainer: {
+    width: wp(6), 
+    height: wp(6), 
+    borderRadius: wp(4), 
+    backgroundColor: 'gray', 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    alignSelf:'flex-start'
   },
-  closeButtonText: {
-    color: '#FFF',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },croosImage:{
-    width: wp(10),
-    height: hp(3),
-    alignSelf: 'flex-end',
-  }
 });
 
 export default MapListings;

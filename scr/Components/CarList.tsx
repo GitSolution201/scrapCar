@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
         padding: wp(2)
       },
       carTitle: {
-        fontSize: wp(5),
+        fontSize: wp(6),
         fontWeight: 'bold',
         color: Colors.primary,
         marginBottom: hp(1),

@@ -1,11 +1,20 @@
-import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import React from 'react';
+import {
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import Colors from '../Helper/Colors';
-import {hp, wp} from '../Helper/Responsive';
-import {useNavigation} from '@react-navigation/native';
+import { hp, wp } from '../Helper/Responsive';
+import { useNavigation } from '@react-navigation/native';
 
 export default function HomeHeader() {
   const navigation = useNavigation();
+
+  
+
   return (
     <View style={styles.header}>
       <Text style={styles.headerTitle}>Listings</Text>
@@ -39,4 +48,5 @@ const styles = StyleSheet.create({
     borderWidth: wp(0.5),
     borderColor: Colors.primary,
   },
+ 
 });
