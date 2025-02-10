@@ -5,62 +5,99 @@ import {
   Image,
   TouchableOpacity,
   StyleSheet,
-  ViewBase,
+  ScrollView,
 } from 'react-native';
-import {ScrollView} from 'react-native-gesture-handler';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import {hp, wp} from '../../Helper/Responsive';
+import Colors from '../../Helper/Colors';
 
-const Details = ({navigation}: {navigation: any}) => {
+
+const Details = ({route, navigation}: {route: any; navigation: any}) => {
+  const {car} = route.params;
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.backButton}>
-          <Text style={styles.backText}>←</Text>
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}>
+          <AntDesign name="arrowleft" size={24} color="black" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Details</Text>
         <View></View>
       </View>
 
       {/* Car Image */}
-      <Image source={require('../../assets/car.png')} style={styles.carImage} />
-
+<<<<<<< HEAD
+      <Image source={{uri: car?.carImage}} style={styles.carImage} />
+=======
+      <Image 
+          source={{uri: car?.carImage}}
+          style={styles.carImage} />
+>>>>>>> origin/Auth_Api
       {/* Car Info */}
+
       <View style={styles.detailsContainer}>
-        <Text style={styles.carTitle}>S 500 Sedan</Text>
-        <Text style={styles.scrapText}>Scrap</Text>
+        <Text style={styles.carTitle}>
+          {car.make || 'Model Not Available'}
+        </Text>
+        <Text style={styles.scrapText}>{car.tag || 'Unknown'}</Text>
+
         <View style={styles.infoRow}>
           <Text style={styles.label}>Registration:</Text>
-          <Text style={styles.value}>DN63WPZ</Text>
+          <Text style={styles.value}>
+            {car.registrationNumber || 'Unknown'}
+          </Text>
         </View>
         <View style={styles.infoRow}>
-          <Text style={styles.label}>Post Code:</Text>
-          <Text style={styles.value}>S63</Text>
+          <Text style={styles.label}>Year:</Text>
+          <Text style={styles.value}>{car.yearOfManufacture || 'N/A'}</Text>
         </View>
         <View style={styles.infoRow}>
-          <Text style={styles.label}>Weight:</Text>
-          <Text style={styles.value}>1320 KG</Text>
+          <Text style={styles.label}>PostCode:</Text>
+          <Text style={styles.value}>{car.postcode || 'N/A'}</Text>
         </View>
         <View style={styles.infoRow}>
-          <Text style={styles.label}>Engine Code:</Text>
-          <Text style={styles.value}>M472D20C</Text>
+          <Text style={styles.label}>Colors:</Text>
+          <Text style={styles.value}>
+            {car.color ? `${car.color}` : 'N/A'}
+          </Text>
         </View>
         <View style={styles.infoRow}>
-          <Text style={styles.label}>Year of the car:</Text>
-          <Text style={styles.value}>1995</Text>
+          <Text style={styles.label}>Model:</Text>
+          <Text style={styles.value}>
+            {car.model ? `${car.model}` : 'N/A'}
+          </Text>
+        </View>
+        
+        <View style={styles.infoRow}>
+          <Text style={styles.label}>Fuel Type:</Text>
+          <Text style={styles.value}>
+            {car.fuelType ? `${car.fuelType}` : 'N/A'}
+          </Text>
         </View>
         <View style={styles.infoRow}>
-          <Text style={styles.label}>Transmission:</Text>
-          <Text style={styles.value}>MANUAL 6 Gears</Text>
+          <Text style={styles.label}>Problem:</Text>
+          <Text style={styles.value}>
+            {car.problem ? `${car.problem}` : 'N/A'}
+          </Text>
         </View>
         <View style={styles.infoRow}>
-          <Text style={styles.label}>Quoted Price:</Text>
-          <Text style={styles.value}>$548</Text>
+          <Text style={styles.label}>Engine Capacity:</Text>
+          <Text style={styles.value}>
+            {car.engineCapacity ? `${car.engineCapacity} cc` : 'N/A'}
+          </Text>
+        </View>
+        
+        <View style={styles.infoRow}>
+          <Text style={styles.label}>MOT Status:</Text>
+          <Text style={styles.value}>{car.motStatus || 'N/A'}</Text>
         </View>
         <View style={styles.infoRow}>
-          <Text style={styles.label}>Color:</Text>
-          <Text style={styles.value}>Black</Text>
+          <Text style={styles.label}>MOT Expiry:</Text>
+          <Text style={styles.value}>
+            {car.motExpiryDate || 'No issues reported'}
+          </Text>
         </View>
       </View>
 
@@ -105,75 +142,74 @@ const Details = ({navigation}: {navigation: any}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: '#F5F5F5',
+    padding: wp(5),
+    backgroundColor: Colors.gray,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 40,
+    marginTop: hp(2),
+    alignItems: 'center',
   },
   backButton: {
-    marginRight: 10,
-  },
-  backText: {
-    fontSize: 24,
-    color: '#007BFF',
+    padding: wp(2),
   },
   headerTitle: {
-    fontSize: 18,
+    fontSize: wp(5),
     fontWeight: 'bold',
-    color: '#333',
+    color: Colors.darkGray,
   },
   carImage: {
     width: '100%',
-    height: 120,
+    height: hp(25),
     resizeMode: 'contain',
-    marginBottom: 20,
+    marginBottom: hp(2),
+    marginTop:hp(2)
   },
+
   detailsContainer: {
-    backgroundColor: '#FFF',
-    padding: 20,
-    borderRadius: 8,
-    marginBottom: 20,
+    backgroundColor: Colors.white,
+    padding: wp(5),
+    borderRadius: wp(3),
+    marginBottom: hp(3),
   },
   carTitle: {
-    fontSize: 22,
+    fontSize: wp(6),
     fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 10,
+    color: Colors.darkGray,
+    marginBottom: hp(1),
     textAlign: 'center',
   },
   scrapText: {
     textAlign: 'center',
-    color: '#007BFF',
+    color: Colors.primary,
     fontWeight: 'bold',
-    marginBottom: 20,
+    marginBottom: hp(2),
   },
   infoRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 10,
+    marginBottom: hp(1),
   },
   label: {
-    fontSize: 16,
-    color: '#555',
+    fontSize: wp(4),
+    color: Colors.darkGray,
   },
   value: {
-    fontSize: 16,
-    color: '#333',
+    fontSize: wp(4),
+    color: Colors.darkGray,
   },
   contactContainer: {
-    backgroundColor: '#FFF',
-    padding: 20,
-    borderRadius: 8,
-    marginBottom: 70,
+    backgroundColor: Colors.white,
+    padding: wp(5),
+    borderRadius: wp(3),
+    marginBottom: hp(7),
   },
   contactTitle: {
-    fontSize: 18,
+    fontSize: wp(5),
     fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 20,
+    color: Colors.darkGray,
+    marginBottom: hp(2),
     textAlign: 'center',
   },
   contactIcons: {
@@ -181,32 +217,32 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
   },
   contactButton: {
-    borderRadius: 50,
-    padding: 10,
+    borderRadius: wp(10),
+    padding: wp(2),
     alignItems: 'center',
-    width: 60,
-    height: 60,
+    width: wp(15),
+    height: wp(15),
     justifyContent: 'center',
   },
   callButton: {
-    backgroundColor: '#3A58E84A', // Blue color
+    backgroundColor: Colors.callButton,
   },
   whatsappButton: {
-    backgroundColor: '#49CAA34A', // Green color
+    backgroundColor: Colors.whatsappButton,
   },
   textButton: {
-    backgroundColor: '#FF4B4A3B', // Red color
+    backgroundColor: Colors.textButton,
   },
   icon: {
-    width: 30,
-    height: 30,
+    width: wp(8),
+    height: wp(8),
     resizeMode: 'contain',
   },
   contactText: {
-    marginTop: 5,
-    fontSize: 14,
+    marginTop: hp(1),
+    fontSize: wp(3.5),
     fontWeight: 'bold',
-    color: '#333',
+    color: Colors.darkGray,
     textAlign: 'center',
   },
 });

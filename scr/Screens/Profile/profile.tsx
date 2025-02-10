@@ -72,6 +72,9 @@ const Profile = ({navigation}: {navigation: any}) => {
           secureTextEntry
           placeholderTextColor="#9E9E9E"
         />
+        <TouchableOpacity style={styles.logout}>
+          <Text style={styles.logoutText}>Logout</Text>
+        </TouchableOpacity>
         <TouchableOpacity style={styles.changePassword}>
           <Text style={styles.changePasswordText}>Change Password</Text>
         </TouchableOpacity>
@@ -165,9 +168,21 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     marginBottom: 20,
   },
+  logout: {
+    alignItems: 'flex-start',
+    marginBottom: 20,
+  },
   changePasswordText: {
     fontSize: 14,
     color: '#007BFF',
+  },
+  logoutText: {
+    color: 'red',
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  color: {
+    color: 'red',
   },
   saveButton: {
     backgroundColor: '#007BFF',
