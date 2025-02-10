@@ -11,7 +11,6 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import {hp, wp} from '../../Helper/Responsive';
 import Colors from '../../Helper/Colors';
 
-
 const Details = ({route, navigation}: {route: any; navigation: any}) => {
   const {car} = route.params;
   return (
@@ -28,19 +27,11 @@ const Details = ({route, navigation}: {route: any; navigation: any}) => {
       </View>
 
       {/* Car Image */}
-<<<<<<< HEAD
       <Image source={{uri: car?.carImage}} style={styles.carImage} />
-=======
-      <Image 
-          source={{uri: car?.carImage}}
-          style={styles.carImage} />
->>>>>>> origin/Auth_Api
       {/* Car Info */}
 
       <View style={styles.detailsContainer}>
-        <Text style={styles.carTitle}>
-          {car.make || 'Model Not Available'}
-        </Text>
+        <Text style={styles.carTitle}>{car.make || 'Model Not Available'}</Text>
         <Text style={styles.scrapText}>{car.tag || 'Unknown'}</Text>
 
         <View style={styles.infoRow}>
@@ -59,17 +50,13 @@ const Details = ({route, navigation}: {route: any; navigation: any}) => {
         </View>
         <View style={styles.infoRow}>
           <Text style={styles.label}>Colors:</Text>
-          <Text style={styles.value}>
-            {car.color ? `${car.color}` : 'N/A'}
-          </Text>
+          <Text style={styles.value}>{car.color ? `${car.color}` : 'N/A'}</Text>
         </View>
         <View style={styles.infoRow}>
           <Text style={styles.label}>Model:</Text>
-          <Text style={styles.value}>
-            {car.model ? `${car.model}` : 'N/A'}
-          </Text>
+          <Text style={styles.value}>{car.model ? `${car.model}` : 'N/A'}</Text>
         </View>
-        
+
         <View style={styles.infoRow}>
           <Text style={styles.label}>Fuel Type:</Text>
           <Text style={styles.value}>
@@ -88,7 +75,7 @@ const Details = ({route, navigation}: {route: any; navigation: any}) => {
             {car.engineCapacity ? `${car.engineCapacity} cc` : 'N/A'}
           </Text>
         </View>
-        
+
         <View style={styles.infoRow}>
           <Text style={styles.label}>MOT Status:</Text>
           <Text style={styles.value}>{car.motStatus || 'N/A'}</Text>
@@ -164,7 +151,7 @@ const styles = StyleSheet.create({
     height: hp(25),
     resizeMode: 'contain',
     marginBottom: hp(2),
-    marginTop:hp(2)
+    marginTop: hp(2),
   },
 
   detailsContainer: {
