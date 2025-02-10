@@ -228,6 +228,8 @@ import {useDispatch, useSelector} from 'react-redux';
 import {getUserRequest} from '../../redux/slices/carListingsSlice';
 import Colors from '../../Helper/Colors';
 import {hp, wp} from '../../Helper/Responsive';
+import HomeHeader from '../../Components/HomeHeader';
+import CarList from '../../Components/CarList';
 
 const Listings = ({navigation}: {navigation: any}) => {
   const dispatch = useDispatch();
