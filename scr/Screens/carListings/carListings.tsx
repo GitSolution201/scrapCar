@@ -6,88 +6,49 @@ import {
   FlatList,
   StyleSheet,
   Image,
+  ActivityIndicator,
 } from 'react-native';
 import Colors from '../../Helper/Colors';
 import {useDispatch, useSelector} from 'react-redux';
 import {getUserRequest} from '../../redux/slices/carListingsSlice';
 import {hp, wp} from '../../Helper/Responsive';
-import Icon from 'react-native-vector-icons/Ionicons';
+import {useNavigation} from '@react-navigation/native';
 
-const listingsData = [
-  {
-    id: '1',
-    title: 'S 500 Sedan',
-    price: '$548',
-    registration: 'DN63WPZ',
-    postCode: 'S63',
-    weight: '1320 KG',
-    engineCode: 'M472D20C',
-    engineSize: '1995',
-    transmission: 'MANUAL 6 Gears',
-    distance: '107 mi',
-    views: '8',
-    image: require('../../assets/car.png'),
-  },
-  {
-    id: '2',
-    title: 'GLA 250 SUV',
-    price: '$548',
-    registration: 'DN63WPZ',
-    postCode: 'S63',
-    weight: '1320 KG',
-    engineCode: 'M472D20C',
-    engineSize: '1995',
-    transmission: 'MANUAL 6 Gears',
-    distance: '107 mi',
-    views: '8',
-    image: require('../../assets/car2.png'),
-  },
-  {
-    id: '1',
-    title: 'S 500 Sedan',
-    price: '$548',
-    registration: 'DN63WPZ',
-    postCode: 'S63',
-    weight: '1320 KG',
-    engineCode: 'M472D20C',
-    engineSize: '1995',
-    transmission: 'MANUAL 6 Gears',
-    distance: '107 mi',
-    views: '8',
-    image: require('../../assets/car.png'),
-  },
-  {
-    id: '2',
-    title: 'GLA 250 SUV',
-    price: '$548',
-    registration: 'DN63WPZ',
-    postCode: 'S63',
-    weight: '1320 KG',
-    engineCode: 'M472D20C',
-    engineSize: '1995',
-    transmission: 'MANUAL 6 Gears',
-    distance: '107 mi',
-    views: '8',
-    image: require('../../assets/car2.png'),
-  },
-];
-const Listings = ({navigation}: {navigation: any}) => {
+// Local images
+const localImages = {
+  car1: require('../../assets/car.png'),
+  car2: require('../../assets/car2.png'),
+};
+
+const Listings = () => {
+  const navigation = useNavigation();
   const dispatch = useDispatch();
   const token = useSelector((state: any) => state.auth?.token);
   const {loading, error, data} = useSelector((state: any) => state.carListings);
+  const [activeFilter, setActiveFilter] = useState('Scrape'); // State for active button
+  const [activeSort, setActiveSort] = useState(false); // State for sorting
+
   useEffect(() => {
     if (token) {
       dispatch(getUserRequest(token));
     }
   }, [token]);
-  const [activeFilter, setActiveFilter] = useState('Scrape'); // State for active button
-  const [activeSort, setActiveSort] = useState(false); // State for sorting
-  const renderItem = ({item}) => (
+
+  const sortedData = activeSort
+    ? [...data].sort((a, b) => new Date(b.date_added) - new Date(a.date_added))
+    : data;
+
+  const getLocalImage = index => {
+    const imageKeys = Object.keys(localImages);
+    return localImages[imageKeys[index % imageKeys.length]];
+  };
+
+  const renderItem = ({item, index}) => (
     <TouchableOpacity
       onPress={() => navigation.navigate('CarDeatils', {car: item})}
       style={styles.listingCard}>
       <Image
-        source={listingsData[0]?.image}
+        source={getLocalImage(index)}
         style={styles.carImage}
         resizeMode="contain"
       />
@@ -110,16 +71,13 @@ const Listings = ({navigation}: {navigation: any}) => {
               source={require('../../assets/compass.png')}
               style={styles.icon}
             />
-
             <Text style={styles.footerText}>{item.distance}</Text>
           </View>
-
           <View style={{flexDirection: 'row'}}>
             <Image
               source={require('../../assets/user2.png')}
               style={styles.icon}
             />
-
             <Text style={styles.footerText}>{item.views} Views</Text>
           </View>
         </View>
@@ -127,13 +85,31 @@ const Listings = ({navigation}: {navigation: any}) => {
     </TouchableOpacity>
   );
 
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={Colors.primary} />
+        <Text style={styles.loadingText}>Loading Listings...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>Error: {error}</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Listings</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
-          <Icon name="person-circle" size={30} color="black" />
+        <TouchableOpacity onPress={() => navigation.navigate('Subscriptions')}>
+          <Text style={{paddingTop: hp(1)}}>
+            Subscribe to Contact Customers
+          </Text>
         </TouchableOpacity>
       </View>
 
@@ -165,7 +141,6 @@ const Listings = ({navigation}: {navigation: any}) => {
           style={[
             {flexDirection: 'row'},
             styles.sortButton,
-
             activeSort === true && styles.sortButtonActive,
           ]}
           onPress={() => setActiveSort(!activeSort)}>
@@ -181,13 +156,13 @@ const Listings = ({navigation}: {navigation: any}) => {
 
       {/* Listings */}
       <FlatList
-        data={data?.filter(
+        data={sortedData.filter(
           (item: any) =>
             item.tag === activeFilter.toLowerCase() || activeFilter === 'Both',
         )}
         renderItem={renderItem}
         showsVerticalScrollIndicator={false}
-        keyExtractor={item => item.id}
+        keyExtractor={item => item._id}
         contentContainerStyle={styles.list}
       />
     </View>
@@ -200,6 +175,25 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 20,
     backgroundColor: '#F5F5F5',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: Colors.primary,
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorText: {
+    fontSize: 16,
+    color: 'red',
   },
   icon: {
     width: 20,
@@ -217,13 +211,6 @@ const styles = StyleSheet.create({
     fontSize: wp(6),
     fontWeight: 'bold',
     color: Colors.darkGray,
-  },
-  profileImage: {
-    width: wp(10),
-    height: hp(5),
-    borderRadius: wp(10),
-    borderWidth: wp(0.5),
-    borderColor: Colors.primary,
   },
   filterContainer: {
     flexDirection: 'row',
@@ -258,7 +245,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 4,
   },
-
   sortButtonActive: {
     backgroundColor: '#007BFF',
   },

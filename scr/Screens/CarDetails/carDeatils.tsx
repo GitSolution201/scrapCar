@@ -6,13 +6,27 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
+  Linking,
 } from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import {hp, wp} from '../../Helper/Responsive';
 import Colors from '../../Helper/Colors';
 
+const detaultCarImage = require('../../assets/car2.png');
+
 const Details = ({route, navigation}: {route: any; navigation: any}) => {
   const {car} = route.params;
+
+  const handleCall = (phoneNumber: string) => {
+    Linking.openURL(`tel:${phoneNumber}`);
+  };
+  const handleTextMessage = (phoneNumber: string) => {
+    Linking.openURL(`sms:${phoneNumber}`);
+  };
+  const handleWhatsApp = (phoneNumber: string) => {
+    Linking.openURL(`https://wa.me/${phoneNumber}`);
+  };
+  
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       {/* Header */}
@@ -26,22 +40,14 @@ const Details = ({route, navigation}: {route: any; navigation: any}) => {
         <View></View>
       </View>
 
-   
       <View style={styles.detailsContainer}>
-      <Image
-        source={{uri:car?.carImage}}
-        style={styles.carImage}
-        resizeMode={'contain'}
-      />
+        <Image
+          source={car?.carImage ? {uri: car?.carImage} : detaultCarImage}
+          style={styles.carImage}
+          resizeMode={'contain'}
+        />
         <View
-          style={{
-            backgroundColor: Colors.gradientEnd, // 👈 Jo bhi color chahiye
-            borderRadius: wp(10),
-            paddingHorizontal: wp(2), // 👈 Andar ka padding
-marginVertical:hp(2),
-            // 👈 Thoda rounded look ke liye
-            alignSelf: 'center', // 👈 Center align agar chahiye
-          }}>
+          style={styles.carTagContainer}>
           <Text style={styles.scrapText}>{car.tag || 'Unknown'}</Text>
         </View>
         <Text style={styles.carTitle}>{car.make || 'Model Not Available'}</Text>
@@ -105,7 +111,9 @@ marginVertical:hp(2),
         <Text style={styles.contactTitle}>Contact Seller Via</Text>
         <View style={styles.contactIcons}>
           <View>
-            <TouchableOpacity style={[styles.contactButton, styles.callButton]}>
+            <TouchableOpacity style={[styles.contactButton, styles.callButton]}
+              onPress={() => handleCall('+'+car?.phoneNumber)}
+            >
               <Image
                 source={require('../../assets/telephone.png')}
                 style={styles.icon}
@@ -115,7 +123,9 @@ marginVertical:hp(2),
           </View>
           <View>
             <TouchableOpacity
-              style={[styles.contactButton, styles.whatsappButton]}>
+              style={[styles.contactButton, styles.whatsappButton]}
+              onPress={() => handleWhatsApp('+'+car?.phoneNumber)}
+              >
               <Image
                 source={require('../../assets/whatsapp.png')}
                 style={styles.icon}
@@ -124,7 +134,9 @@ marginVertical:hp(2),
             <Text style={styles.contactText}>WhatsApp</Text>
           </View>
           <View>
-            <TouchableOpacity style={[styles.contactButton, styles.textButton]}>
+            <TouchableOpacity style={[styles.contactButton, styles.textButton]}
+              onPress={() => handleTextMessage('+'+car?.phoneNumber)}
+            >
               <Image
                 source={require('../../assets/messenger.png')}
                 style={styles.icon}
@@ -176,6 +188,13 @@ const styles = StyleSheet.create({
     color: Colors.primary,
     marginBottom: hp(1),
     textAlign: 'center',
+  },
+  carTagContainer:{
+    backgroundColor: Colors.gradientEnd,
+    borderRadius: wp(10),
+    paddingHorizontal: wp(2), 
+    marginVertical: hp(2),
+    alignSelf: 'center',
   },
   scrapText: {
     textTransform: 'capitalize', // 👈 First letter will be capitalized

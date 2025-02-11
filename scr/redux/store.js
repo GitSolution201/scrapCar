@@ -3,9 +3,13 @@ import createSagaMiddleware from 'redux-saga';
 import {persistStore, persistReducer} from 'redux-persist';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import authReducer from './slices/authSlice';
+import userDetail from './slices/userDetail';
 import carListingsReducer from './slices/carListingsSlice';
+import userProfileUpdateReducer from './slices/userProfileUpdateSlice';
 import authSaga from './sagas/authSaga';
 import userSaga from './sagas/carListingsSaga';
+import userDetailSaga from './sagas/userDetailSaga';
+import userProfileUpdateSage from './sagas/userProfileUpdateSage';
 
 const sagaMiddleware = createSagaMiddleware();
 
@@ -13,13 +17,15 @@ const sagaMiddleware = createSagaMiddleware();
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
-  whitelist: ['auth', 'carListings'], // ✨ List all reducers you want to persist
+  whitelist: ['auth', 'carListings','user','profileUpdate'], // ✨ List all reducers you want to persist
 };
 
 // ✅ Combine all reducers
 const rootReducer = combineReducers({
   auth: authReducer,
   carListings: carListingsReducer,
+  user: userDetail, 
+ profileUpdate: userProfileUpdateReducer
 });
 
 // ✅ Apply persistReducer to rootReducer
@@ -41,5 +47,7 @@ const persistor = persistStore(store);
 // ✅ Run sagas
 sagaMiddleware.run(authSaga);
 sagaMiddleware.run(userSaga);
+sagaMiddleware.run(userDetailSaga);
+sagaMiddleware.run(userProfileUpdateSage);
 
 export {store, persistor};

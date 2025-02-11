@@ -34,4 +34,24 @@ export const getUser = async token => {
   });
   return response?.data;
 };
+// get User detail 
+export const fetchUserDetails = async (token) => {
+  const response = await api.get('/auth/get-user-details', {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
+};
+
+//User Profile Update
+export const updateUserProfile = async (token, updatedData) => {
+  const response = await api.put('/auth/update-user-profile', updatedData, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
+};
+
 export default api;
