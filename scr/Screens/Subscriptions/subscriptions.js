@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {View, Text, StyleSheet, TouchableOpacity, Image} from 'react-native';
+import {View, Text, StyleSheet, Image, TouchableOpacity} from 'react-native';
 
 const SubscriptionScreen = ({navigation}: {navigation: any}) => {
   const [activeSubscription, setActiveSubscription] = useState(null); // To track the active subscription
@@ -10,10 +10,12 @@ const SubscriptionScreen = ({navigation}: {navigation: any}) => {
 
   return (
     <View style={styles.container}>
-      <Image
-        source={require('../../assets/arrow.png')}
-        style={styles.iconBack}
-      />
+      <TouchableOpacity onPress={() => navigation.goBack()}>
+        <Image
+          source={require('../../assets/arrow.png')}
+          style={styles.iconBack}
+        />
+      </TouchableOpacity>
 
       <Text style={styles.title}>Subscription</Text>
       <Text style={styles.heading}>Upgrade to Pro</Text>
