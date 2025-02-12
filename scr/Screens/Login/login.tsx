@@ -32,7 +32,16 @@ const Login = ({navigation}: {navigation: any}) => {
   });
   const [apiError, setApiError] = useState('');
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-
+  useEffect(() => {
+    if (loginResponse) {
+      setApiError('');
+      if (loginResponse.success) {
+        navigation.repalce('MainTabs');
+      } else if (loginResponse.error) {
+        setApiError(loginResponse.error);
+      }
+    }
+  }, [loginResponse]);
   const validateForm = () => {
     let errors = {};
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -59,15 +68,7 @@ const Login = ({navigation}: {navigation: any}) => {
     }
   };
 
-  useEffect(() => {
-    if (loginResponse) {
-      if (loginResponse.success) {
-        navigation.navigate('MainTabs');
-      } else if (loginResponse.error) {
-        setApiError(loginResponse.error);
-      }
-    }
-  }, [loginResponse]);
+
 
   return (
     <ImageBackground
@@ -92,7 +93,10 @@ const Login = ({navigation}: {navigation: any}) => {
           style={styles.input}
           placeholder="Enter your email address"
           value={email}
-          onChangeText={setEmail}
+          onChangeText={text => {
+            setEmail(text);
+            setApiError(''); // Clear error when user starts typing
+          }}
           keyboardType="email-address"
           autoCapitalize="none"
           placeholderTextColor="#9E9E9E"
@@ -107,7 +111,10 @@ const Login = ({navigation}: {navigation: any}) => {
             style={styles.passwordInput}
             placeholder="Enter your password"
             value={password}
-            onChangeText={setPassword}
+            onChangeText={text => {
+              setPassword(text);
+              setApiError(''); // Clear error when user starts typing
+            }}
             secureTextEntry={!isPasswordVisible}
             placeholderTextColor="#9E9E9E"
           />
@@ -208,7 +215,7 @@ const styles = StyleSheet.create({
     flex: 1, // Ensures the input takes full width and text doesn't overlap the icon
     height: hp(6),
     fontSize: wp(4),
-    paddingLeft:hp(2),
+    paddingLeft: hp(2),
     paddingRight: wp(10), // Reserves space for the eye icon
     color: '#000',
   },

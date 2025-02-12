@@ -38,19 +38,26 @@ const Profile = ({navigation}) => {
   } = useSelector(state => state.profileUpdate);
   const dispatch = useDispatch();
   const [modalVisible, setModalVisible] = useState(false);
-  const [firstName, setFirstName] = useState(userData?.first_name || '');
-  const [lastName, setLastName] = useState(userData?.last_name || '');
-  const [email, setEmail] = useState(userData?.email || '');
-  const [phoneNumber, setPhoneNumber] = useState(userData?.phone_number || '');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState( '');
+  const [email, setEmail] = useState( '');
+  const [phoneNumber, setPhoneNumber] = useState( '');
   const [errors, setErrors] = useState({});
-
   useEffect(() => {
     if (token) {
       dispatch(fetchUserRequest(token)); // Fetch user details when the component mounts
     }
     setErrors({}); // Clear all errors when the component mounts
-  }, [token, dispatch]);
-
+  }, [token, ]);
+  useEffect(() => {
+    if (userData) {
+      setFirstName(userData.first_name || '');
+      setLastName(userData.last_name || '');
+      setEmail(userData.email || '');
+      setPhoneNumber(userData.phone_number || '');
+    }
+  }, [userData]);
+  
   useEffect(() => {
     if (updateSuccess && message) {
       Toast.show(message, Toast.LONG); // Display the message for a long duration
@@ -60,7 +67,7 @@ const Profile = ({navigation}) => {
       // Optionally, refetch user details to reflect the updated data
       dispatch(fetchUserRequest(token));
     }
-  }, [updateSuccess, dispatch, token]);
+  }, [updateSuccess, token]);
 
   // Validation rules
   const validateForm = () => {

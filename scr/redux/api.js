@@ -3,55 +3,90 @@ import axios from 'axios';
 // Set up the base Axios instance
 const api = axios.create({
   baseURL: 'https://scrape4you.onrender.com', // Replace this with your actual API base URL
-  timeout: 10000, // Timeout in milliseconds
+  timeout: 500000, // Timeout in milliseconds
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
 // Login API
-export const login = async userData => {
-  const response = await api.post('/auth/login', userData);
-  if (response.data?.message === 'Login successful') {
+export const login = async (userData) => {
+  try {
+    const response = await api.post('/auth/login',JSON.stringify( userData));
+    if (response.data?.message === 'Login successful') {
+      return response.data; // Return success response
+    } else {
+      throw new Error(response.data?.message || 'Login failed');
+    }
+  } catch (error) {
+    console.log('API Error:', error.response?.data || error.message);
+    throw new Error(error.response?.data?.message || 'Login failed');
+  }
+};
+// Register API
+export const register = async userData => {
+  try {
+  const response = await api.post('/auth/register', userData);
+  console.log('@RESP{ONCE ion register',response)
+  if (response.data?.message === 'Registration Successful') {
     return response.data;
+  }else {
+    console.log('ELSE')
+    throw new Error(response.data?.message || 'Registration failed');
+  }
+}catch (error) {
+  console.log('REGISTER API Error:', error.response?.data || error.message);
+  throw new Error(error.response?.data?.message || 'Registration failed');
+}
+};
+// get All Car Listing
+// Get All Car Listing
+export const getUser = async (token) => {
+  try {
+    const response = await api.get('/car/get-all-listing', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    console.log('Get User Response:', response.data); // Log the response
+    return response.data; // Return the data
+  } catch (error) {
+    console.log('Get User Error:', error.response?.data || error.message); // Log the error
+    throw new Error(error.response?.data?.message || 'Failed to fetch user data'); // Throw a meaningful error
   }
 };
 
-// Register API
-export const register = async userData => {
-  const response = await api.post('/auth/register', userData);
-  if (response.data?.message === 'Registration Successful') {
-    return response.data;
-  }
-};
-// get All Car Listing
-export const getUser = async token => {
-  const response = await api.get('/car/get-all-listing', {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
-  });
-  return response?.data;
-};
-// get User detail 
+// Get User Details
 export const fetchUserDetails = async (token) => {
-  const response = await api.get('/auth/get-user-details', {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  return response.data;
+  try {
+    const response = await api.get('/auth/get-user-details', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    console.log('Fetch User Details Response:', response.data); // Log the response
+    return response.data; // Return the data
+  } catch (error) {
+    console.log('Fetch User Details Error:', error.response?.data || error.message); // Log the error
+    throw new Error(error.response?.data?.message || 'Failed to fetch user details'); // Throw a meaningful error
+  }
 };
 
 //User Profile Update
 export const updateUserProfile = async (token, updatedData) => {
-  const response = await api.put('/auth/update-user-profile', updatedData, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  return response.data;
+  try {
+    const response = await api.put('/auth/update-user-profile', updatedData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    console.log('Update User Profile Response:', response.data); // Log the response
+    return response.data; // Return the data
+  } catch (error) {
+    console.log('Update User Profile Error:', error.response?.data || error.message); // Log the error
+    throw new Error(error.response?.data?.message || 'Failed to update user profile'); // Throw a meaningful error
+  }
 };
 
 export default api;
