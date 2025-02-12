@@ -1,42 +1,59 @@
-# Resolve react_native_pods.rb with node to allow for hoisting
+# Define minimum platform and prepare React Native project
 require Pod::Executable.execute_command('node', ['-p',
-  'require.resolve(
-    "react-native/scripts/react_native_pods.rb",
-    {paths: [process.argv[1]]},
-  )', __dir__]).strip
-pod 'GoogleMaps'
-pod 'react-native-google-maps', :path => '../node_modules/react-native-maps'
+  'require.resolve("react-native/scripts/react_native_pods.rb", {paths: [process.argv[1]]})', __dir__]).strip
 
 platform :ios, min_ios_version_supported
 prepare_react_native_project!
 
+# React Native and framework linkage
 linkage = ENV['USE_FRAMEWORKS']
 if linkage != nil
   Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
   use_frameworks! :linkage => linkage.to_sym
 end
 
+# Main target
 target 'scrap4yourMobile' do
   config = use_native_modules!
 
   use_react_native!(
     :path => config[:reactNativePath],
-    # An absolute path to your application root.
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
+  # Include Google Maps
+  pod 'react-native-google-maps', :path => '../node_modules/react-native-maps'
+
+  # Tests target
   target 'scrap4yourMobileTests' do
     inherit! :complete
-    # Pods for testing
   end
-
+ 
+  # Post install script to fix duplicate file issues
   post_install do |installer|
-    # https://github.com/facebook/react-native/blob/main/packages/react-native/scripts/react_native_pods.rb#L197-L202
     react_native_post_install(
       installer,
       config[:reactNativePath],
-      :mac_catalyst_enabled => false,
-      # :ccache_enabled => true
+      :mac_catalyst_enabled => false
     )
+
+    # Fix duplicate file issues
+    installer.pods_project.targets.each do |target|
+      target.build_configurations.each do |config|
+        # Exclude architectures for React-Core on simulators
+        if target.name == 'React-Core'
+          config.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'arm64'
+        end
+      end
+
+      # Remove duplicate resources for specific targets
+      if ['RCT-Folly', 'React-Core'].include?(target.name)
+        target.resources_build_phase.files.each do |file|
+          if file.display_name.include?('RCT-Folly') || file.display_name.include?('React-Core')
+            target.resources_build_phase.remove_file_reference(file.file_ref)
+          end
+        end
+      end
+    end
   end
 end

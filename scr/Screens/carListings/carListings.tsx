@@ -156,9 +156,9 @@ const Listings = () => {
 
       {/* Listings */}
       <FlatList
-        data={sortedData.filter(
+        data={sortedData?.filter(
           (item: any) =>
-            item.tag === activeFilter.toLowerCase() || activeFilter === 'Both',
+            item.tag === activeFilter?.toLowerCase() || activeFilter === 'Both',
         )}
         renderItem={renderItem}
         showsVerticalScrollIndicator={false}
