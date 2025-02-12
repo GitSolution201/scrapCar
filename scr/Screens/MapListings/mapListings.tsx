@@ -16,7 +16,6 @@ import Slider from '@react-native-community/slider';
 import {hp, wp} from '../../Helper/Responsive';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
-
 const MapListings = () => {
   const navigation = useNavigation();
   const [selectedCar, setSelectedCar] = useState(null);
@@ -35,18 +34,18 @@ const MapListings = () => {
 
   useEffect(() => {
     const zoomLevel = Math.max(0.005, distance * 0.01); // Adjust zoom scale
-    setRegion((prevRegion) => ({
+    setRegion(prevRegion => ({
       ...prevRegion,
       latitudeDelta: zoomLevel,
       longitudeDelta: zoomLevel,
     }));
   }, [distance]);
   // Function to update zoom level based on distance
-  const updateZoomLevel = (value) => {
+  const updateZoomLevel = value => {
     setDistance(value);
 
     const zoomLevel = Math.max(0.005, value * 0.01); // Adjust zoom scale
-    setRegion((prevRegion) => ({
+    setRegion(prevRegion => ({
       ...prevRegion,
       latitudeDelta: zoomLevel,
       longitudeDelta: zoomLevel,
@@ -73,9 +72,7 @@ const MapListings = () => {
       </View>
 
       <View style={styles.mapContainer}>
-        <MapView
-          style={styles.map}
-      region={region}>
+        <MapView style={styles.map} region={region}>
           {data?.map((car, index) => {
             const offset = index * 0.0003;
 
@@ -103,17 +100,20 @@ const MapListings = () => {
           <View style={styles.modalContent}>
             {/* Blue Header */}
             <View style={styles.header}>
-              <Text style={styles.headerTitleStyle} numberOfLines={3} ellipsizeMode='tail'>
-           {selectedCar?.make} {selectedCar?.model}{' '}
+              <Text
+                style={styles.headerTitleStyle}
+                numberOfLines={3}
+                ellipsizeMode="tail">
+                {selectedCar?.make} {selectedCar?.model}{' '}
                 {selectedCar?.yearOfManufacture}
               </Text>
-              
+
               <TouchableOpacity
                 style={styles.crossContainer}
                 onPress={() => setSelectedCar(false)}>
                 <Icon name="close" size={15} color="white" />
               </TouchableOpacity>
-              
+
               <Image
                 source={require('../../assets/landcruser.png')}
                 style={styles.carImage}
@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
   container: {flex: 1},
   sliderContainer: {
     position: 'absolute',
-    top: 20,
+    top: 50,
     left: 20,
     right: 20,
     backgroundColor: 'white',
@@ -217,9 +217,9 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     // position: 'relative',
-    justifyContent:'space-between',
-    alignItems:'center',
-    flexDirection:'row'
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexDirection: 'row',
   },
   headerTitle: {
     fontSize: 20,
@@ -228,11 +228,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#FFF',
   },
-  headerTitleStyle:{
+  headerTitleStyle: {
     fontSize: 20,
-    paddingRight:hp(3),
+    paddingRight: hp(3),
     fontWeight: 'bold',
-    width:wp(50),
+    width: wp(50),
     color: '#FFF',
   },
   headerFeatureText: {
@@ -266,11 +266,11 @@ const styles = StyleSheet.create({
     padding: 10,
     width: '45%',
     ...(Platform.OS === 'android'
-      ? { elevation: 0 } // Elevation only for Android
+      ? {elevation: 0} // Elevation only for Android
       : {
           shadowColor: '#000', // Shadow only for iOS
           shadowOpacity: 0.1,
-          shadowOffset: { width: 0, height: 2 },
+          shadowOffset: {width: 0, height: 2},
           shadowRadius: 4,
         }),
   },
@@ -289,13 +289,13 @@ const styles = StyleSheet.create({
     color: '#555',
   },
   crossContainer: {
-    width: wp(6), 
-    height: wp(6), 
-    borderRadius: wp(4), 
-    backgroundColor: 'gray', 
-    justifyContent: 'center', 
-    alignItems: 'center', 
-    alignSelf:'flex-start'
+    width: wp(6),
+    height: wp(6),
+    borderRadius: wp(4),
+    backgroundColor: 'gray',
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
   },
 });
 

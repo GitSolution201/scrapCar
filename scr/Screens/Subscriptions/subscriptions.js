@@ -10,6 +10,11 @@ const SubscriptionScreen = ({navigation}: {navigation: any}) => {
 
   return (
     <View style={styles.container}>
+      <Image
+        source={require('../../assets/arrow.png')}
+        style={styles.iconBack}
+      />
+
       <Text style={styles.title}>Subscription</Text>
       <Text style={styles.heading}>Upgrade to Pro</Text>
       <Text style={styles.description}>
@@ -69,6 +74,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
     padding: 20,
     marginTop: 50,
+  },
+  iconBack: {
+    width: 40,
+    height: 40,
   },
   title: {
     fontSize: 24,

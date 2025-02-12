@@ -26,7 +26,7 @@ const Details = ({route, navigation}: {route: any; navigation: any}) => {
   const handleWhatsApp = (phoneNumber: string) => {
     Linking.openURL(`https://wa.me/${phoneNumber}`);
   };
-  
+
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       {/* Header */}
@@ -34,7 +34,10 @@ const Details = ({route, navigation}: {route: any; navigation: any}) => {
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => navigation.goBack()}>
-          <AntDesign name="arrowleft" size={24} color="black" />
+          <Image
+            source={require('../../assets/arrow.png')}
+            style={styles.iconBack}
+          />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Details</Text>
         <View></View>
@@ -46,8 +49,7 @@ const Details = ({route, navigation}: {route: any; navigation: any}) => {
           style={styles.carImage}
           resizeMode={'contain'}
         />
-        <View
-          style={styles.carTagContainer}>
+        <View style={styles.carTagContainer}>
           <Text style={styles.scrapText}>{car.tag || 'Unknown'}</Text>
         </View>
         <Text style={styles.carTitle}>{car.make || 'Model Not Available'}</Text>
@@ -111,9 +113,9 @@ const Details = ({route, navigation}: {route: any; navigation: any}) => {
         <Text style={styles.contactTitle}>Contact Seller Via</Text>
         <View style={styles.contactIcons}>
           <View>
-            <TouchableOpacity style={[styles.contactButton, styles.callButton]}
-              onPress={() => handleCall('+'+car?.phoneNumber)}
-            >
+            <TouchableOpacity
+              style={[styles.contactButton, styles.callButton]}
+              onPress={() => handleCall('+' + car?.phoneNumber)}>
               <Image
                 source={require('../../assets/telephone.png')}
                 style={styles.icon}
@@ -124,8 +126,7 @@ const Details = ({route, navigation}: {route: any; navigation: any}) => {
           <View>
             <TouchableOpacity
               style={[styles.contactButton, styles.whatsappButton]}
-              onPress={() => handleWhatsApp('+'+car?.phoneNumber)}
-              >
+              onPress={() => handleWhatsApp('+' + car?.phoneNumber)}>
               <Image
                 source={require('../../assets/whatsapp.png')}
                 style={styles.icon}
@@ -134,9 +135,9 @@ const Details = ({route, navigation}: {route: any; navigation: any}) => {
             <Text style={styles.contactText}>WhatsApp</Text>
           </View>
           <View>
-            <TouchableOpacity style={[styles.contactButton, styles.textButton]}
-              onPress={() => handleTextMessage('+'+car?.phoneNumber)}
-            >
+            <TouchableOpacity
+              style={[styles.contactButton, styles.textButton]}
+              onPress={() => handleTextMessage('+' + car?.phoneNumber)}>
               <Image
                 source={require('../../assets/messenger.png')}
                 style={styles.icon}
@@ -189,10 +190,10 @@ const styles = StyleSheet.create({
     marginBottom: hp(1),
     textAlign: 'center',
   },
-  carTagContainer:{
+  carTagContainer: {
     backgroundColor: Colors.gradientEnd,
     borderRadius: wp(10),
-    paddingHorizontal: wp(2), 
+    paddingHorizontal: wp(2),
     marginVertical: hp(2),
     alignSelf: 'center',
   },
@@ -253,6 +254,10 @@ const styles = StyleSheet.create({
     width: wp(8),
     height: wp(8),
     resizeMode: 'contain',
+  },
+  iconBack: {
+    width: 40,
+    height: 40,
   },
   contactText: {
     marginTop: hp(1),

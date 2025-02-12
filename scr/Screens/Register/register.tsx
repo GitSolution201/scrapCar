@@ -411,7 +411,11 @@ import {
   Alert,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
-import {registerRequest, registerSuccess, resetRegisterResponse} from '../../redux/slices/authSlice';
+import {
+  registerRequest,
+  registerSuccess,
+  resetRegisterResponse,
+} from '../../redux/slices/authSlice';
 import Icon from 'react-native-vector-icons/Feather';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import CountryPicker from 'react-native-country-picker-modal'; // Import Country Picker
@@ -439,11 +443,15 @@ const Register = ({navigation}: {navigation: any}) => {
   const {loading, registerResponse} = useSelector((state: any) => state.auth);
   useEffect(() => {
     if (registerResponse) {
-      if (registerResponse.success ) {
+      if (registerResponse.success) {
         Alert.alert('Success', registerResponse.message, [
-          {text: 'OK', onPress: () => {
-            dispatch(resetRegisterResponse());
-            navigation.navigate('Login')}},
+          {
+            text: 'OK',
+            onPress: () => {
+              dispatch(resetRegisterResponse());
+              navigation.navigate('Login');
+            },
+          },
         ]);
       } else if (registerResponse.error) {
         Alert.alert('Error', registerResponse.error);
@@ -509,7 +517,10 @@ const Register = ({navigation}: {navigation: any}) => {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <ScrollView contentContainerStyle={styles.scrollContainer}>
             <TouchableOpacity onPress={() => navigation.goBack()}>
-              <AntDesign name="arrowleft" size={24} color="black" />
+              <Image
+                source={require('../../assets/arrow.png')}
+                style={styles.icon}
+              />
             </TouchableOpacity>
             <View style={styles.form}>
               <Text style={styles.title}>Register</Text>
@@ -722,6 +733,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
     fontSize: 16,
     color: '#333',
+  },
+  icon: {
+    width: 40,
+    height: 40,
   },
   passwordContainer: {
     flexDirection: 'row',

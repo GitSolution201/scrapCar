@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -10,20 +10,32 @@ import {
   Modal,
   ActivityIndicator,
 } from 'react-native';
-import { ScrollView } from 'react-native-gesture-handler';
-import { useDispatch, useSelector } from 'react-redux';
-import { logout } from '../../redux/slices/authSlice';
-import { fetchUserRequest } from '../../redux/slices/userDetail';
-import { updateProfileRequest, resetProfileUpdateState } from '../../redux/slices/userProfileUpdateSlice';
+import {ScrollView} from 'react-native-gesture-handler';
+import {useDispatch, useSelector} from 'react-redux';
+import {logout} from '../../redux/slices/authSlice';
+import {fetchUserRequest} from '../../redux/slices/userDetail';
+import {
+  updateProfileRequest,
+  resetProfileUpdateState,
+} from '../../redux/slices/userProfileUpdateSlice';
 import Colors from '../../Helper/Colors';
-import { hp, wp } from '../../Helper/Responsive';
+import {hp, wp} from '../../Helper/Responsive';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Toast from 'react-native-simple-toast'; // Import the toast package
 
-const Profile = ({ navigation }) => {
-  const token = useSelector((state) => state.auth?.token);
-  const { loading: userLoading, userData, error: userError } = useSelector((state) => state.user);
-  const { loading: updateLoading, success: updateSuccess, error: updateError,message } = useSelector((state) => state.profileUpdate);
+const Profile = ({navigation}) => {
+  const token = useSelector(state => state.auth?.token);
+  const {
+    loading: userLoading,
+    userData,
+    error: userError,
+  } = useSelector(state => state.user);
+  const {
+    loading: updateLoading,
+    success: updateSuccess,
+    error: updateError,
+    message,
+  } = useSelector(state => state.profileUpdate);
   const dispatch = useDispatch();
   const [modalVisible, setModalVisible] = useState(false);
   const [firstName, setFirstName] = useState(userData?.first_name || '');
@@ -37,7 +49,6 @@ const Profile = ({ navigation }) => {
       dispatch(fetchUserRequest(token)); // Fetch user details when the component mounts
     }
     setErrors({}); // Clear all errors when the component mounts
-
   }, [token, dispatch]);
 
   useEffect(() => {
@@ -81,7 +92,7 @@ const Profile = ({ navigation }) => {
 
   // Reset error for a specific field when the user starts typing
   const handleInputChange = (field, value) => {
-    setErrors((prevErrors) => ({ ...prevErrors, [field]: null })); // Reset error for the field
+    setErrors(prevErrors => ({...prevErrors, [field]: null})); // Reset error for the field
     switch (field) {
       case 'firstName':
         setFirstName(value);
@@ -100,7 +111,6 @@ const Profile = ({ navigation }) => {
     }
   };
 
-
   const handleSave = () => {
     if (validateForm()) {
       const updatedData = {
@@ -109,7 +119,7 @@ const Profile = ({ navigation }) => {
         email,
         phoneNumber,
       };
-      dispatch(updateProfileRequest({ token, updatedData })); // Dispatch the update action
+      dispatch(updateProfileRequest({token, updatedData})); // Dispatch the update action
     }
   };
 
@@ -140,8 +150,13 @@ const Profile = ({ navigation }) => {
     <ScrollView style={styles.container}>
       {/* Header */}
       <View style={styles.headerTitleStyle}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-          <AntDesign name="arrowleft" size={24} color="black" />
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}>
+          <Image
+            source={require('../../assets/arrow.png')}
+            style={styles.iconBack}
+          />
         </TouchableOpacity>
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Profile</Text>
@@ -163,29 +178,33 @@ const Profile = ({ navigation }) => {
 
       {/* Input Fields */}
       <View style={styles.inputContainer}>
-      <TextInput
+        <TextInput
           style={[styles.input, errors.firstName && styles.inputError]}
           placeholder="First Name"
           value={firstName}
-          onChangeText={(value) => handleInputChange('firstName', value)}
+          onChangeText={value => handleInputChange('firstName', value)}
           placeholderTextColor="#9E9E9E"
         />
-        {errors.firstName && <Text style={styles.errorText}>{errors.firstName}</Text>}
+        {errors.firstName && (
+          <Text style={styles.errorText}>{errors.firstName}</Text>
+        )}
 
         <TextInput
           style={[styles.input, errors.lastName && styles.inputError]}
           placeholder="Last Name"
           value={lastName}
-          onChangeText={(value) => handleInputChange('lastName', value)}
+          onChangeText={value => handleInputChange('lastName', value)}
           placeholderTextColor="#9E9E9E"
         />
-        {errors.lastName && <Text style={styles.errorText}>{errors.lastName}</Text>}
+        {errors.lastName && (
+          <Text style={styles.errorText}>{errors.lastName}</Text>
+        )}
 
         <TextInput
           style={[styles.input, errors.email && styles.inputError]}
           placeholder="Email Address"
           value={email}
-          onChangeText={(value) => handleInputChange('email', value)}
+          onChangeText={value => handleInputChange('email', value)}
           keyboardType="email-address"
           placeholderTextColor="#9E9E9E"
         />
@@ -195,13 +214,17 @@ const Profile = ({ navigation }) => {
           style={[styles.input, errors.phoneNumber && styles.inputError]}
           placeholder="Phone Number"
           value={phoneNumber}
-          onChangeText={(value) => handleInputChange('phoneNumber', value)}
+          onChangeText={value => handleInputChange('phoneNumber', value)}
           keyboardType="phone-pad"
           placeholderTextColor="#9E9E9E"
         />
-        {errors.phoneNumber && <Text style={styles.errorText}>{errors.phoneNumber}</Text>}
+        {errors.phoneNumber && (
+          <Text style={styles.errorText}>{errors.phoneNumber}</Text>
+        )}
 
-        <TouchableOpacity style={styles.logout} onPress={() => setModalVisible(true)}>
+        <TouchableOpacity
+          style={styles.logout}
+          onPress={() => setModalVisible(true)}>
           <Text style={styles.logoutText}>Logout</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.changePassword}>
@@ -210,10 +233,7 @@ const Profile = ({ navigation }) => {
       </View>
 
       {/* Save Button */}
-      <TouchableOpacity
-        style={[styles.saveButton ]}
-        onPress={handleSave}
-      >
+      <TouchableOpacity style={[styles.saveButton]} onPress={handleSave}>
         <Text style={styles.saveButtonText}>Save</Text>
       </TouchableOpacity>
 
@@ -225,7 +245,9 @@ const Profile = ({ navigation }) => {
         onRequestClose={() => setModalVisible(false)}>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalText}>Are you sure you want to logout?</Text>
+            <Text style={styles.modalText}>
+              Are you sure you want to logout?
+            </Text>
             <View style={styles.buttonRow}>
               <Pressable style={styles.button} onPress={handleLogout}>
                 <Text style={styles.buttonText}>Yes</Text>
@@ -252,8 +274,13 @@ const styles = StyleSheet.create({
   headerTitleStyle: {
     flexDirection: 'row',
     marginBottom: 20,
-    marginTop: hp(2),
+    marginTop: hp(5),
   },
+  iconBack: {
+    width: 40,
+    height: 40,
+  },
+
   header: {
     alignItems: 'center',
     textAlign: 'center',
@@ -370,7 +397,7 @@ const styles = StyleSheet.create({
     borderRadius: wp(2),
     alignItems: 'center',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
