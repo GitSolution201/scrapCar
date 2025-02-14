@@ -20,22 +20,21 @@ import {
 } from '../../redux/slices/userProfileUpdateSlice';
 import Colors from '../../Helper/Colors';
 import {hp, wp} from '../../Helper/Responsive';
-import AntDesign from 'react-native-vector-icons/AntDesign';
 import Toast from 'react-native-simple-toast'; // Import the toast package
 
-const Profile = ({navigation}) => {
-  const token = useSelector(state => state.auth?.token);
+const Profile = ({navigation}:{navigation:any}) => {
+  const token = useSelector((state:any) => state.auth?.token);
   const {
     loading: userLoading,
     userData,
     error: userError,
-  } = useSelector(state => state.user);
+  } = useSelector((state:any) => state.user);
   const {
     loading: updateLoading,
     success: updateSuccess,
     error: updateError,
     message,
-  } = useSelector(state => state.profileUpdate);
+  } = useSelector((state:any) => state.profileUpdate);
   const dispatch = useDispatch();
   const [modalVisible, setModalVisible] = useState(false);
   const [firstName, setFirstName] = useState('');
@@ -121,10 +120,9 @@ const Profile = ({navigation}) => {
   const handleSave = () => {
     if (validateForm()) {
       const updatedData = {
-        firstName,
-        lastName,
-        email,
-        phoneNumber,
+        first_name:  firstName,
+        last_name: lastName,
+       phone: phoneNumber,
       };
       dispatch(updateProfileRequest({token, updatedData})); // Dispatch the update action
     }
@@ -132,7 +130,7 @@ const Profile = ({navigation}) => {
 
   const handleLogout = () => {
     setModalVisible(false);
-    // dispatch(logout());
+    dispatch(logout());
     navigation.navigate('Login');
   };
 

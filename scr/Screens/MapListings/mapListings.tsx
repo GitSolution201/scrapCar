@@ -14,50 +14,56 @@ import {useNavigation} from '@react-navigation/native';
 import {useSelector} from 'react-redux';
 import Slider from '@react-native-community/slider';
 import {hp, wp} from '../../Helper/Responsive';
-import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const MapListings = () => {
   const navigation = useNavigation();
   const [selectedCar, setSelectedCar] = useState(null);
   const {data} = useSelector((state: any) => state.carListings);
   const [distance, setDistance] = useState(5);
+
   const closeModal = () => {
-    navigation.navigate('CarDeatils', {car: selectedCar});
-    setSelectedCar(null);
+    setSelectedCar(null); // Close the modal
   };
+
+  const handleModalContentPress = () => {
+    // Navigate to CarDetails when modal content is pressed
+    navigation.navigate('CarDeatils', {car: selectedCar});
+    setSelectedCar(null); // Close the modal
+
+  };
+
   const [region, setRegion] = useState({
     latitude: 51.451696,
     longitude: 0.190079,
-    latitudeDelta: 0.05, // Default zoom level
+    latitudeDelta: 0.05,
     longitudeDelta: 0.05,
   });
 
   useEffect(() => {
-    const zoomLevel = Math.max(0.005, distance * 0.01); // Adjust zoom scale
+    const zoomLevel = Math.max(0.005, distance * 0.01);
     setRegion(prevRegion => ({
       ...prevRegion,
       latitudeDelta: zoomLevel,
       longitudeDelta: zoomLevel,
     }));
   }, [distance]);
-  // Function to update zoom level based on distance
+
   const updateZoomLevel = value => {
     setDistance(value);
-
-    const zoomLevel = Math.max(0.005, value * 0.01); // Adjust zoom scale
+    const zoomLevel = Math.max(0.005, value * 0.01);
     setRegion(prevRegion => ({
       ...prevRegion,
       latitudeDelta: zoomLevel,
       longitudeDelta: zoomLevel,
     }));
   };
+
   return (
     <View style={styles.container}>
       {/* Map Section */}
       <View style={styles.sliderContainer} pointerEvents="box-none">
         <Text style={styles.label}>Distance</Text>
         <Text style={styles.distanceText}>{distance}km</Text>
-
         <Slider
           style={styles.slider}
           minimumValue={1}
@@ -73,9 +79,8 @@ const MapListings = () => {
 
       <View style={styles.mapContainer}>
         <MapView style={styles.map} region={region}>
-          {data?.map((car:any, index:any) => {
+          {data?.map((car: any, index: any) => {
             const offset = index * 0.0003;
-
             return (
               <Marker
                 key={car.uniqueId}
@@ -96,8 +101,14 @@ const MapListings = () => {
 
       {/* Bottom Modal */}
       <Modal visible={!!selectedCar} animationType="slide" transparent>
-        <TouchableOpacity onPress={closeModal} style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={closeModal}>
+          <TouchableOpacity
+            style={styles.modalContent}
+            activeOpacity={1}
+            onPress={handleModalContentPress}>
             {/* Blue Header */}
             <View style={styles.header}>
               <Text
@@ -157,7 +168,7 @@ const MapListings = () => {
                 </View>
               </View>
             </View>
-          </View>
+          </TouchableOpacity>
         </TouchableOpacity>
       </Modal>
     </View>
@@ -198,9 +209,9 @@ const styles = StyleSheet.create({
 
   // Modal Styles
   modalOverlay: {
-    // Removed background color completely
     flex: 1,
     justifyContent: 'flex-end',
+    // backgroundColor: 'rgba(0, 0, 0, 0.13)', // Semi-transparent background
   },
   icon: {
     width: 30,
@@ -221,7 +232,6 @@ const styles = StyleSheet.create({
     padding: 20,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    // position: 'relative',
     justifyContent: 'space-between',
     alignItems: 'center',
     flexDirection: 'row',
@@ -267,13 +277,12 @@ const styles = StyleSheet.create({
     borderColor: 'grey',
     borderWidth: 0.5,
     borderRadius: 10,
-
     padding: 10,
     width: '45%',
     ...(Platform.OS === 'android'
-      ? {elevation: 0} // Elevation only for Android
+      ? {elevation: 0}
       : {
-          shadowColor: '#000', // Shadow only for iOS
+          shadowColor: '#000',
           shadowOpacity: 0.1,
           shadowOffset: {width: 0, height: 2},
           shadowRadius: 4,

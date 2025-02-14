@@ -30,8 +30,8 @@ const Register = ({navigation}: {navigation: any}) => {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [countryCode, setCountryCode] = useState('US'); // Default country code
-  const [callingCode, setCallingCode] = useState('1'); // Default calling code
+  const [countryCode, setCountryCode] = useState('GB'); // Default country code
+  const [callingCode, setCallingCode] = useState('44'); // Default calling code
   const [visible, setVisible] = useState(false); // Modal visibility state
 
   const [errorMessage, setErrorMessages] = useState<any>({
@@ -189,7 +189,7 @@ const Register = ({navigation}: {navigation: any}) => {
               {errorMessage.emailError && (
                 <Text style={styles.errorText}>{errorMessage.emailError}</Text>
               )}
-              <Text style={styles.label}>Phone Number</Text>{' '}
+              <Text style={styles.label}>Phone Number</Text>
               <View style={styles.phoneContainer}>
                 <TouchableOpacity
                   onPress={() => setVisible(true)}
