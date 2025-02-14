@@ -73,7 +73,7 @@ const MapListings = () => {
 
       <View style={styles.mapContainer}>
         <MapView style={styles.map} region={region}>
-          {data?.map((car, index) => {
+          {data?.map((car:any, index:any) => {
             const offset = index * 0.0003;
 
             return (
@@ -111,7 +111,12 @@ const MapListings = () => {
               <TouchableOpacity
                 style={styles.crossContainer}
                 onPress={() => setSelectedCar(false)}>
-                <Icon name="close" size={15} color="white" />
+                <Image
+                  source={require('../../assets/cross.png')}
+                  tintColor={Colors.white}
+                  resizeMode="contain"
+                  style={{width: wp(4.5), height: wp(4.5)}}
+                />
               </TouchableOpacity>
 
               <Image
@@ -292,7 +297,7 @@ const styles = StyleSheet.create({
     width: wp(6),
     height: wp(6),
     borderRadius: wp(4),
-    backgroundColor: 'gray',
+    backgroundColor: Colors.footerGray,
     justifyContent: 'center',
     alignItems: 'center',
     alignSelf: 'flex-start',

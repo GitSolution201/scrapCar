@@ -68,8 +68,6 @@ const Login = ({navigation}: {navigation: any}) => {
     }
   };
 
-
-
   return (
     <ImageBackground
       source={require('../../assets/background.jpeg')}
@@ -121,10 +119,18 @@ const Login = ({navigation}: {navigation: any}) => {
           <TouchableOpacity
             onPress={() => setIsPasswordVisible(!isPasswordVisible)}
             style={styles.eyeIcon}>
-            <Icon
-              name={isPasswordVisible ? 'eye' : 'eye-slash'}
-              size={wp(5)}
-              color={isPasswordVisible ? Colors.darkGray : '#ACB5BB'}
+            <Image
+              source={
+                isPasswordVisible
+                  ? require('../../assets/visible.png')
+                  : require('../../assets/NotVisible.png')
+              }
+              style={{
+                width: isPasswordVisible ? wp(6) : wp(5),
+                height: isPasswordVisible ? wp(6) : wp(5),
+              }}
+              tintColor={Colors.eyeIcon}
+              resizeMode="contain"
             />
           </TouchableOpacity>
         </View>
@@ -221,9 +227,7 @@ const styles = StyleSheet.create({
   },
 
   eyeIcon: {
-    position: 'absolute',
-    right: wp(3),
-    top: hp(2),
+    marginRight: hp(1.5),
   },
 
   button: {

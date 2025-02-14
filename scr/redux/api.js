@@ -3,7 +3,7 @@ import axios from 'axios';
 // Set up the base Axios instance
 const api = axios.create({
   baseURL: 'https://scrape4you.onrender.com', // Replace this with your actual API base URL
-  timeout: 500000, // Timeout in milliseconds
+  timeout: 3000, // Timeout in milliseconds
   headers: {
     'Content-Type': 'application/json',
   },

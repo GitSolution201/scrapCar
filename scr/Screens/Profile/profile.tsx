@@ -47,8 +47,8 @@ const Profile = ({navigation}) => {
     if (token) {
       dispatch(fetchUserRequest(token)); // Fetch user details when the component mounts
     }
-    setErrors({}); // Clear all errors when the component mounts
-  }, [token, ]);
+    setErrors({});  // Clear all errors when the component mounts
+  }, [token]);
   useEffect(() => {
     if (userData) {
       setFirstName(userData.first_name || '');
@@ -132,7 +132,7 @@ const Profile = ({navigation}) => {
 
   const handleLogout = () => {
     setModalVisible(false);
-    dispatch(logout());
+    // dispatch(logout());
     navigation.navigate('Login');
   };
 

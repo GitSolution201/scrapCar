@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {View, Text, StyleSheet, TouchableOpacity, Image} from 'react-native';
 
 const SubscriptionScreen = ({navigation}: {navigation: any}) => {
   const [activeSubscription, setActiveSubscription] = useState(null); // To track the active subscription
