@@ -21,33 +21,39 @@ import {
 import Colors from '../../Helper/Colors';
 import {hp, wp} from '../../Helper/Responsive';
 import Toast from 'react-native-simple-toast'; // Import the toast package
+import CountryPicker from 'react-native-country-picker-modal';
+import {useIsFocused} from '@react-navigation/native';
 
-const Profile = ({navigation}:{navigation:any}) => {
-  const token = useSelector((state:any) => state.auth?.token);
+const Profile = ({navigation}: {navigation: any}) => {
+  const isFocused = useIsFocused();
+  const token = useSelector((state: any) => state.auth?.token);
   const {
     loading: userLoading,
     userData,
     error: userError,
-  } = useSelector((state:any) => state.user);
+  } = useSelector((state: any) => state.user);
   const {
     loading: updateLoading,
     success: updateSuccess,
     error: updateError,
     message,
-  } = useSelector((state:any) => state.profileUpdate);
+  } = useSelector((state: any) => state.profileUpdate);
   const dispatch = useDispatch();
   const [modalVisible, setModalVisible] = useState(false);
   const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState( '');
-  const [email, setEmail] = useState( '');
-  const [phoneNumber, setPhoneNumber] = useState( '');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [errors, setErrors] = useState({});
+  const [countryCode, setCountryCode] = useState('GB'); // Default country code
+  const [callingCode, setCallingCode] = useState('44'); // Default calling code
+  const [visible, setVisible] = useState(false); // Modal visibility state
   useEffect(() => {
-    if (token) {
-      dispatch(fetchUserRequest(token)); // Fetch user details when the component mounts
+    if (isFocused) {
+      dispatch(fetchUserRequest(token)); // جب بھی اسکرین فوکس میں آئے، یوزر ڈیٹا کو ریفریش کرے گا۔
     }
-    setErrors({});  // Clear all errors when the component mounts
-  }, [token]);
+    setErrors({}); // ایررز کو صاف کرنے کے لیے
+  }, [isFocused]);
   useEffect(() => {
     if (userData) {
       setFirstName(userData.first_name || '');
@@ -56,7 +62,7 @@ const Profile = ({navigation}:{navigation:any}) => {
       setPhoneNumber(userData.phone_number || '');
     }
   }, [userData]);
-  
+
   useEffect(() => {
     if (updateSuccess && message) {
       Toast.show(message, Toast.LONG); // Display the message for a long duration
@@ -120,9 +126,9 @@ const Profile = ({navigation}:{navigation:any}) => {
   const handleSave = () => {
     if (validateForm()) {
       const updatedData = {
-        first_name:  firstName,
+        first_name: firstName,
         last_name: lastName,
-       phone: phoneNumber,
+        phone: phoneNumber,
       };
       dispatch(updateProfileRequest({token, updatedData})); // Dispatch the update action
     }
@@ -161,6 +167,7 @@ const Profile = ({navigation}:{navigation:any}) => {
           <Image
             source={require('../../assets/arrow.png')}
             style={styles.iconBack}
+            tintColor={Colors?.backIconColor}
           />
         </TouchableOpacity>
         <View style={styles.header}>
@@ -183,6 +190,8 @@ const Profile = ({navigation}:{navigation:any}) => {
 
       {/* Input Fields */}
       <View style={styles.inputContainer}>
+        <Text style={styles.hidingColor}>First Name</Text>
+
         <TextInput
           style={[styles.input, errors.firstName && styles.inputError]}
           placeholder="First Name"
@@ -193,6 +202,7 @@ const Profile = ({navigation}:{navigation:any}) => {
         {errors.firstName && (
           <Text style={styles.errorText}>{errors.firstName}</Text>
         )}
+        <Text style={styles.hidingColor}>Last Name</Text>
 
         <TextInput
           style={[styles.input, errors.lastName && styles.inputError]}
@@ -204,6 +214,7 @@ const Profile = ({navigation}:{navigation:any}) => {
         {errors.lastName && (
           <Text style={styles.errorText}>{errors.lastName}</Text>
         )}
+        <Text style={styles.hidingColor}>Email Address</Text>
 
         <TextInput
           style={[styles.input, errors.email && styles.inputError]}
@@ -214,34 +225,68 @@ const Profile = ({navigation}:{navigation:any}) => {
           placeholderTextColor="#9E9E9E"
         />
         {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
+        <Text style={styles.hidingColor}>Phone Number</Text>
+        <View style={styles.phoneContainer}>
+          <TouchableOpacity
+            onPress={() => setVisible(true)}
+            style={styles.countryPicker}>
+            <CountryPicker
+              withFilter
+              withFlag
+              withCallingCode
+              withModal
+              withAlphaFilter
+              countryCode={countryCode}
+              onSelect={country => {
+                setCountryCode(country.cca2);
+                setCallingCode(country.callingCode[0]);
+              }}
+              visible={visible}
+              onClose={() => setVisible(false)}
+            />
+            <Text style={styles.callingCode}>+{callingCode}</Text>
+          </TouchableOpacity>
 
-        <TextInput
+          <TextInput
+            style={styles.phoneInput}
+            placeholder="Phone Number"
+            value={phoneNumber}
+            onChangeText={value => handleInputChange('phoneNumber', value)}
+            keyboardType="phone-pad"
+            placeholderTextColor="#9E9E9E"
+          />
+        </View>
+        {errors.phoneNumber && (
+          <Text style={styles.errorText}>{errors.phoneNumber}</Text>
+        )}
+        {/* <TextInput
           style={[styles.input, errors.phoneNumber && styles.inputError]}
           placeholder="Phone Number"
           value={phoneNumber}
           onChangeText={value => handleInputChange('phoneNumber', value)}
           keyboardType="phone-pad"
           placeholderTextColor="#9E9E9E"
-        />
-        {errors.phoneNumber && (
+        /> */}
+        {/* {errors.phoneNumber && (
           <Text style={styles.errorText}>{errors.phoneNumber}</Text>
-        )}
+        )} */}
 
-        <TouchableOpacity
-          style={styles.logout}
-          onPress={() => setModalVisible(true)}>
-          <Text style={styles.logoutText}>Logout</Text>
+        <TouchableOpacity style={[styles.saveButton]} onPress={handleSave}>
+          <Text style={styles.saveButtonText}>Save</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.changePassword}>
+        {/* <TouchableOpacity style={styles.changePassword}>
           <Text style={styles.changePasswordText}>Change Password</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
 
       {/* Save Button */}
-      <TouchableOpacity style={[styles.saveButton]} onPress={handleSave}>
-        <Text style={styles.saveButtonText}>Save</Text>
-      </TouchableOpacity>
 
+      <TouchableOpacity
+        // style={styles.logout}
+        style={[styles.saveButton]}
+        onPress={() => setModalVisible(true)}>
+        <Text style={styles.saveButtonText}>Logout</Text>
+      </TouchableOpacity>
       {/* Logout Modal */}
       <Modal
         animationType="fade"
@@ -273,17 +318,20 @@ const Profile = ({navigation}:{navigation:any}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    paddingHorizontal: wp(5),
+    marginBottom: wp(3),
     backgroundColor: '#F5F5F5',
   },
   headerTitleStyle: {
     flexDirection: 'row',
     marginBottom: 20,
-    marginTop: hp(5),
+    alignItems: 'center',
+    marginTop: hp(3),
   },
   iconBack: {
-    width: 40,
-    height: 40,
+    width: 30,
+    height: 30,
+    resizeMode: 'contain',
   },
 
   header: {
@@ -291,6 +339,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     justifyContent: 'center',
     flex: 1,
+    marginRight: wp(5),
   },
   backButton: {
     marginRight: 10,
@@ -309,7 +358,6 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   profileContainer: {
-    position: 'relative',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -322,9 +370,9 @@ const styles = StyleSheet.create({
   },
   editIcon: {
     position: 'absolute',
-    bottom: 0,
-    right: -10,
-    backgroundColor: '#007BFF',
+    bottom: 10,
+    right: 5,
+    backgroundColor: '#1814F3',
     borderRadius: 20,
     width: 30,
     height: 30,
@@ -350,6 +398,32 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333',
   },
+  phoneContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    borderRadius: 8,
+    paddingHorizontal: 5,
+    backgroundColor: '#FFF',
+    marginBottom: 5,
+  },
+  countryPicker: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingRight: 10,
+  },
+  callingCode: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  phoneInput: {
+    flex: 1,
+    borderLeftWidth: 0.3,
+    padding: 10,
+    height: 50,
+    borderColor: '#E0E0E0',
+  },
   inputError: {
     borderColor: 'red', // Highlight input field with error
   },
@@ -358,27 +432,29 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginBottom: 10,
   },
-  changePassword: {
-    alignItems: 'flex-end',
-    marginBottom: 20,
-  },
+
   logout: {
-    alignItems: 'flex-start',
-    marginBottom: 20,
+    backgroundColor: Colors.primary, // Apple-style red logout button
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 20,
+    alignSelf: 'center', // Centering the button
+    width: '80%',
   },
-  changePasswordText: {
-    fontSize: 14,
-    color: '#007BFF',
-  },
+
   logoutText: {
-    color: 'red',
+    color: Colors.white,
     fontSize: 20,
     fontWeight: 'bold',
   },
   saveButton: {
     backgroundColor: '#007BFF',
-    padding: 15,
+    padding: wp(3),
     borderRadius: 8,
+    marginTop: wp(4),
     alignItems: 'center',
   },
   disabledButton: {
@@ -446,6 +522,10 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  hidingColor: {
+    color: '#000000AB',
+    paddingBottom: hp(1),
   },
 });
 

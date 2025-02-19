@@ -12,7 +12,8 @@ import CarListings from './Screens/carListings/carListings';
 import CarDeatils from './Screens/CarDetails/carDeatils';
 import Dashboard from './Screens/Dashboard/dashboard';
 import SubscriptionScreen from './Screens/Subscriptions/subscriptions';
-import { useSelector } from 'react-redux';
+import {useSelector} from 'react-redux';
+import Savage from './Screens/Savage/Savage';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -70,12 +71,13 @@ const MainStack = () => (
     <Stack.Screen name="MainTabs" component={MainTabs} />
     <Stack.Screen name="CarDeatils" component={CarDeatils} />
     <Stack.Screen name="Subscriptions" component={SubscriptionScreen} />
+    <Stack.Screen name="Savage" component={Savage} />
   </Stack.Navigator>
 );
 
 /* App Navigation */
 const AppNavigation = () => {
-   const token = useSelector((state) => state.auth.token); // ✅ Directly Checking Token
+  const token = useSelector(state => state.auth.token); // ✅ Directly Checking Token
 
   return (
     <NavigationContainer>

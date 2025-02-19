@@ -16,7 +16,6 @@ const detaultCarImage = require('../../assets/car2.png');
 
 const Details = ({route, navigation}: {route: any; navigation: any}) => {
   const {car} = route.params;
-
   const handleCall = (phoneNumber: string) => {
     Linking.openURL(`tel:${phoneNumber}`);
   };
@@ -209,6 +208,7 @@ const styles = StyleSheet.create({
     marginBottom: hp(1),
   },
   label: {
+    textTransform: 'capitalize',
     fontSize: wp(4),
     color: Colors.darkGray,
   },

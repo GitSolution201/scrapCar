@@ -29,7 +29,6 @@ const MapListings = () => {
     // Navigate to CarDetails when modal content is pressed
     navigation.navigate('CarDeatils', {car: selectedCar});
     setSelectedCar(null); // Close the modal
-
   };
 
   const [region, setRegion] = useState({

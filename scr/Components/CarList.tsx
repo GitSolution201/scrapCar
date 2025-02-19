@@ -1,65 +1,119 @@
-import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native'
-import React from 'react'
-import { useNavigation } from '@react-navigation/native'
-import Colors from '../Helper/Colors'
-import { hp, wp } from '../Helper/Responsive'
-const defaultImage = require('../assets/car.png');
+import {View, Text, TouchableOpacity, StyleSheet, Image} from 'react-native';
+import React from 'react';
+import {useNavigation} from '@react-navigation/native';
+import Colors from '../Helper/Colors';
+import {hp, wp} from '../Helper/Responsive';
 
-export default function CarList({item}:{item:any}) {
- const navigation=   useNavigation()
+const localImages = {
+  car1: require('../assets/car.png'),
+  car2: require('../assets/car2.png'),
+};
+
+export default function CarList({
+  item,
+  itemIndex,
+}: {
+  item: any;
+  itemIndex: any;
+}) {
+  const navigation = useNavigation();
+  const getLocalImage = (index: any) => {
+    const imageKeys = Object.keys(localImages);
+    return localImages[imageKeys[index % imageKeys.length]];
+  };
   return (
     <TouchableOpacity
-        onPress={() => navigation.navigate('CarDeatils', {car: item})}
-        style={styles.listingCard}>
-        <Image
-          source={{uri: item.carImage}}
-          style={styles.carImage}
-          onError={() => defaultImage}
-        />
-        <View style={styles.detailsContainer}>
-          <Text style={styles.carTitle}>{item.make || 'Unknown Make'}</Text>
-          <Text style={styles.details}>
-            Registration: {item.registrationNumber || 'N/A'}
-          </Text>
-          <Text style={styles.details}>Postcode: {item.postcode || 'N/A'}</Text>
-          <Text style={styles.details}>Color: {item.color || 'N/A'}</Text>
-          <Text style={styles.details}>Model: {item.model || 'N/A'}</Text>
-          <Text style={styles.details}>
-            Fuel Type: {item.fuelType || 'N/A'}
-          </Text>
+      onPress={() => navigation.navigate('CarDeatils', {car: item})}
+      style={styles.listingCard}>
+      <Image
+        source={getLocalImage(itemIndex)}
+        style={styles.carImage}
+        resizeMode="contain"
+      />
+      <View style={styles.detailsContainer}>
+        <Text style={styles.carTitle}>
+          {item.make} {item.model} ({item.yearOfManufacture})
+        </Text>
+        <Text style={styles.details}>
+          Registration: {item.registrationNumber}
+        </Text>
+        <Text style={styles.details}>Postcode: {item.postcode}</Text>
+        <Text style={styles.details}>
+          Engine Capacity: {item.engineCapacity} cc
+        </Text>
+        <Text style={styles.details}>Fuel Type: {item.fuelType}</Text>
+        <Text style={styles.details}>Problem: {item.problem}</Text>
+        <View style={styles.footer}>
+          <View style={{flexDirection: 'row'}}>
+            <Image
+              source={require('../assets/compass.png')}
+              style={styles.icon}
+            />
+            <Text style={styles.footerText}>{item.distance}</Text>
+          </View>
+          <View style={{flexDirection: 'row'}}>
+            <Image
+              source={require('../assets/user2.png')}
+              style={styles.icon}
+            />
+            <Text style={styles.footerText}>{item.views} Views</Text>
+          </View>
         </View>
-      </TouchableOpacity>
-  )
+      </View>
+    </TouchableOpacity>
+  );
 }
 const styles = StyleSheet.create({
-    listingCard: {
-        backgroundColor: Colors.white,
-        borderRadius: wp(4),
-        marginBottom: hp(2),
-        padding: wp(4),
-        shadowColor: '#000',
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
-      },
-      carImage: {
-        width: '100%',
-        height: hp(25),
-        resizeMode: 'contain',
-        borderRadius: wp(2),
-      },
-      detailsContainer: {
-        padding: wp(2)
-      },
-      carTitle: {
-        fontSize: wp(6),
-        fontWeight: 'bold',
-        color: Colors.primary,
-        marginBottom: hp(1),
-      },
-      details: {
-        fontSize: wp(3.5), 
-        color: Colors.textGray, 
-        marginBottom: hp(1)
-      },
-})
+  list: {
+    paddingBottom: 20,
+    marginTop: 20,
+  },
+  listingCard: {
+    backgroundColor: '#FFF',
+    borderRadius: 15,
+    marginTop: 20,
+    marginBottom: 30,
+    paddingTop: 30,
+    paddingHorizontal: 15,
+    paddingBottom: 15,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    shadowOffset: {width: 0, height: 2},
+    elevation: 3,
+  },
+  carImage: {
+    position: 'absolute',
+    top: -60,
+    right: -10,
+    width: '70%',
+    height: '70%',
+  },
+  detailsContainer: {
+    padding: 10,
+  },
+  carTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: Colors.primary,
+    paddingVertical: hp(2),
+  },
+  details: {
+    fontSize: 14,
+    color: '#555',
+  },
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 10,
+  },
+  footerText: {
+    fontSize: 14,
+    color: '#757575',
+  },
+  icon: {
+    width: 20,
+    height: 20,
+    marginRight: 10,
+  },
+});
