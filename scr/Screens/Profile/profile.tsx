@@ -22,7 +22,8 @@ import Colors from '../../Helper/Colors';
 import {hp, wp} from '../../Helper/Responsive';
 import Toast from 'react-native-simple-toast'; // Import the toast package
 import CountryPicker from 'react-native-country-picker-modal';
-import {useIsFocused} from '@react-navigation/native';
+import {useIsFocused, useNavigation} from '@react-navigation/native';
+import Header from '../../Components/Header';
 
 const Profile = ({navigation}: {navigation: any}) => {
   const isFocused = useIsFocused();
@@ -156,30 +157,22 @@ const Profile = ({navigation}: {navigation: any}) => {
       </View>
     );
   }
-
   return (
     <ScrollView style={styles.container}>
-      {/* Header */}
-      <View style={styles.headerTitleStyle}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}>
-          <Image
-            source={require('../../assets/arrow.png')}
-            style={styles.iconBack}
-            tintColor={Colors?.backIconColor}
-          />
-        </TouchableOpacity>
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Profile</Text>
-        </View>
-      </View>
+      <Header title={'Profile'}  
+      centerContent={'User Detail'}
+      navigation={navigation}
+      />
+      
 
-      {/* Profile Image Section */}
       <View style={styles.profileSection}>
         <View style={styles.profileContainer}>
           <Image
-            source={require('../../assets/dp.jpeg')}
+            source={
+              userData?.profile_image
+                ? {uri: userData?.profile_image}
+                : require('../../assets/dp.jpeg')
+            }
             style={styles.profileImage}
           />
           <TouchableOpacity style={styles.editIcon}>
@@ -283,9 +276,9 @@ const Profile = ({navigation}: {navigation: any}) => {
 
       <TouchableOpacity
         // style={styles.logout}
-        style={[styles.saveButton]}
+
         onPress={() => setModalVisible(true)}>
-        <Text style={styles.saveButtonText}>Logout</Text>
+        <Text style={styles.logoutText}>Logout</Text>
       </TouchableOpacity>
       {/* Logout Modal */}
       <Modal
@@ -295,17 +288,26 @@ const Profile = ({navigation}: {navigation: any}) => {
         onRequestClose={() => setModalVisible(false)}>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
+            <Text style={styles.modalTopText}>
+              {userData?.first_name + ' ' + userData?.last_name}
+            </Text>
             <Text style={styles.modalText}>
-              Are you sure you want to logout?
+              Are you sure you want to log out ?
             </Text>
             <View style={styles.buttonRow}>
-              <Pressable style={styles.button} onPress={handleLogout}>
-                <Text style={styles.buttonText}>Yes</Text>
-              </Pressable>
               <Pressable
                 style={[styles.button, styles.cancelButton]}
                 onPress={() => setModalVisible(false)}>
-                <Text style={styles.buttonText}>No</Text>
+                <Text style={[styles.buttonText, styles.cancelButtonText]}>
+                  Cancel
+                </Text>
+              </Pressable>
+              <Pressable
+                style={[styles.button, styles.logoutButton]}
+                onPress={handleLogout}>
+                <Text style={[styles.buttonText, styles.logoutButtonText]}>
+                  Log out
+                </Text>
               </Pressable>
             </View>
           </View>
@@ -319,8 +321,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: wp(5),
-    marginBottom: wp(3),
-    backgroundColor: '#F5F5F5',
+    backgroundColor: Colors.white,
   },
   headerTitleStyle: {
     flexDirection: 'row',
@@ -367,6 +368,7 @@ const styles = StyleSheet.create({
     borderRadius: 60,
     borderWidth: 2,
     borderColor: '#007BFF',
+    resizeMode: 'contain',
   },
   editIcon: {
     position: 'absolute',
@@ -425,30 +427,17 @@ const styles = StyleSheet.create({
     borderColor: '#E0E0E0',
   },
   inputError: {
-    borderColor: 'red', // Highlight input field with error
+    borderColor: 'red',
   },
   errorText: {
     color: 'red',
     fontSize: 12,
     marginBottom: 10,
   },
-
-  logout: {
-    backgroundColor: Colors.primary, // Apple-style red logout button
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginVertical: 20,
-    alignSelf: 'center', // Centering the button
-    width: '80%',
-  },
-
   logoutText: {
-    color: Colors.white,
-    fontSize: 20,
-    fontWeight: 'bold',
+    fontSize: 16,
+    color: 'black',
+    textAlign: 'center',
   },
   saveButton: {
     backgroundColor: '#007BFF',
@@ -458,13 +447,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   disabledButton: {
-    backgroundColor: '#ccc', // Disabled button color
+    backgroundColor: '#ccc',
   },
   saveButtonText: {
     color: '#FFF',
     fontSize: 16,
     fontWeight: 'bold',
   },
+
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -474,8 +464,8 @@ const styles = StyleSheet.create({
   modalContent: {
     width: '80%',
     backgroundColor: 'white',
-    padding: hp(3),
-    borderRadius: wp(2),
+    padding: 20,
+    borderRadius: 15,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 2},
@@ -483,29 +473,42 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
-  modalText: {
-    fontSize: wp(4.5),
+  modalTopText: {
+    fontSize: 18,
     fontWeight: 'bold',
     textAlign: 'center',
-    marginBottom: hp(2),
+  },
+  modalText: {
+    fontSize: 16,
+    marginVertical: 15,
+    textAlign: 'center',
   },
   buttonRow: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    justifyContent: 'center',
+    marginTop: 10,
     width: '100%',
+    borderTopWidth: 1,
+    borderColor: '#D3D3D3',
   },
   button: {
-    backgroundColor: Colors.primary,
-    paddingVertical: hp(1.5),
-    paddingHorizontal: wp(5),
-    borderRadius: wp(2),
+    flex: 1,
+    paddingVertical: 12,
+    alignItems: 'center',
   },
   cancelButton: {
-    backgroundColor: Colors.footerGray,
+    borderRightWidth: 1,
+    borderColor: '#D3D3D3',
   },
-  buttonText: {
-    color: 'white',
-    fontSize: wp(4),
+  cancelButtonText: {
+    fontWeight: 'bold',
+    color: '#007AFF',
+  },
+  logoutButton: {
+    backgroundColor: 'white',
+  },
+  logoutButtonText: {
+    color: '#FF3B30',
     fontWeight: 'bold',
   },
   loadingContainer: {
