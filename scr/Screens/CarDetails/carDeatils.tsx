@@ -20,13 +20,12 @@ const Details = ({ route, navigation }:{route:any, navigation:any}) => {
   const handleCall = (phoneNumber:any) => Linking.openURL(`tel:${phoneNumber}`);
   const handleTextMessage = (phoneNumber:any) => Linking.openURL(`sms:${phoneNumber}`);
   const handleWhatsApp = (phoneNumber:any) => Linking.openURL(`https://wa.me/${phoneNumber}`);
-
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <Header title={'Detail'} centerContent={'Listing Details'} />
       <View style={styles.detailsContainer}>
         <Image
-          source={car?.carImage ? { uri: car?.carImage } : defaultCarImage}
+          source={car?.carImage  && car?.carImage !== 'N/A' ? { uri: car?.carImage } : defaultCarImage}
           style={styles.carImage}
           resizeMode={'contain'}
         />

@@ -159,7 +159,7 @@ const Profile = ({navigation}: {navigation: any}) => {
   }
   return (
     <ScrollView style={styles.container}>
-      <Header title={'Profile'}  
+      <Header 
       centerContent={'User Detail'}
       navigation={navigation}
       />
@@ -169,9 +169,7 @@ const Profile = ({navigation}: {navigation: any}) => {
         <View style={styles.profileContainer}>
           <Image
             source={
-              userData?.profile_image
-                ? {uri: userData?.profile_image}
-                : require('../../assets/dp.jpeg')
+              require('../../assets/user.png')
             }
             style={styles.profileImage}
           />
@@ -360,21 +358,21 @@ const styles = StyleSheet.create({
   },
   profileContainer: {
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'center',  width: 120,
+    height: 120,
+    borderWidth: 0.4,
+    borderRadius: 60,
   },
   profileImage: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    borderWidth: 2,
-    borderColor: '#007BFF',
+    width: 90,
+    height: 90,
     resizeMode: 'contain',
   },
   editIcon: {
     position: 'absolute',
     bottom: 10,
     right: 5,
-    backgroundColor: '#1814F3',
+    backgroundColor:Colors.primary,
     borderRadius: 20,
     width: 30,
     height: 30,
