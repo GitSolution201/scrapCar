@@ -8,43 +8,25 @@ import {
   ScrollView,
   Linking,
 } from 'react-native';
-import AntDesign from 'react-native-vector-icons/AntDesign';
-import {hp, wp} from '../../Helper/Responsive';
+import { hp, wp } from '../../Helper/Responsive';
 import Colors from '../../Helper/Colors';
+import Header from '../../Components/Header';
 
-const detaultCarImage = require('../../assets/car2.png');
+const defaultCarImage = require('../../assets/car2.png');
 
-const Details = ({route, navigation}: {route: any; navigation: any}) => {
-  const {car} = route.params;
-  const handleCall = (phoneNumber: string) => {
-    Linking.openURL(`tel:${phoneNumber}`);
-  };
-  const handleTextMessage = (phoneNumber: string) => {
-    Linking.openURL(`sms:${phoneNumber}`);
-  };
-  const handleWhatsApp = (phoneNumber: string) => {
-    Linking.openURL(`https://wa.me/${phoneNumber}`);
-  };
+const Details = ({ route, navigation }:{route:any, navigation:any}) => {
+  const { car } = route.params;
+
+  const handleCall = (phoneNumber:any) => Linking.openURL(`tel:${phoneNumber}`);
+  const handleTextMessage = (phoneNumber:any) => Linking.openURL(`sms:${phoneNumber}`);
+  const handleWhatsApp = (phoneNumber:any) => Linking.openURL(`https://wa.me/${phoneNumber}`);
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}>
-          <Image
-            source={require('../../assets/arrow.png')}
-            style={styles.iconBack}
-          />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Details</Text>
-        <View></View>
-      </View>
-
+      <Header title={'Detail'} centerContent={'Listing Details'} />
       <View style={styles.detailsContainer}>
         <Image
-          source={car?.carImage ? {uri: car?.carImage} : detaultCarImage}
+          source={car?.carImage ? { uri: car?.carImage } : defaultCarImage}
           style={styles.carImage}
           resizeMode={'contain'}
         />
@@ -53,97 +35,45 @@ const Details = ({route, navigation}: {route: any; navigation: any}) => {
         </View>
         <Text style={styles.carTitle}>{car.make || 'Model Not Available'}</Text>
 
-        <View style={styles.infoRow}>
-          <Text style={styles.label}>Registration:</Text>
-          <Text style={styles.value}>
-            {car.registrationNumber || 'Unknown'}
-          </Text>
-        </View>
-        <View style={styles.infoRow}>
-          <Text style={styles.label}>Year:</Text>
-          <Text style={styles.value}>{car.yearOfManufacture || 'N/A'}</Text>
-        </View>
-        <View style={styles.infoRow}>
-          <Text style={styles.label}>PostCode:</Text>
-          <Text style={styles.value}>{car.postcode || 'N/A'}</Text>
-        </View>
-        <View style={styles.infoRow}>
-          <Text style={styles.label}>Colors:</Text>
-          <Text style={styles.value}>{car.color ? `${car.color}` : 'N/A'}</Text>
-        </View>
-        <View style={styles.infoRow}>
-          <Text style={styles.label}>Model:</Text>
-          <Text style={styles.value}>{car.model ? `${car.model}` : 'N/A'}</Text>
-        </View>
-
-        <View style={styles.infoRow}>
-          <Text style={styles.label}>Fuel Type:</Text>
-          <Text style={styles.value}>
-            {car.fuelType ? `${car.fuelType}` : 'N/A'}
-          </Text>
-        </View>
-        <View style={styles.infoRow}>
-          <Text style={styles.label}>Problem:</Text>
-          <Text style={styles.value}>
-            {car.problem ? `${car.problem}` : 'N/A'}
-          </Text>
-        </View>
-        <View style={styles.infoRow}>
-          <Text style={styles.label}>Phone:</Text>
-          <Text style={styles.value}>
-            {car.phoneNumber ? `+${car.phoneNumber}` : 'N/A'}
-          </Text>
-        </View>
-
-        <View style={styles.infoRow}>
-          <Text style={styles.label}>MOT Status:</Text>
-          <Text style={styles.value}>{car.motStatus || 'N/A'}</Text>
-        </View>
-        <View style={styles.infoRow}>
-          <Text style={styles.label}>MOT Expiry:</Text>
-          <Text style={styles.value}>
-            {car.motExpiryDate || 'No issues reported'}
-          </Text>
-        </View>
+        {[
+          ['Registration:', car.registrationNumber],
+          ['Year:', car.yearOfManufacture],
+          ['PostCode:', car.postcode],
+          ['Colors:', car.color],
+          ['Model:', car.model],
+          ['Fuel Type:', car.fuelType],
+          ['Problem:', car.problem],
+          // ['Phone:', car.phoneNumber ? `+${car.phoneNumber}` : 'N/A'],
+          // ['MOT Status:', car.motStatus],
+          // ['MOT Expiry:', car.motExpiryDate || 'No issues reported'],
+        ].map(([label, value], index) => (
+          <View key={index} style={styles.infoRow}>
+            <Text style={styles.label}>{label}</Text>
+            <Text style={styles.value} numberOfLines={1} ellipsizeMode="tail">
+              {value?.toString().toUpperCase() || 'N/A'}
+            </Text>
+          </View>
+        ))}
       </View>
 
-      {/* Contact Seller */}
       <View style={styles.contactContainer}>
         <Text style={styles.contactTitle}>Contact Seller Via</Text>
         <View style={styles.contactIcons}>
-          <View>
-            <TouchableOpacity
-              style={[styles.contactButton, styles.callButton]}
-              onPress={() => handleCall('+' + car?.phoneNumber)}>
-              <Image
-                source={require('../../assets/telephone.png')}
-                style={styles.icon}
-              />
-            </TouchableOpacity>
-            <Text style={styles.contactText}>Call</Text>
-          </View>
-          <View>
-            <TouchableOpacity
-              style={[styles.contactButton, styles.whatsappButton]}
-              onPress={() => handleWhatsApp('+' + car?.phoneNumber)}>
-              <Image
-                source={require('../../assets/whatsapp.png')}
-                style={styles.icon}
-              />
-            </TouchableOpacity>
-            <Text style={styles.contactText}>WhatsApp</Text>
-          </View>
-          <View>
-            <TouchableOpacity
-              style={[styles.contactButton, styles.textButton]}
-              onPress={() => handleTextMessage('+' + car?.phoneNumber)}>
-              <Image
-                source={require('../../assets/messenger.png')}
-                style={styles.icon}
-              />
-            </TouchableOpacity>
-            <Text style={styles.contactText}>Text</Text>
-          </View>
+          {[
+            ['Call', require('../../assets/apple.png'), handleCall],
+            ['WhatsApp', require('../../assets/whatsapp.png'), handleWhatsApp],
+            ['Text', require('../../assets/messages.png'), handleTextMessage],
+          ].map(([text, icon, action], index) => (
+            <View key={index}>
+              <TouchableOpacity
+                style={[styles.contactButton, styles[`${text.toLowerCase()}Button`]]}
+                onPress={() => action('+' + car?.phoneNumber)}
+              >
+                <Image source={icon} style={styles.icon} />
+              </TouchableOpacity>
+              <Text style={styles.contactText}>{text}</Text>
+            </View>
+          ))}
         </View>
       </View>
     </ScrollView>
@@ -156,31 +86,16 @@ const styles = StyleSheet.create({
     padding: wp(5),
     backgroundColor: Colors.gray,
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: hp(2),
-    alignItems: 'center',
-  },
-  backButton: {
-    padding: wp(2),
-  },
-  headerTitle: {
-    fontSize: wp(5),
-    fontWeight: 'bold',
-    color: Colors.darkGray,
+  detailsContainer: {
+    backgroundColor: Colors.white,
+    padding: wp(5),
+    borderRadius: wp(3),
+    marginVertical: hp(2),
   },
   carImage: {
     width: '100%',
     height: hp(20),
     marginTop: hp(2),
-  },
-
-  detailsContainer: {
-    backgroundColor: Colors.white,
-    padding: wp(5),
-    borderRadius: wp(3),
-    marginVertical: hp(3),
   },
   carTitle: {
     fontSize: wp(6),
@@ -197,24 +112,30 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   scrapText: {
-    textTransform: 'capitalize', // 👈 First letter will be capitalized
+    textTransform: 'capitalize',
     padding: hp(1),
     textAlign: 'center',
     color: Colors.primary,
   },
   infoRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '90%',
+    alignSelf: 'center',
     marginBottom: hp(1),
   },
   label: {
-    textTransform: 'capitalize',
     fontSize: wp(4),
+    fontWeight: 'bold',
     color: Colors.darkGray,
+    minWidth: wp(30),
+    textAlign: 'right',
+    paddingRight: wp(3),
   },
   value: {
     fontSize: wp(4),
     color: Colors.darkGray,
+    width: '65%',
   },
   contactContainer: {
     backgroundColor: Colors.white,
@@ -234,36 +155,19 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
   },
   contactButton: {
-    borderRadius: wp(10),
-    padding: wp(2),
     alignItems: 'center',
-    width: wp(15),
-    height: wp(15),
     justifyContent: 'center',
   },
-  callButton: {
-    backgroundColor: Colors.callButton,
-  },
-  whatsappButton: {
-    backgroundColor: Colors.whatsappButton,
-  },
-  textButton: {
-    backgroundColor: Colors.textButton,
-  },
+ 
   icon: {
-    width: wp(8),
-    height: wp(8),
+    width: wp(12),
+    height: wp(12),
     resizeMode: 'contain',
-  },
-  iconBack: {
-    width: 40,
-    height: 40,
   },
   contactText: {
     marginTop: hp(1),
     fontSize: wp(3.5),
-    fontWeight: 'bold',
-    color: Colors.darkGray,
+    color: Colors.black,
     textAlign: 'center',
   },
 });

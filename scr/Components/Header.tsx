@@ -20,7 +20,7 @@ export default function Header({navigation, title, centerContent}:
             tintColor={Colors?.backIconColor}
           />
         </TouchableOpacity>
-        <Text style={styles.titleText}>{title}</Text>
+        {/* <Text style={styles.titleText}>{title}</Text> */}
       </View>
 
       <View style={styles.centerSection}>
