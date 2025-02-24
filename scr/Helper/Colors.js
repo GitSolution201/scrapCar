@@ -11,6 +11,7 @@ const Colors = {
   callButton: '#3A58E84A',
   whatsappButton: '#49CAA34A',
   textButton: '#FF4B4A3B',
+  red:'red',
   eyeIcon: '#ACB5BB',
   backIconColor: '#1A1C1E',
   black: '#000000',

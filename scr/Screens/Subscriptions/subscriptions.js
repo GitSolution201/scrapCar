@@ -541,28 +541,19 @@ import {
   Image,
 } from 'react-native';
 import Colors from '../../Helper/Colors';
+import Header from '../../Components/Header';
+import { useNavigation } from '@react-navigation/native';
 
 const {width: wp, height: hp} = Dimensions.get('window');
 
 const SubscriptionScreen = () => {
+const navigation=  useNavigation()
   const [isTrialEnabled, setIsTrialEnabled] = useState(true);
 
   return (
     <View style={styles.container}>
-      <View style={styles.headerTitleStyle}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}>
-          <Image
-            source={require('../../assets/arrow.png')}
-            style={styles.iconBack}
-            tintColor={Colors.backIconColor}
-          />
-        </TouchableOpacity>
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Subscription</Text>
-        </View>
-      </View>
+         <Header centerContent={'Subscription'} navigation={navigation} />
+   
       <Text style={styles.subHeader}>Upgrade to Pro</Text>
       <Text style={styles.description}>
         Quickly analyze images, accurately classify visual elements, and easily
@@ -573,19 +564,21 @@ const SubscriptionScreen = () => {
         <Text style={styles.optionText}>4.99$ / month</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.option}>
-        <Text style={styles.optionText}>23.99$ / 6 months</Text>
-        <Text style={styles.optionSubText}>
-          (6 months at $3.99/mo. Save 20%)
-        </Text>
+      <TouchableOpacity style={[styles.optionSelected,{marginTop:wp * 0.07,borderColor:Colors.black,borderWidth:0.5}]}>
+        <Text style={[styles.optionText,{color:Colors.black}]}>23.99$ / 6 months</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.option}>
-        <Text style={styles.optionText}>29.88$ / Year</Text>
-        <Text style={styles.optionSubText}>
+      <Text style={styles.optionSubText}>
+          (6 months at $3.99/mo. Save 20%)
+        </Text>
+      
+      <TouchableOpacity style={[styles.optionSelected,{marginTop:wp * 0.07,borderColor:Colors.black,borderWidth:0.5}]}>
+        <Text style={[styles.optionText,{color:Colors.black}]}>29.88$ / Year</Text>
+       
+      </TouchableOpacity>
+      <Text style={styles.optionSubText}>
           (12 months at $2.49/mo. Save 20%)
         </Text>
-      </TouchableOpacity>
 
       <Text style={styles.trialText}>
         Try <Text style={styles.boldText}>3 days free</Text>, then $8 per month
@@ -659,7 +652,7 @@ const styles = StyleSheet.create({
     width: '100%',
     padding: hp * 0.02,
     borderRadius: 10,
-    borderWidth: 2,
+    borderWidth: 1,
     borderColor: Colors.primary,
     alignItems: 'center',
     marginTop: hp * 0.015,
@@ -671,12 +664,13 @@ const styles = StyleSheet.create({
   },
   optionSubText: {
     fontSize: wp * 0.035,
+    marginTop:wp * 0.06,
     color: Colors.textGray,
   },
   trialText: {
     fontSize: wp * 0.04,
     marginTop: hp * 0.03,
-    color: Colors.darkGray,
+    color: Colors.black,
   },
   trialSubText: {
     fontSize: wp * 0.035,
@@ -697,7 +691,7 @@ const styles = StyleSheet.create({
   },
   switchLabel: {
     fontSize: wp * 0.04,
-    color: Colors.darkGray,
+    color: Colors.black,
   },
   continueButton: {
     width: '100%',

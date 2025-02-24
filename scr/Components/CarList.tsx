@@ -22,65 +22,101 @@ export default function CarList({
     return localImages[imageKeys[index % imageKeys.length]];
   };
   return (
-    <TouchableOpacity
-      onPress={() => navigation.navigate('CarDeatils', {car: item})}
-      style={styles.listingCard}>
-      <Image
-        source={getLocalImage(itemIndex)}
-        style={styles.carImage}
-        resizeMode="contain"
-      />
-      <View style={styles.detailsContainer}>
-        <Text style={styles.carTitle}>
-          {item.make} {item.model} ({item.yearOfManufacture})
-        </Text>
-        <Text style={styles.details}>
-          Registration: {item.registrationNumber}
-        </Text>
-        <Text style={styles.details}>Postcode: {item.postcode}</Text>
-        <Text style={styles.details}>
-          Engine Capacity: {item.engineCapacity} cc
-        </Text>
-        <Text style={styles.details}>Fuel Type: {item.fuelType}</Text>
-        <Text style={styles.details}>Problem: {item.problem}</Text>
-        <View style={styles.footer}>
-          <View style={{flexDirection: 'row'}}>
+     <TouchableOpacity
+          onPress={() => navigation.navigate('CarDeatils', { car: item })}
+          style={styles.listingCard}>
+          {/* Heart Icon (Top-right corner) */}
+          <TouchableOpacity
+            style={styles.heartIconContainer}
+            onPress={() => console.log('Heart pressed for item:', item)}>
             <Image
-              source={require('../assets/compass.png')}
-              style={styles.icon}
+              source={require('../assets/simpleHeart.png')} // Add your heart icon image
+              style={styles.heartIcon}
             />
-            <Text style={styles.footerText}>{item.distance}</Text>
+          </TouchableOpacity>
+      
+          {/* Car Image */}
+          <Image
+            source={getLocalImage(itemIndex)}
+            style={styles.carImage}
+            resizeMode="contain"
+          />
+      
+          {/* Car Details */}
+          <View style={styles.detailsContainer}>
+             <View style={styles.carTagContainer}>
+                      <Text style={styles.scrapText}>{item.tag || 'Unknown'}</Text>
+                    </View>
+            <Text style={styles.carTitle}>
+              {item.make} {item.model} ({item.yearOfManufacture})
+            </Text>
+            <Text style={styles.details}>
+              Registration: {item.registrationNumber}
+            </Text>
+            <Text style={styles.details}>Postcode: {item.postcode}</Text>
+            <Text style={styles.details}>
+              Engine Capacity: {item.engineCapacity} cc
+            </Text>
+            <Text style={styles.details}>Fuel Type: {item.fuelType}</Text>
+            <Text style={styles.details}>Problem: {item.problem}</Text>
+      
+            {/* Footer */}
+            <View style={styles.footer}>
+              <View style={{ alignItems: 'center' }}>
+                <Image
+                  source={require('../assets/pin.png')}
+                  style={styles.icon}
+                />
+                <Text style={styles.footerText}>
+                  {item?.distance ? item?.distance : '20.9 mi.'}
+                </Text>
+              </View>
+              <View style={{ alignItems: 'center' }}>
+                <Image
+                  source={require('../assets/timer.png')}
+                  style={styles.icon}
+                />
+                <Text style={styles.footerText}>{item.views} 50 minutes ago</Text>
+              </View>
+              <View style={{ alignItems: 'center' }}>
+                <Image
+                  source={require('../assets/eye.png')}
+                  style={styles.icon}
+                />
+                <Text style={styles.footerText}>{item.views} Views</Text>
+              </View>
+            </View>
           </View>
-          <View style={{flexDirection: 'row'}}>
-            <Image
-              source={require('../assets/user2.png')}
-              style={styles.icon}
-            />
-            <Text style={styles.footerText}>{item.views} Views</Text>
-          </View>
-        </View>
-      </View>
-    </TouchableOpacity>
+        </TouchableOpacity>
+  
   );
 }
 const styles = StyleSheet.create({
-  list: {
-    paddingBottom: 20,
-    marginTop: 20,
-  },
   listingCard: {
-    backgroundColor: '#FFF',
-    borderRadius: 15,
-    marginTop: 20,
-    marginBottom: 30,
-    paddingTop: 30,
-    paddingHorizontal: 15,
-    paddingBottom: 15,
-    shadowColor: '#000',
+    backgroundColor: Colors.white,
+    borderRadius: wp(4),
+    borderWidth: 0.2,
+    marginTop: hp(5),
+    marginBottom: hp(3.5),
+    paddingTop: hp(3.5),
+    paddingHorizontal: wp(3.5),
+    paddingBottom: hp(2),
+    shadowColor: Colors.black,
     shadowOpacity: 0.1,
-    shadowRadius: 4,
-    shadowOffset: {width: 0, height: 2},
+    shadowRadius: wp(1),
+    shadowOffset: {width: 0, height: hp(0.5)},
     elevation: 3,
+  },
+   heartIconContainer: {
+    position: 'absolute',
+    top: hp(2), 
+    left:wp(7),
+    zIndex: 1,
+  },
+  heartIcon: {
+    width: wp(7), 
+    height: wp(7),
+    tintColor: Colors.black, 
   },
   carImage: {
     position: 'absolute',
@@ -90,30 +126,44 @@ const styles = StyleSheet.create({
     height: '70%',
   },
   detailsContainer: {
-    padding: 10,
+    padding: wp(2.5),
+  },  
+  carTagContainer: {
+    backgroundColor: Colors.primary,
+    borderRadius: wp(10),
+    paddingHorizontal: wp(2),
+    alignSelf: 'flex-start',
+    marginTop:wp(3)
+  },
+  scrapText: {
+    textTransform: 'capitalize',
+    padding: hp(1),
+    textAlign: 'center',
+    color: Colors.white,
   },
   carTitle: {
-    fontSize: 18,
+    fontSize: wp(4.5),
     fontWeight: 'bold',
     color: Colors.primary,
-    paddingVertical: hp(2),
+    paddingVertical: hp(1),
   },
   details: {
-    fontSize: 14,
-    color: '#555',
+    fontSize: wp(3.5),
+    color: Colors.textGray,
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 10,
+    marginTop: hp(1),
   },
   footerText: {
-    fontSize: 14,
-    color: '#757575',
+    marginTop:wp(2),
+    fontSize: wp(3.5),
+    color: Colors.black,
+  },icon: {
+    width: wp(6),
+    resizeMode:'contain',
+    height: wp(6),
+    tintColor:Colors.black
   },
-  icon: {
-    width: 20,
-    height: 20,
-    marginRight: 10,
-  },
-});
+})

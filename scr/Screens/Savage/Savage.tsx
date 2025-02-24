@@ -1,20 +1,18 @@
 import {
   ActivityIndicator,
   FlatList,
-  Image,
-  ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect} from 'react';
 import Colors from '../../Helper/Colors';
-import {hp, wp} from '../../Helper/Responsive';
+import {wp} from '../../Helper/Responsive';
 import {useIsFocused, useNavigation} from '@react-navigation/native';
 import {useDispatch, useSelector} from 'react-redux';
 import {getUserRequest} from '../../redux/slices/carListingsSlice';
 import CarList from '../../Components/CarList';
+import Header from '../../Components/Header';
 
 const Savage = () => {
   const navigation = useNavigation();
@@ -22,7 +20,6 @@ const Savage = () => {
   const isFocused = useIsFocused();
   const token = useSelector((state: any) => state.auth?.token);
   const {loading, error, data} = useSelector((state: any) => state.carListings);
-  const [activeFilters, setActiveFilters] = useState(['Scrape']);
 
   useEffect(() => {
     if (isFocused) {
@@ -46,23 +43,9 @@ const Savage = () => {
     );
   }
   return (
-    <ScrollView style={styles.container}>
+    <View style={styles.container}>
       {/* Header */}
-      <View style={styles.headerTitleStyle}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}>
-          <Image
-            source={require('../../assets/arrow.png')}
-            style={styles.iconBack}
-            tintColor={Colors.backIconColor}
-          />
-        </TouchableOpacity>
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Listings</Text>
-        </View>
-      </View>
-
+      <Header centerContent={'Saved'} navigation={navigation} />
       <FlatList
         data={data}
         renderItem={({item, index}) => (
@@ -70,9 +53,8 @@ const Savage = () => {
         )}
         showsVerticalScrollIndicator={false}
         keyExtractor={item => item._id}
-        contentContainerStyle={styles.list}
       />
-    </ScrollView>
+    </View>
   );
 };
 
@@ -82,44 +64,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: wp(5),
-    marginBottom: wp(3),
     backgroundColor: '#F5F5F5',
   },
-  headerTitleStyle: {
-    flexDirection: 'row',
-    marginBottom: 20,
-    alignItems: 'center',
-    marginTop: hp(3),
-  },
-  iconBack: {
-    width: 30,
-    height: 30,
-    resizeMode: 'contain',
-  },
 
-  header: {
-    alignItems: 'center',
-    textAlign: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    marginRight: wp(5),
-  },
-  backButton: {
-    marginRight: 10,
-  },
-  backText: {
-    fontSize: 24,
-    color: '#007BFF',
-  },
-  headerTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  list: {
-    paddingBottom: 20,
-    marginTop: 20,
-  },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',

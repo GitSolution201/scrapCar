@@ -4,8 +4,8 @@ import React from 'react';
 import Colors from '../Helper/Colors';
 import {hp, wp} from '../Helper/Responsive';
 
-export default function Header({navigation, title, centerContent}:
-    {navigation:any, title:any, centerContent:any}
+export default function Header({navigation, centerContent}:
+    {navigation:any,centerContent:any}
 ) {
   return (
     <View style={styles.headerContainer}>
@@ -20,7 +20,6 @@ export default function Header({navigation, title, centerContent}:
             tintColor={Colors?.backIconColor}
           />
         </TouchableOpacity>
-        {/* <Text style={styles.titleText}>{title}</Text> */}
       </View>
 
       <View style={styles.centerSection}>

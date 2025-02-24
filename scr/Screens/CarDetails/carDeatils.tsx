@@ -11,6 +11,7 @@ import {
 import { hp, wp } from '../../Helper/Responsive';
 import Colors from '../../Helper/Colors';
 import Header from '../../Components/Header';
+import Banner from '../../Components/Banner';
 
 const defaultCarImage = require('../../assets/car2.png');
 
@@ -53,6 +54,7 @@ const Details = ({ route, navigation }:{route:any, navigation:any}) => {
             </Text>
           </View>
         ))}
+        <Banner navigation={navigation} />
       </View>
 
       <View style={styles.contactContainer}>
