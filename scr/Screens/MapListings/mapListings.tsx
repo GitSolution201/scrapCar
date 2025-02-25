@@ -305,6 +305,7 @@ import {
   Image,
   Modal,
   Platform,
+  SafeAreaView,
 } from 'react-native';
 import MapView, {Marker} from 'react-native-maps';
 import Colors from '../../Helper/Colors';
@@ -358,7 +359,7 @@ const MapListings = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={[styles.container,{paddingTop:Platform.OS==='ios'? hp(2):0}]} >
       {/* Map Section */}
       <View style={styles.sliderContainer} pointerEvents="box-none">
         <Text style={styles.label}>Distance</Text>
@@ -473,7 +474,7 @@ const MapListings = () => {
           </TouchableOpacity>
         </TouchableOpacity>
       </Modal>
-    </View>
+    </SafeAreaView>
   );
 };
 

@@ -8,6 +8,7 @@ import {
   ScrollView,
   Linking,
   SafeAreaView,
+  Platform,
 } from 'react-native';
 import {hp, wp} from '../../Helper/Responsive';
 import Colors from '../../Helper/Colors';
@@ -28,71 +29,79 @@ const Details = ({route, navigation}: {route: any; navigation: any}) => {
 
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
-      <SafeAreaView style={styles.container}   >
-
-      <Header navigation={navigation} />
-      <View style={styles.detailsContainer}>
-        <Image
-          source={
-            car?.carImage && car?.carImage !== 'N/A'
-              ? {uri: car?.carImage}
-              : defaultCarImage
-          }
-          style={styles.carImage}
-          resizeMode={'contain'}
-        />
-        <View style={styles.carTagContainer}>
-          <Text style={styles.scrapText}>{car.tag || 'Unknown'}</Text>
-        </View>
-        <Text style={styles.carTitle}>{car.make || 'Model Not Available'}</Text>
-
-        {[
-          ['Registration:', car.registrationNumber],
-          ['Year:', car.yearOfManufacture],
-          ['PostCode:', car.postcode],
-          ['Colors:', car.color],
-          ['Model:', car.model],
-          ['Fuel Type:', car.fuelType],
-          ['Problem:', car.problem],
-          // ['Phone:', car.phoneNumber ? `+${car.phoneNumber}` : 'N/A'],
-          // ['MOT Status:', car.motStatus],
-          // ['MOT Expiry:', car.motExpiryDate || 'No issues reported'],
-        ].map(([label, value], index) => (
-          <View key={index} style={styles.infoRow}>
-            <Text style={styles.label}>{label}</Text>
-            <Text style={styles.value} numberOfLines={1} ellipsizeMode="tail">
-              {value?.toString().toUpperCase() || 'N/A'}
-            </Text>
+      <SafeAreaView
+        style={[
+          styles.container,
+          {paddingTop: Platform.OS === 'ios' ? hp(2) : 0},
+        ]}>
+        <Header navigation={navigation} />
+        <View style={styles.detailsContainer}>
+          <Image
+            source={
+              car?.carImage && car?.carImage !== 'N/A'
+                ? {uri: car?.carImage}
+                : defaultCarImage
+            }
+            style={styles.carImage}
+            resizeMode={'contain'}
+          />
+          <View style={styles.carTagContainer}>
+            <Text style={styles.scrapText}>{car.tag || 'Unknown'}</Text>
           </View>
-        ))}
-        <Banner navigation={navigation} />
-      </View>
+          <Text style={styles.carTitle}>
+            {car.make || 'Model Not Available'}
+          </Text>
 
-      <View style={styles.contactContainer}>
-        <Text style={styles.contactTitle}>Contact Seller Via</Text>
-        <View style={styles.contactIcons}>
           {[
-            ['Call', require('../../assets/apple.png'), handleCall],
-            ['WhatsApp', require('../../assets/whatsapp.png'), handleWhatsApp],
-            ['Text', require('../../assets/messages.png'), handleTextMessage],
-          ].map(([text, icon, action], index) => (
-            <View key={index}>
-              <TouchableOpacity
-                style={[
-                  styles.contactButton,
-                  styles[`${text.toLowerCase()}Button`],
-                ]}
-                onPress={() => action('+' + car?.phoneNumber)}>
-                <Image source={icon} style={styles.icon} />
-              </TouchableOpacity>
-              <Text style={styles.contactText}>{text}</Text>
+            ['Registration:', car.registrationNumber],
+            ['Year:', car.yearOfManufacture],
+            ['PostCode:', car.postcode],
+            ['Colors:', car.color],
+            ['Model:', car.model],
+            ['Fuel Type:', car.fuelType],
+            ['Problem:', car.problem],
+            // ['Phone:', car.phoneNumber ? `+${car.phoneNumber}` : 'N/A'],
+            // ['MOT Status:', car.motStatus],
+            // ['MOT Expiry:', car.motExpiryDate || 'No issues reported'],
+          ].map(([label, value], index) => (
+            <View key={index} style={styles.infoRow}>
+              <Text style={styles.label}>{label}</Text>
+              <Text style={styles.value} numberOfLines={1} ellipsizeMode="tail">
+                {value?.toString().toUpperCase() || 'N/A'}
+              </Text>
             </View>
           ))}
+          <Banner navigation={navigation} />
         </View>
-      </View>
-      </SafeAreaView>
 
-  </ScrollView>
+        <View style={styles.contactContainer}>
+          <Text style={styles.contactTitle}>Contact Seller Via</Text>
+          <View style={styles.contactIcons}>
+            {[
+              ['Call', require('../../assets/apple.png'), handleCall],
+              [
+                'WhatsApp',
+                require('../../assets/whatsapp.png'),
+                handleWhatsApp,
+              ],
+              ['Text', require('../../assets/messages.png'), handleTextMessage],
+            ].map(([text, icon, action], index) => (
+              <View key={index}>
+                <TouchableOpacity
+                  style={[
+                    styles.contactButton,
+                    styles[`${text.toLowerCase()}Button`],
+                  ]}
+                  onPress={() => action('+' + car?.phoneNumber)}>
+                  <Image source={icon} style={styles.icon} />
+                </TouchableOpacity>
+                <Text style={styles.contactText}>{text}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+      </SafeAreaView>
+    </ScrollView>
   );
 };
 

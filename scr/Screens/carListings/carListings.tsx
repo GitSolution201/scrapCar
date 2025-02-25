@@ -10,6 +10,7 @@ import {
   TextInput,
   Modal,
   SafeAreaView,
+  Platform,
 } from 'react-native';
 import Colors from '../../Helper/Colors'; // Import Colors
 import {useDispatch, useSelector} from 'react-redux';
@@ -192,7 +193,11 @@ const Listings = () => {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[
+        styles.container,
+        {paddingTop: Platform.OS === 'ios' ? hp(2) : 0},
+      ]}>
       <Banner navigation={navigation} />
       <View style={styles.searchMainContianer}>
         <View style={styles.searchContainer}>
@@ -224,10 +229,7 @@ const Listings = () => {
           activeOpacity={1}
           onPress={() => setIsLocationModalVisible(false)}>
           <View style={styles.modalContent}>
-            <Text
-              style={styles.distanceByFilter}>
-              Distance by filter
-            </Text>
+            <Text style={styles.distanceByFilter}>Distance by filter</Text>
 
             {locationOptions.map((location, index) => (
               <TouchableOpacity
@@ -517,7 +519,7 @@ const styles = StyleSheet.create({
     marginTop: hp(15),
     alignSelf: 'flex-end',
   },
-  distanceByFilter:{
+  distanceByFilter: {
     textAlign: 'center',
     borderBottomWidth: 0.3,
     borderColor: Colors.darkGray,
