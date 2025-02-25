@@ -373,7 +373,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 10,
     right: 5,
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.gradientStart,
     borderRadius: 20,
     width: 30,
     height: 30,
@@ -436,6 +436,7 @@ const styles = StyleSheet.create({
   logoutText: {
     fontSize: 16,
     color: 'red',
+    fontWeight:'500',
     textAlign: 'center',
   },
   saveButton: {
@@ -450,7 +451,8 @@ const styles = StyleSheet.create({
     padding: wp(3),
     borderRadius: 8,
     borderWidth: 0.3,
-    marginVertical: wp(1),
+    marginTop: wp(1),
+    marginBottom:wp(4),
     alignItems: 'center',
   },
   disabledButton: {
