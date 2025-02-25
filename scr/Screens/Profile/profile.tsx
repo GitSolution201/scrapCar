@@ -9,6 +9,8 @@ import {
   Pressable,
   Modal,
   ActivityIndicator,
+  SafeAreaView,
+  Platform,
 } from 'react-native';
 import {ScrollView} from 'react-native-gesture-handler';
 import {useDispatch, useSelector} from 'react-redux';
@@ -158,96 +160,97 @@ const Profile = ({navigation}: {navigation: any}) => {
     );
   }
   return (
-    <ScrollView style={styles.container}>
-      <Header 
-      navigation={navigation}
-      />
-      <View style={styles.profileSection}>
-        <View style={styles.profileContainer}>
-          <Image
-            source={
-              require('../../assets/user.png')
-            }
-            style={styles.profileImage}
-          />
-          <TouchableOpacity style={styles.editIcon}>
-            <Text style={styles.editIconText}>✎</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      {/* Input Fields */}
-      <View style={styles.inputContainer}>
-        <Text style={styles.hidingColor}>First Name</Text>
-
-        <TextInput
-          style={[styles.input, errors.firstName && styles.inputError]}
-          placeholder="First Name"
-          value={firstName}
-          onChangeText={value => handleInputChange('firstName', value)}
-          placeholderTextColor="#9E9E9E"
-        />
-        {errors.firstName && (
-          <Text style={styles.errorText}>{errors.firstName}</Text>
-        )}
-        <Text style={styles.hidingColor}>Last Name</Text>
-
-        <TextInput
-          style={[styles.input, errors.lastName && styles.inputError]}
-          placeholder="Last Name"
-          value={lastName}
-          onChangeText={value => handleInputChange('lastName', value)}
-          placeholderTextColor="#9E9E9E"
-        />
-        {errors.lastName && (
-          <Text style={styles.errorText}>{errors.lastName}</Text>
-        )}
-        <Text style={styles.hidingColor}>Email Address</Text>
-
-        <TextInput
-          style={[styles.input, errors.email && styles.inputError]}
-          placeholder="Email Address"
-          value={email}
-          onChangeText={value => handleInputChange('email', value)}
-          keyboardType="email-address"
-          placeholderTextColor="#9E9E9E"
-        />
-        {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
-        <Text style={styles.hidingColor}>Phone Number</Text>
-        <View style={styles.phoneContainer}>
-          <TouchableOpacity
-            onPress={() => setVisible(true)}
-            style={styles.countryPicker}>
-            <CountryPicker
-              withFilter
-              withFlag
-              withCallingCode
-              withModal
-              withAlphaFilter
-              countryCode={countryCode}
-              onSelect={country => {
-                setCountryCode(country.cca2);
-                setCallingCode(country.callingCode[0]);
-              }}
-              visible={visible}
-              onClose={() => setVisible(false)}
+    <ScrollView showsVerticalScrollIndicator={false}>
+      <SafeAreaView
+        style={[
+          styles.container,
+          {paddingTop: Platform.OS === 'ios' ? hp(2) : 0},
+        ]}>
+        <Header navigation={navigation} />
+        <View style={styles.profileSection}>
+          <View style={styles.profileContainer}>
+            <Image
+              source={require('../../assets/user(2).png')}
+              style={styles.profileImage}
             />
-            <Text style={styles.callingCode}>+{callingCode}</Text>
-          </TouchableOpacity>
+            <TouchableOpacity style={styles.editIcon}>
+              <Text style={styles.editIconText}>✎</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Input Fields */}
+        <View style={styles.inputContainer}>
+          <Text style={styles.hidingColor}>First Name</Text>
 
           <TextInput
-            style={styles.phoneInput}
-            placeholder="Phone Number"
-            value={phoneNumber}
-            onChangeText={value => handleInputChange('phoneNumber', value)}
-            keyboardType="phone-pad"
+            style={[styles.input, errors.firstName && styles.inputError]}
+            placeholder="First Name"
+            value={firstName}
+            onChangeText={value => handleInputChange('firstName', value)}
             placeholderTextColor="#9E9E9E"
           />
-        </View>
-        {errors.phoneNumber && (
-          <Text style={styles.errorText}>{errors.phoneNumber}</Text>
-        )}
-        {/* <TextInput
+          {errors.firstName && (
+            <Text style={styles.errorText}>{errors.firstName}</Text>
+          )}
+          <Text style={styles.hidingColor}>Last Name</Text>
+
+          <TextInput
+            style={[styles.input, errors.lastName && styles.inputError]}
+            placeholder="Last Name"
+            value={lastName}
+            onChangeText={value => handleInputChange('lastName', value)}
+            placeholderTextColor="#9E9E9E"
+          />
+          {errors.lastName && (
+            <Text style={styles.errorText}>{errors.lastName}</Text>
+          )}
+          <Text style={styles.hidingColor}>Email Address</Text>
+
+          <TextInput
+            style={[styles.input, errors.email && styles.inputError]}
+            placeholder="Email Address"
+            value={email}
+            onChangeText={value => handleInputChange('email', value)}
+            keyboardType="email-address"
+            placeholderTextColor="#9E9E9E"
+          />
+          {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
+          <Text style={styles.hidingColor}>Phone Number</Text>
+          <View style={styles.phoneContainer}>
+            <TouchableOpacity
+              onPress={() => setVisible(true)}
+              style={styles.countryPicker}>
+              <CountryPicker
+                withFilter
+                withFlag
+                withCallingCode
+                withModal
+                withAlphaFilter
+                countryCode={countryCode}
+                onSelect={country => {
+                  setCountryCode(country.cca2);
+                  setCallingCode(country.callingCode[0]);
+                }}
+                visible={visible}
+                onClose={() => setVisible(false)}
+              />
+              <Text style={styles.callingCode}>+{callingCode}</Text>
+            </TouchableOpacity>
+
+            <TextInput
+              style={styles.phoneInput}
+              placeholder="Phone Number"
+              value={phoneNumber}
+              onChangeText={value => handleInputChange('phoneNumber', value)}
+              keyboardType="phone-pad"
+              placeholderTextColor="#9E9E9E"
+            />
+          </View>
+          {errors.phoneNumber && (
+            <Text style={styles.errorText}>{errors.phoneNumber}</Text>
+          )}
+          {/* <TextInput
           style={[styles.input, errors.phoneNumber && styles.inputError]}
           placeholder="Phone Number"
           value={phoneNumber}
@@ -255,59 +258,59 @@ const Profile = ({navigation}: {navigation: any}) => {
           keyboardType="phone-pad"
           placeholderTextColor="#9E9E9E"
         /> */}
-        {/* {errors.phoneNumber && (
+          {/* {errors.phoneNumber && (
           <Text style={styles.errorText}>{errors.phoneNumber}</Text>
         )} */}
 
-        <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-          <Text style={styles.saveButtonText}>Save</Text>
-        </TouchableOpacity>
-        {/* <TouchableOpacity style={styles.changePassword}>
+          <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+            <Text style={styles.saveButtonText}>Save</Text>
+          </TouchableOpacity>
+          {/* <TouchableOpacity style={styles.changePassword}>
           <Text style={styles.changePasswordText}>Change Password</Text>
         </TouchableOpacity> */}
-      </View>
+        </View>
 
-      {/* Save Button */}
+        {/* Save Button */}
 
-      <TouchableOpacity
-        style={styles.logout}
-
-        onPress={() => setModalVisible(true)}>
-        <Text style={styles.logoutText}>Logout</Text>
-      </TouchableOpacity>
-      {/* Logout Modal */}
-      <Modal
-        animationType="fade"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}>
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTopText}>
-              {userData?.first_name + ' ' + userData?.last_name}
-            </Text>
-            <Text style={styles.modalText}>
-              Are you sure you want to log out ?
-            </Text>
-            <View style={styles.buttonRow}>
-              <Pressable
-                style={[styles.button, styles.cancelButton]}
-                onPress={() => setModalVisible(false)}>
-                <Text style={[styles.buttonText, styles.cancelButtonText]}>
-                  Cancel
-                </Text>
-              </Pressable>
-              <Pressable
-                style={[styles.button, styles.logoutButton]}
-                onPress={handleLogout}>
-                <Text style={[styles.buttonText, styles.logoutButtonText]}>
-                  Log out
-                </Text>
-              </Pressable>
+        <TouchableOpacity
+          style={styles.logout}
+          onPress={() => setModalVisible(true)}>
+          <Text style={styles.logoutText}>Logout</Text>
+        </TouchableOpacity>
+        {/* Logout Modal */}
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => setModalVisible(false)}>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTopText}>
+                {userData?.first_name + ' ' + userData?.last_name}
+              </Text>
+              <Text style={styles.modalText}>
+                Are you sure you want to log out ?
+              </Text>
+              <View style={styles.buttonRow}>
+                <Pressable
+                  style={[styles.button, styles.cancelButton]}
+                  onPress={() => setModalVisible(false)}>
+                  <Text style={[styles.buttonText, styles.cancelButtonText]}>
+                    Cancel
+                  </Text>
+                </Pressable>
+                <Pressable
+                  style={[styles.button, styles.logoutButton]}
+                  onPress={handleLogout}>
+                  <Text style={[styles.buttonText, styles.logoutButtonText]}>
+                    Log out
+                  </Text>
+                </Pressable>
+              </View>
             </View>
           </View>
-        </View>
-      </Modal>
+        </Modal>
+      </SafeAreaView>
     </ScrollView>
   );
 };
@@ -355,21 +358,22 @@ const styles = StyleSheet.create({
   },
   profileContainer: {
     alignItems: 'center',
-    justifyContent: 'center',  width: 120,
+    justifyContent: 'center',
+    width: 120,
     height: 120,
     borderWidth: 0.4,
     borderRadius: 60,
   },
   profileImage: {
-    width: 90,
-    height: 90,
+    width: 80,
+    height: 80,
     resizeMode: 'contain',
   },
   editIcon: {
     position: 'absolute',
     bottom: 10,
     right: 5,
-    backgroundColor:Colors.primary,
+    backgroundColor: Colors.primary,
     borderRadius: 20,
     width: 30,
     height: 30,
@@ -440,11 +444,12 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginTop: wp(4),
     alignItems: 'center',
-  },  logout: {
-    backgroundColor:Colors.white,
+  },
+  logout: {
+    backgroundColor: Colors.white,
     padding: wp(3),
     borderRadius: 8,
-    borderWidth:0.3,
+    borderWidth: 0.3,
     marginVertical: wp(1),
     alignItems: 'center',
   },
