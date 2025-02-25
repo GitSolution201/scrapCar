@@ -338,12 +338,12 @@ const MapListings = () => {
   });
 
   // Convert kilometers to miles
-  const kilometersToMiles = (km) => {
+  const kilometersToMiles = km => {
     return km * 0.621371;
   };
 
   // Update the map region based on the distance
-  const updateRegion = (distance) => {
+  const updateRegion = distance => {
     const delta = distance / 50; // Adjust the delta based on distance
     setRegion({
       ...region,
@@ -353,13 +353,17 @@ const MapListings = () => {
   };
 
   // Handle slider value change
-  const handleSliderComplete = (value) => {
+  const handleSliderComplete = value => {
     setDistance(value);
     updateRegion(value);
   };
 
   return (
-    <SafeAreaView style={[styles.container,{paddingTop:Platform.OS==='ios'? hp(2):0}]} >
+    <SafeAreaView
+      style={[
+        styles.container,
+        {paddingTop: Platform.OS === 'ios' ? hp(2) : 0},
+      ]}>
       {/* Map Section */}
       <View style={styles.sliderContainer} pointerEvents="box-none">
         <Text style={styles.label}>Distance</Text>
@@ -383,7 +387,6 @@ const MapListings = () => {
       <View style={styles.mapContainer}>
         <MapView style={styles.map} region={region}>
           {data?.map((car: any, index: any) => {
-           
             return (
               <Marker
                 key={car.uniqueId}
