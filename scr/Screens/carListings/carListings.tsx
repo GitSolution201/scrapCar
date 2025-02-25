@@ -194,10 +194,10 @@ const Listings = () => {
 
   return (
     <SafeAreaView
-      style={[
-        styles.container,
-        {paddingTop: Platform.OS === 'ios' ? hp(2) : 0},
-      ]}>
+      style={
+        styles.container
+       
+     }>
       <Banner navigation={navigation} />
       <View style={styles.searchMainContianer}>
         <View style={styles.searchContainer}>
@@ -525,6 +525,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.darkGray,
     color: Colors.primary,
     width: '90%',
+    marginHorizontal:10,
     alignSelf: 'center',
   },
   modalContent: {

@@ -49,7 +49,6 @@ export const getUser = async (token) => {
         'Content-Type': 'application/json',
       },
     });
-    console.log('Get User Response:', response.data); // Log the response
     return response.data; // Return the data
   } catch (error) {
     console.log('Get User Error:', error.response?.data || error.message); // Log the error
@@ -65,7 +64,6 @@ export const fetchUserDetails = async (token) => {
         Authorization: `Bearer ${token}`,
       },
     });
-    console.log('Fetch User Details Response:', response.data); // Log the response
     return response.data; // Return the data
   } catch (error) {
     console.log('Fetch User Details Error:', error.response?.data || error.message); // Log the error
