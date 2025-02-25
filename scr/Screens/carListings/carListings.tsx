@@ -22,6 +22,7 @@ import {
   useNavigation,
 } from '@react-navigation/native';
 import Banner from '../../Components/Banner';
+import { Fonts } from '../../Helper/Fonts';
 
 // Local images
 const localImages = {
@@ -35,7 +36,7 @@ const Listings = () => {
   const dispatch = useDispatch();
   const token = useSelector((state: any) => state.auth?.token);
   const {loading, error, data} = useSelector((state: any) => state.carListings);
-  const [activeFilters, setActiveFilters] = useState(['Scrape']);
+  const [activeFilters, setActiveFilters] = useState(['Scrap']);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [isLocationModalVisible, setIsLocationModalVisible] = useState(false);
@@ -77,7 +78,7 @@ const Listings = () => {
   const filteredData = data?.filter((item: any) => {
     // Filter by active filters
     const filterMatch =
-      (activeFilters.includes('Scrape') && item.tag === 'scrape') ||
+      (activeFilters.includes('Scrap') && item.tag === 'scrap') ||
       (activeFilters.includes('Salvage') && item.tag === 'salvage');
 
     // Filter by search query (postcode or location name)
@@ -238,7 +239,7 @@ const Listings = () => {
                   styles.locationOption,
                   index === locationOptions.length - 1 && {
                     borderBottomWidth: 0,
-                  }, // آخری آپشن پر بارڈر نہ ہو
+                  }, 
                 ]}
                 onPress={() => handleLocationSelect(location)}>
                 <Text style={styles.locationText}>{location}</Text>
@@ -254,34 +255,8 @@ const Listings = () => {
         </TouchableOpacity>
       </Modal>
 
-      {/* <Modal
-        transparent={true}
-        visible={isLocationModalVisible}
-        onRequestClose={() => setIsLocationModalVisible(false)}>
-        <TouchableOpacity
-          style={styles.modalOverlay}
-          activeOpacity={1}
-          onPress={() => setIsLocationModalVisible(false)}>
-          <View style={styles.modalContent}>
-            {locationOptions.map(location => (
-              <TouchableOpacity
-                key={location}
-                style={styles.locationOption}
-                onPress={() => handleLocationSelect(location)}>
-                <Text style={styles.locationText}>{location}</Text>
-                {selectedLocation === location && (
-                  <Image
-                    source={require('../../assets/tic.png')}
-                    style={styles.tickIcon}
-                  />
-                )}
-              </TouchableOpacity>
-            ))}
-          </View>
-        </TouchableOpacity>
-      </Modal> */}
       <View style={styles.filterContainer}>
-        {['Scrape', 'Salvage', 'Saved'].map(filter => (
+        {['Scrap', 'Salvage', 'Saved'].map(filter => (
           <TouchableOpacity
             key={filter}
             style={[
@@ -350,11 +325,7 @@ const styles = StyleSheet.create({
   header: {
     marginVertical: wp(2),
   },
-  headerTitle: {
-    fontSize: wp(6),
-    fontWeight: 'bold',
-    color: Colors.darkGray,
-  },
+ 
   searchMainContianer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -393,6 +364,7 @@ const styles = StyleSheet.create({
   },
   searchBar: {
     flex: 1,
+    fontFamily:Fonts.regular,
     fontSize: hp(2),
     color: Colors.black,
   },
@@ -412,6 +384,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primary,
   },
   filterText: {
+    fontFamily:Fonts.regular,
     color: Colors.textGray,
     fontSize: wp(3),
   },
@@ -453,6 +426,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: wp(4),
+    fontFamily:Fonts.regular,
     color: Colors.darkGray,
     minWidth: wp(30),
     textAlign: 'right',
@@ -461,7 +435,7 @@ const styles = StyleSheet.create({
   value: {
     fontSize: wp(4),
     color: Colors.darkGray,
-    fontWeight: 'bold',
+    fontFamily:Fonts.semiBold,
     width: '65%',
   },
   heartIcon: {
@@ -491,11 +465,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(3),
     paddingVertical: wp(2),
     textAlign: 'center',
+    fontFamily:Fonts.regular,
     color: Colors.white,
   },
   carTitle: {
     fontSize: wp(4.5),
-    fontWeight: 'bold',
+    fontFamily:Fonts.bold,
     color: Colors.primary,
     paddingVertical: hp(1),
   },
@@ -510,6 +485,7 @@ const styles = StyleSheet.create({
   },
   footerText: {
     marginTop: wp(2),
+    fontFamily:Fonts.regular,
     fontSize: wp(3),
     color: Colors.black,
   },
@@ -533,7 +509,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingVertical: 10,
     width: '50%',
-    elevation: 5, // Android کے لیے شیڈو
+    elevation: 5, 
     shadowColor: '#000',
     shadowOpacity: 0.2,
     shadowOffset: {width: 0, height: 2},
@@ -551,7 +527,7 @@ const styles = StyleSheet.create({
   locationText: {
     fontSize: 16,
     color: '#333',
-    fontWeight: '500',
+    fontFamily:Fonts.medium,
   },
   tickIcon: {
     width: wp(5),

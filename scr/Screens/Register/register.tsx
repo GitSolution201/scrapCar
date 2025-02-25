@@ -22,6 +22,8 @@ import {
 import CountryPicker from 'react-native-country-picker-modal';
 import Colors from '../../Helper/Colors';
 import {wp} from '../../Helper/Responsive';
+import { Fonts } from '../../Helper/Fonts';
+import Header from '../../Components/Header';
 
 const Register = ({navigation}: {navigation: any}) => {
   const [firstName, setFirstName] = useState('');
@@ -119,12 +121,13 @@ const Register = ({navigation}: {navigation: any}) => {
         style={styles.container}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <ScrollView contentContainerStyle={styles.scrollContainer}>
-            <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Header navigation={navigation} />
+            {/* <TouchableOpacity onPress={() => navigation.goBack()}>
               <Image
                 source={require('../../assets/arrow.png')}
                 style={styles.icon}
               />
-            </TouchableOpacity>
+            </TouchableOpacity> */}
             <View style={styles.form}>
               <Text style={styles.title}>Register</Text>
               <Text style={styles.subtitle}>
@@ -320,19 +323,21 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 26,
-    fontWeight: 'bold',
+    fontFamily: Fonts.bold,
     color: '#0062FF',
     marginVertical: 15,
   },
   subtitle: {
     fontSize: 14,
+    fontFamily: Fonts.regular,
     color: '#6C7278',
     marginBottom: 10,
   },
   label: {
     fontSize: 14,
     color: '#6B7280',
-    marginVertical: 5,
+    marginVertical: 5,    fontFamily: Fonts.semiBold,
+    
   },
   input: {
     borderWidth: 1,
@@ -374,7 +379,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#FFF',
     fontSize: 16,
-    fontWeight: 'bold',
+    fontFamily: Fonts.bold,
   },
   link: {
     marginTop: 20,
@@ -384,7 +389,7 @@ const styles = StyleSheet.create({
     color: '#6C7278',
   },
   linkBold: {
-    fontWeight: 'bold',
+    fontFamily: Fonts.bold,
     color: '#0062FF',
   },
   errorText: {

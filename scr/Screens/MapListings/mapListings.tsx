@@ -296,7 +296,7 @@
 
 // export default MapListings;
 
-import React, { useState} from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -313,6 +313,7 @@ import {useNavigation} from '@react-navigation/native';
 import {useSelector} from 'react-redux';
 import Slider from '@react-native-community/slider';
 import {hp, wp} from '../../Helper/Responsive';
+import {Fonts} from '../../Helper/Fonts';
 
 const MapListings = () => {
   const navigation = useNavigation();
@@ -498,11 +499,11 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     color: '#333',
-    fontWeight: 'bold',
+    fontFamily: Fonts.bold,
   },
   distanceText: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontFamily: Fonts.bold,
     color: 'blue',
     textAlign: 'center',
   },
@@ -546,13 +547,13 @@ const styles = StyleSheet.create({
     fontSize: 20,
     paddingBottom: hp(2),
     marginBottom: hp(1),
-    fontWeight: 'bold',
+    fontFamily: Fonts.bold,
     color: '#FFF',
   },
   headerTitleStyle: {
     fontSize: 20,
     paddingRight: hp(3),
-    fontWeight: 'bold',
+    fontFamily: Fonts.bold,
     width: wp(50),
     color: '#FFF',
   },
@@ -601,10 +602,11 @@ const styles = StyleSheet.create({
   },
   featureTitle: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontFamily: Fonts.bold,
     color: '#333',
   },
   featureSubText: {
+    fontFamily: Fonts.regular,
     fontSize: 12,
     color: '#555',
   },

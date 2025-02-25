@@ -13,12 +13,12 @@ import {
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import Colors from '../../Helper/Colors';
+import { Fonts } from '../../Helper/Fonts';
 
 const Dashboard = ({navigation}: {navigation: any}) => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.innerContainer}>
-        {/* <Text style={styles.header}>Dashboard</Text> */}
 
         {/* Dashboard Items */}
         <TouchableOpacity style={styles.card}>
@@ -100,18 +100,13 @@ const styles = StyleSheet.create({
   },
   innerContainer: {
     flex: 1,
-    paddingHorizontal: wp('5%'), // Responsive horizontal padding
-    paddingTop: Platform.OS === 'ios' ? hp('2%') : hp('5%'), // Platform-specific padding
+    paddingHorizontal: wp('5%'), 
+    paddingTop: Platform.OS === 'ios' ? hp('2%') : hp('5%'),
   },
-  header: {
-    fontSize: wp('7%'), // Responsive font size
-    fontWeight: 'bold',
-    marginBottom: hp('3%'), // Responsive margin
-    color: Colors.darkGray,
-  },
+
   icon: {
-    width: wp('5%'), // Responsive width
-    height: hp('2.5%'), // Responsive height
+    width: wp('5%'), 
+    height: hp('2.5%'), 
   },
   loyalty: {
     width: wp('6%'),
@@ -121,27 +116,28 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: Colors.white,
-    borderRadius: wp('3%'), // Responsive border radius
-    padding: wp('4%'), // Responsive padding
-    marginBottom: hp('2%'), // Responsive margin
+    borderRadius: wp('3%'), 
+    padding: wp('4%'),
+    marginBottom: hp('2%'),
     shadowColor: Colors.black,
     shadowOpacity: 0.1,
     shadowOffset: {width: 0, height: 2},
     shadowRadius: 4,
-    elevation: 3, // Shadow for Android
+    elevation: 3, 
   },
   cardContent: {
-    marginLeft: wp('4%'), // Responsive margin
+    marginLeft: wp('4%'), 
   },
   cardTitle: {
-    fontSize: wp('4.5%'), // Responsive font size
-    fontWeight: 'bold',
+    fontSize: wp('4.5%'), 
+  fontFamily:Fonts.bold,
     color: Colors.darkGray,
   },
   cardSubtitle: {
-    fontSize: wp('3.5%'), // Responsive font size
-    color: Colors.textGray,
-    marginTop: hp('0.5%'), // Responsive margin
+  fontFamily:Fonts.regular,
+  fontSize: wp('3.5%'), 
+    color: Colors.textGray, // Platform-specific padding
+    marginTop: hp('0.5%'), 
   },
 });
 

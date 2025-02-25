@@ -22,10 +22,11 @@ import {
 } from '../../redux/slices/userProfileUpdateSlice';
 import Colors from '../../Helper/Colors';
 import {hp, wp} from '../../Helper/Responsive';
-import Toast from 'react-native-simple-toast'; // Import the toast package
+import Toast from 'react-native-simple-toast'; 
 import CountryPicker from 'react-native-country-picker-modal';
-import {useIsFocused, useNavigation} from '@react-navigation/native';
+import {useIsFocused } from '@react-navigation/native';
 import Header from '../../Components/Header';
+import { Fonts } from '../../Helper/Fonts';
 
 const Profile = ({navigation}: {navigation: any}) => {
   const isFocused = useIsFocused();
@@ -48,14 +49,14 @@ const Profile = ({navigation}: {navigation: any}) => {
   const [email, setEmail] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [errors, setErrors] = useState({});
-  const [countryCode, setCountryCode] = useState('GB'); // Default country code
-  const [callingCode, setCallingCode] = useState('44'); // Default calling code
-  const [visible, setVisible] = useState(false); // Modal visibility state
+  const [countryCode, setCountryCode] = useState('GB');
+  const [callingCode, setCallingCode] = useState('44'); 
+  const [visible, setVisible] = useState(false); 
   useEffect(() => {
     if (isFocused) {
-      dispatch(fetchUserRequest(token)); // جب بھی اسکرین فوکس میں آئے، یوزر ڈیٹا کو ریفریش کرے گا۔
+      dispatch(fetchUserRequest(token)); 
     }
-    setErrors({}); // ایررز کو صاف کرنے کے لیے
+    setErrors({}); 
   }, [isFocused]);
   useEffect(() => {
     if (userData) {
@@ -68,11 +69,9 @@ const Profile = ({navigation}: {navigation: any}) => {
 
   useEffect(() => {
     if (updateSuccess && message) {
-      Toast.show(message, Toast.LONG); // Display the message for a long duration
+      Toast.show(message, Toast.LONG); 
 
-      // Reset the profile update state after a successful update
       dispatch(resetProfileUpdateState());
-      // Optionally, refetch user details to reflect the updated data
       dispatch(fetchUserRequest(token));
     }
   }, [updateSuccess, token]);
@@ -102,12 +101,11 @@ const Profile = ({navigation}: {navigation: any}) => {
     }
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0; // Return true if no errors
+    return Object.keys(newErrors).length === 0; 
   };
 
-  // Reset error for a specific field when the user starts typing
   const handleInputChange = (field, value) => {
-    setErrors(prevErrors => ({...prevErrors, [field]: null})); // Reset error for the field
+    setErrors(prevErrors => ({...prevErrors, [field]: null})); 
     switch (field) {
       case 'firstName':
         setFirstName(value);
@@ -133,7 +131,7 @@ const Profile = ({navigation}: {navigation: any}) => {
         last_name: lastName,
         phone: phoneNumber,
       };
-      dispatch(updateProfileRequest({token, updatedData})); // Dispatch the update action
+      dispatch(updateProfileRequest({token, updatedData})); 
     }
   };
 
@@ -396,7 +394,8 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 15,
     backgroundColor: '#FFF',
-    fontSize: 16,
+    fontSize: 16,   
+     fontFamily:Fonts.regular,
     color: '#333',
   },
   phoneContainer: {
@@ -436,7 +435,7 @@ const styles = StyleSheet.create({
   logoutText: {
     fontSize: 16,
     color: 'red',
-    fontWeight:'500',
+    fontFamily:Fonts.semiBold,
     textAlign: 'center',
   },
   saveButton: {
@@ -461,7 +460,7 @@ const styles = StyleSheet.create({
   saveButtonText: {
     color: '#FFF',
     fontSize: 16,
-    fontWeight: 'bold',
+    fontFamily:Fonts.bold
   },
 
   modalContainer: {
@@ -484,11 +483,12 @@ const styles = StyleSheet.create({
   },
   modalTopText: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontFamily:Fonts.bold,
     textAlign: 'center',
   },
   modalText: {
     fontSize: 16,
+    fontFamily:Fonts.regular,
     marginVertical: 15,
     textAlign: 'center',
   },
@@ -507,10 +507,11 @@ const styles = StyleSheet.create({
   },
   cancelButton: {
     borderRightWidth: 1,
+    fontFamily:Fonts.regular,
     borderColor: '#D3D3D3',
   },
   cancelButtonText: {
-    fontWeight: 'bold',
+    fontFamily:Fonts.bold,
     color: '#007AFF',
   },
   logoutButton: {
@@ -518,7 +519,7 @@ const styles = StyleSheet.create({
   },
   logoutButtonText: {
     color: '#FF3B30',
-    fontWeight: 'bold',
+    fontFamily:Fonts.bold,
   },
   loadingContainer: {
     flex: 1,
@@ -538,6 +539,7 @@ const styles = StyleSheet.create({
   hidingColor: {
     color: '#000000AB',
     paddingBottom: hp(1),
+    fontFamily:Fonts.semiBold
   },
 });
 

@@ -3,6 +3,7 @@ import React from 'react';
 import {useNavigation} from '@react-navigation/native';
 import Colors from '../Helper/Colors';
 import {hp, wp} from '../Helper/Responsive';
+import { Fonts } from '../Helper/Fonts';
 
 const localImages = {
   car1: require('../assets/car.png'),
@@ -148,7 +149,7 @@ const styles = StyleSheet.create({
   value: {
     fontSize: wp(4),
     color: Colors.darkGray,
-    fontWeight: 'bold',
+    fontFamily:Fonts.bold,
     width: '65%',
   },
   heartIcon: {
@@ -175,6 +176,7 @@ const styles = StyleSheet.create({
   },
   scrapText: {
     textTransform: 'capitalize',
+    fontFamily:Fonts.regular,
     paddingHorizontal: wp(3),
     paddingVertical: wp(2),
     textAlign: 'center',
@@ -182,7 +184,7 @@ const styles = StyleSheet.create({
   },
   carTitle: {
     fontSize: wp(4.5),
-    fontWeight: 'bold',
+    fontFamily:Fonts.bold,
     color: Colors.primary,
     paddingVertical: hp(1),
   },
@@ -197,6 +199,7 @@ const styles = StyleSheet.create({
   },
   footerText: {
     marginTop: wp(2),
+    fontFamily:Fonts.regular,
     fontSize: wp(3),
     color: Colors.black,
   },

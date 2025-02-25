@@ -10,17 +10,20 @@ import {
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {loginRequest} from '../../redux/slices/authSlice';
-import Icon from 'react-native-vector-icons/FontAwesome'; // Import FontAwesome icons
 import Colors from '../../Helper/Colors';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
+import Toast from 'react-native-simple-toast'; // Import the toast package
+import {axiosHeader} from '../../Services/apiHeader';
+import {Fonts} from '../../Helper/Fonts';
 
 const Login = ({navigation}: {navigation: any}) => {
   const dispatch = useDispatch();
-  const {loading, loginResponse} = useSelector((state: any) => state.auth);
-
+  const {loading, loginResponse, token} = useSelector(
+    (state: any) => state.auth,
+  );
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [formErrors, setFormErrors] = useState<{
@@ -36,9 +39,11 @@ const Login = ({navigation}: {navigation: any}) => {
     if (loginResponse) {
       setApiError('');
       if (loginResponse.success) {
+        axiosHeader(token);
+        Toast.show(loginResponse?.message, Toast.LONG); // Display the message for a long duration
         navigation.repalce('MainTabs');
-      } else if (loginResponse.error) {
-        setApiError(loginResponse.error);
+      } else if (loginResponse?.error) {
+        setApiError(loginResponse?.error);
       }
     }
   }, [loginResponse]);
@@ -64,6 +69,7 @@ const Login = ({navigation}: {navigation: any}) => {
 
   const handleLogin = () => {
     if (validateForm()) {
+      setApiError('');
       dispatch(loginRequest({email, password}));
     }
   };
@@ -138,7 +144,6 @@ const Login = ({navigation}: {navigation: any}) => {
         {formErrors.password && (
           <Text style={styles.errorText}>{formErrors.password}</Text>
         )}
-
         {apiError && <Text style={styles.apiErrorText}>{apiError}</Text>}
 
         <TouchableOpacity
@@ -190,13 +195,14 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: wp(8),
-    fontWeight: 'bold',
+    fontFamily: Fonts.bold,
     marginBottom: hp(2),
     color: '#007BFF',
   },
   hidingColor: {
     color: '#000000AB',
     paddingBottom: hp(1),
+    fontFamily: Fonts.semiBold,
   },
   subtitle: {
     fontSize: wp(4),
@@ -205,6 +211,7 @@ const styles = StyleSheet.create({
     borderRadius: wp(2),
     paddingHorizontal: wp(3),
     marginBottom: hp(2),
+    fontFamily: Fonts.semiBold,
     backgroundColor: '#FFF',
   },
   passwordContainer: {
@@ -240,7 +247,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#FFF',
     fontSize: wp(4),
-    fontWeight: 'bold',
+    fontFamily: Fonts.bold,
   },
   link: {
     marginTop: hp(2),
@@ -248,14 +255,14 @@ const styles = StyleSheet.create({
   },
   linkText: {
     color: '#6C7278',
-    fontWeight: 'bold',
+    fontFamily: Fonts.bold,
   },
   disabledButton: {
     backgroundColor: '#cccccc',
   },
   linkBold: {
     color: '#007BFF',
-    fontWeight: 'bold',
+    fontFamily: Fonts.bold,
   },
   errorText: {
     color: 'red',

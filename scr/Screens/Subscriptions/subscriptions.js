@@ -12,6 +12,7 @@ import {
 import Colors from '../../Helper/Colors';
 import Header from '../../Components/Header';
 import {useNavigation} from '@react-navigation/native';
+import { Fonts } from '../../Helper/Fonts';
 
 const {width: wp, height: hp} = Dimensions.get('window');
 
@@ -85,51 +86,20 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.gray,
     paddingHorizontal: wp * 0.05,
   },
-  headerTitleStyle: {
-    flexDirection: 'row',
-    marginBottom: hp * 0.02,
-    alignItems: 'center',
-    marginTop: hp * 0.03,
-  },
-  iconBack: {
-    width: wp * 0.08,
-    height: hp * 0.04,
-    resizeMode: 'contain',
-  },
-  header: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    marginRight: wp * 0.05,
-  },
-  backButton: {
-    // marginRight: wp * 0.02x,
-  },
-  headerTitle: {
-    fontSize: wp * 0.06,
-    color: Colors.black,
-  },
+
   subHeader: {
     fontSize: wp * 0.05,
-    fontWeight: '500',
-    textAlign: 'center',
+fontFamily:Fonts.semiBold,    textAlign: 'center',
     color: Colors.primary,
     marginTop: hp * 0.02,
   },
   description: {
-    fontSize: wp * 0.04,
+    fontSize: wp * 0.04,fontFamily:Fonts.regular,  
     color: Colors.dummyText,
     textAlign: 'center',
     marginVertical: hp * 0.02,
   },
-  option: {
-    width: '100%',
-    padding: hp * 0.02,
-    borderRadius: 10,
-    backgroundColor: Colors.lightGray,
-    marginTop: hp * 0.015,
-    alignItems: 'center',
-  },
+
   optionSelected: {
     width: '100%',
     padding: hp * 0.02,
@@ -142,12 +112,11 @@ const styles = StyleSheet.create({
   },
   optionText: {
     fontSize: wp * 0.04,
-    fontWeight: 'bold',
-    color: Colors.primary,
+    fontFamily:Fonts.semiBold,     color: Colors.primary,
   },
   optionSubText: {
     fontSize: wp * 0.035,
-    marginTop: wp * 0.06,
+    marginTop: wp * 0.06,  fontFamily:Fonts.regular, 
     textAlign:'center',
     color: Colors.textGray,
   },
@@ -163,8 +132,7 @@ const styles = StyleSheet.create({
     color: Colors.footerGray,
   },
   boldText: {
-    fontWeight: 'bold',
-  },
+    fontFamily:Fonts.bold,   },
   switchContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -176,7 +144,7 @@ const styles = StyleSheet.create({
     marginVertical: hp * 0.02,
   },
   switchLabel: {
-    fontSize: wp * 0.04,
+    fontSize: wp * 0.04,  fontFamily:Fonts.regular, 
     color: Colors.black,
   },
   continueButton: {
@@ -190,8 +158,7 @@ const styles = StyleSheet.create({
   continueText: {
     color: Colors.white,
     fontSize: wp * 0.045,
-    fontWeight: 'bold',
-  },
+    fontFamily:Fonts.bold,   },
 });
 
 export default SubscriptionScreen;

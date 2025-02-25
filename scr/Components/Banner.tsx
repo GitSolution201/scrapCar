@@ -3,6 +3,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import Colors from '../Helper/Colors';
 import { hp, wp } from '../Helper/Responsive';
+import { Fonts } from '../Helper/Fonts';
 
 
 const Banner = ({navigation}:{navigation:any}) => {
@@ -61,16 +62,18 @@ const styles = StyleSheet.create({
   },
   discountedPrice: {
     fontSize: wp(3.5),
-    fontWeight: 'bold',
+    fontFamily:Fonts.semiBold,
     color: Colors.black,
     marginRight: wp(2),
   },
   originalPrice: {
     fontSize: wp(3),
+    fontFamily:Fonts.regular,
     color: Colors.black,
     textDecorationLine: 'line-through',
   },
   additionalText: {
+    fontFamily:Fonts.regular,
     fontSize: wp(3),
     color: Colors.black,
     opacity: 0.8,
@@ -84,7 +87,7 @@ const styles = StyleSheet.create({
   },
   getNowText: {
     fontSize: wp(3.5),
-    fontWeight: 'bold',
+    fontFamily:Fonts.bold,
     color: Colors.primary,
     textAlign: 'center',
   },
