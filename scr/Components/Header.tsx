@@ -1,11 +1,11 @@
 
-import {View, Text, StyleSheet, TouchableOpacity, Image} from 'react-native';
+import {View, StyleSheet, TouchableOpacity, Image} from 'react-native';
 import React from 'react';
 import Colors from '../Helper/Colors';
 import {hp, wp} from '../Helper/Responsive';
 
-export default function Header({navigation, centerContent}:
-    {navigation:any,centerContent:any}
+export default function Header({navigation}:
+    {navigation:any}
 ) {
   return (
     <View style={styles.headerContainer}>
@@ -20,10 +20,6 @@ export default function Header({navigation, centerContent}:
             tintColor={Colors?.backIconColor}
           />
         </TouchableOpacity>
-      </View>
-
-      <View style={styles.centerSection}>
-        <Text style={styles.screenName}>{centerContent}</Text>
       </View>
 
       <View style={styles.rightSection} />

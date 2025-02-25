@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   TextInput,
   Modal,
+  SafeAreaView,
 } from 'react-native';
 import Colors from '../../Helper/Colors'; // Import Colors
 import {useDispatch, useSelector} from 'react-redux';
@@ -34,15 +35,18 @@ const Listings = () => {
   const token = useSelector((state: any) => state.auth?.token);
   const {loading, error, data} = useSelector((state: any) => state.carListings);
   const [activeFilters, setActiveFilters] = useState(['Scrape']);
-  const [searchQuery, setSearchQuery] = useState(''); // State for search query
+  const [searchQuery, setSearchQuery] = useState('');
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [isLocationModalVisible, setIsLocationModalVisible] = useState(false);
 
   const locationOptions = ['5 km', '10 km', '20 km', '25 km'];
   useFocusEffect(
     useCallback(() => {
-      dispatch(getUserRequest(token));
-    }, [dispatch, token]),
+      const fetchData = async () => {
+        await dispatch(getUserRequest(token));
+      };
+      fetchData();
+    }, [token]),
   );
 
   const getLocalImage = (index: any) => {
@@ -82,36 +86,55 @@ const Listings = () => {
 
     return filterMatch && searchMatch;
   });
-  const renderItem = ({ item, index }) => (
+  const renderItem = ({item, index}) => (
     <TouchableOpacity
-      onPress={() => navigation.navigate('CarDeatils', { car: item })}
+      onPress={() => navigation.navigate('CarDeatils', {car: item})}
       style={styles.listingCard}>
       {/* Heart Icon (Top-right corner) */}
       <TouchableOpacity
         style={styles.heartIconContainer}
         onPress={() => console.log('Heart pressed for item:', item)}>
         <Image
-          source={require('../../assets/simpleHeart.png')} // Add your heart icon image
+          source={require('../../assets/simpleHeart.png')}
           style={styles.heartIcon}
         />
       </TouchableOpacity>
-  
+
       {/* Car Image */}
       <Image
         source={getLocalImage(index)}
         style={styles.carImage}
         resizeMode="contain"
       />
-  
+
       {/* Car Details */}
       <View style={styles.detailsContainer}>
-         <View style={styles.carTagContainer}>
-                  <Text style={styles.scrapText}>{item.tag || 'Unknown'}</Text>
-                </View>
+        <View style={styles.carTagContainer}>
+          <Text style={styles.scrapText}>{item.tag || 'Unknown'}</Text>
+        </View>
         <Text style={styles.carTitle}>
           {item.make} {item.model} ({item.yearOfManufacture})
         </Text>
-        <Text style={styles.details}>
+        {[
+          ['Registration:', item.registrationNumber],
+          ['Year:', item.yearOfManufacture],
+          ['PostCode:', item.postcode],
+          ['Colors:', item.color],
+          ['Model:', item.model],
+          ['Fuel Type:', item.fuelType],
+          ['Problem:', item.problem],
+          // ['Phone:', car.phoneNumber ? `+${car.phoneNumber}` : 'N/A'],
+          // ['MOT Status:', car.motStatus],
+          // ['MOT Expiry:', car.motExpiryDate || 'No issues reported'],
+        ].map(([label, value], index) => (
+          <View key={index} style={styles.infoRow}>
+            <Text style={styles.label}>{label}</Text>
+            <Text style={styles.value} numberOfLines={1} ellipsizeMode="tail">
+              {value?.toString().toUpperCase() || 'N/A'}
+            </Text>
+          </View>
+        ))}
+        {/* <Text style={styles.details}>
           Registration: {item.registrationNumber}
         </Text>
         <Text style={styles.details}>Postcode: {item.postcode}</Text>
@@ -120,10 +143,10 @@ const Listings = () => {
         </Text>
         <Text style={styles.details}>Fuel Type: {item.fuelType}</Text>
         <Text style={styles.details}>Problem: {item.problem}</Text>
-  
+   */}
         {/* Footer */}
         <View style={styles.footer}>
-          <View style={{ alignItems: 'center' }}>
+          <View style={{alignItems: 'center'}}>
             <Image
               source={require('../../assets/pin.png')}
               style={styles.icon}
@@ -132,14 +155,14 @@ const Listings = () => {
               {item?.distance ? item?.distance : '20.9 mi.'}
             </Text>
           </View>
-          <View style={{ alignItems: 'center' }}>
+          <View style={{alignItems: 'center'}}>
             <Image
               source={require('../../assets/timer.png')}
               style={styles.icon}
             />
             <Text style={styles.footerText}>{item.views} 50 minutes ago</Text>
           </View>
-          <View style={{ alignItems: 'center' }}>
+          <View style={{alignItems: 'center'}}>
             <Image
               source={require('../../assets/eye.png')}
               style={styles.icon}
@@ -150,7 +173,7 @@ const Listings = () => {
       </View>
     </TouchableOpacity>
   );
- 
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -169,17 +192,9 @@ const Listings = () => {
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Listings</Text>
-      </View>
+    <SafeAreaView style={styles.container}>
       <Banner navigation={navigation} />
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}>
+      <View style={styles.searchMainContianer}>
         <View style={styles.searchContainer}>
           <Image
             source={require('../../assets/search.png')}
@@ -209,6 +224,43 @@ const Listings = () => {
           activeOpacity={1}
           onPress={() => setIsLocationModalVisible(false)}>
           <View style={styles.modalContent}>
+            <Text
+              style={styles.distanceByFilter}>
+              Distance by filter
+            </Text>
+
+            {locationOptions.map((location, index) => (
+              <TouchableOpacity
+                key={location}
+                style={[
+                  styles.locationOption,
+                  index === locationOptions.length - 1 && {
+                    borderBottomWidth: 0,
+                  }, // آخری آپشن پر بارڈر نہ ہو
+                ]}
+                onPress={() => handleLocationSelect(location)}>
+                <Text style={styles.locationText}>{location}</Text>
+                {selectedLocation === location && (
+                  <Image
+                    source={require('../../assets/tic.png')}
+                    style={styles.tickIcon}
+                  />
+                )}
+              </TouchableOpacity>
+            ))}
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
+      {/* <Modal
+        transparent={true}
+        visible={isLocationModalVisible}
+        onRequestClose={() => setIsLocationModalVisible(false)}>
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setIsLocationModalVisible(false)}>
+          <View style={styles.modalContent}>
             {locationOptions.map(location => (
               <TouchableOpacity
                 key={location}
@@ -225,7 +277,7 @@ const Listings = () => {
             ))}
           </View>
         </TouchableOpacity>
-      </Modal>
+      </Modal> */}
       <View style={styles.filterContainer}>
         {['Scrape', 'Salvage', 'Saved'].map(filter => (
           <TouchableOpacity
@@ -256,7 +308,7 @@ const Listings = () => {
         keyExtractor={item => item._id}
         contentContainerStyle={styles.list}
       />
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -265,7 +317,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: wp(5),
     paddingTop: hp(2),
-    backgroundColor: Colors.white,
+    backgroundColor: Colors.gray,
   },
 
   loadingContainer: {
@@ -288,10 +340,10 @@ const styles = StyleSheet.create({
     color: Colors.red,
   },
   icon: {
-    width: wp(6),
-    resizeMode:'contain',
-    height: wp(6),
-    tintColor:Colors.black
+    width: wp(4),
+    resizeMode: 'contain',
+    height: wp(4),
+    tintColor: Colors.black,
   },
   header: {
     marginVertical: wp(2),
@@ -300,6 +352,11 @@ const styles = StyleSheet.create({
     fontSize: wp(6),
     fontWeight: 'bold',
     color: Colors.darkGray,
+  },
+  searchMainContianer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   searchContainer: {
     flexDirection: 'row',
@@ -314,22 +371,22 @@ const styles = StyleSheet.create({
     shadowRadius: wp(1),
     shadowOffset: {width: 0, height: hp(0.5)},
     elevation: 3,
-    width: wp(78),
+    width: wp(80),
     height: hp(6),
     alignSelf: 'flex-start',
     marginTop: wp(4),
   },
   searchIcon: {
-    width: wp(5),
-    height: wp(5),
+    width: wp(3.5),
+    height: wp(3.5),
     marginRight: wp(1),
     tintColor: Colors.textGray,
   },
   locationIcon: {
     tintColor: Colors.footerGray,
-    width: wp(10),
+    width: wp(7),
     marginTop: wp(3),
-    height: wp(10),
+    height: wp(7),
     resizeMode: 'contain',
   },
   searchBar: {
@@ -339,13 +396,12 @@ const styles = StyleSheet.create({
   },
   filterContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginVertical: hp(2.5),
+    marginVertical: hp(2),
   },
   filterButton: {
-    flex: 1,
-    marginHorizontal: wp(1),
-    paddingVertical: hp(1.5),
+    paddingVertical: wp(2),
+    paddingHorizontal: wp(3),
+    marginHorizontal: wp(2),
     backgroundColor: Colors.lightGray,
     borderRadius: wp(10),
     alignItems: 'center',
@@ -355,7 +411,7 @@ const styles = StyleSheet.create({
   },
   filterText: {
     color: Colors.textGray,
-    fontSize: wp(4),
+    fontSize: wp(3),
   },
   filterTextActive: {
     color: Colors.white,
@@ -369,7 +425,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     borderRadius: wp(4),
     borderWidth: 0.2,
-    marginTop: hp(5),
+    marginTop: hp(1),
     marginBottom: hp(3.5),
     paddingTop: hp(3.5),
     paddingHorizontal: wp(3.5),
@@ -380,37 +436,58 @@ const styles = StyleSheet.create({
     shadowOffset: {width: 0, height: hp(0.5)},
     elevation: 3,
   },
-   heartIconContainer: {
+  heartIconContainer: {
     position: 'absolute',
-    top: hp(2), 
-    left:wp(7),
+    top: hp(2),
+    left: wp(7),
     zIndex: 1,
   },
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '90%',
+    alignSelf: 'center',
+    marginBottom: hp(1),
+  },
+  label: {
+    fontSize: wp(4),
+    color: Colors.darkGray,
+    minWidth: wp(30),
+    textAlign: 'right',
+    paddingRight: wp(3),
+  },
+  value: {
+    fontSize: wp(4),
+    color: Colors.darkGray,
+    fontWeight: 'bold',
+    width: '65%',
+  },
   heartIcon: {
-    width: wp(7), 
-    height: wp(7),
-    tintColor: Colors.black, 
+    width: wp(5.5),
+    height: wp(5.5),
+    tintColor: Colors.black,
   },
   carImage: {
     position: 'absolute',
-    top: -60,
-    right: -10,
+    top: -100,
+    right: 5,
     width: '70%',
     height: '70%',
   },
   detailsContainer: {
     padding: wp(2.5),
-  },  
+  },
   carTagContainer: {
     backgroundColor: Colors.primary,
     borderRadius: wp(10),
     paddingHorizontal: wp(2),
     alignSelf: 'flex-start',
-    marginTop:wp(3)
+    marginTop: wp(3),
   },
   scrapText: {
     textTransform: 'capitalize',
-    padding: hp(1),
+    paddingHorizontal: wp(3),
+    paddingVertical: wp(2),
     textAlign: 'center',
     color: Colors.white,
   },
@@ -430,34 +507,48 @@ const styles = StyleSheet.create({
     marginTop: hp(1),
   },
   footerText: {
-    marginTop:wp(2),
-    fontSize: wp(3.5),
+    marginTop: wp(2),
+    fontSize: wp(3),
     color: Colors.black,
   },
   //Modal
   modalOverlay: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    marginRight: hp(7),
+    marginTop: hp(15),
+    alignSelf: 'flex-end',
+  },
+  distanceByFilter:{
+    textAlign: 'center',
+    borderBottomWidth: 0.3,
+    borderColor: Colors.darkGray,
+    color: Colors.primary,
+    width: '90%',
+    alignSelf: 'center',
   },
   modalContent: {
-    backgroundColor: Colors.white,
-    borderRadius: wp(3),
-    padding: wp(4),
-    width: wp(70),
+    backgroundColor: 'white',
+    borderRadius: 12,
+    paddingVertical: 10,
+    width: '50%',
+    elevation: 5, // Android کے لیے شیڈو
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowOffset: {width: 0, height: 2},
+    shadowRadius: 5,
   },
   locationOption: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: hp(1),
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+    paddingHorizontal: 15,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.lightGray,
+    borderBottomColor: '#ddd',
   },
   locationText: {
-    fontSize: wp(4),
-    color: Colors.darkGray,
+    fontSize: 16,
+    color: '#333',
+    fontWeight: '500',
   },
   tickIcon: {
     width: wp(5),

@@ -7,26 +7,37 @@ import {
   StyleSheet,
   ScrollView,
   Linking,
+  SafeAreaView,
 } from 'react-native';
-import { hp, wp } from '../../Helper/Responsive';
+import {hp, wp} from '../../Helper/Responsive';
 import Colors from '../../Helper/Colors';
 import Header from '../../Components/Header';
 import Banner from '../../Components/Banner';
 
 const defaultCarImage = require('../../assets/car2.png');
 
-const Details = ({ route, navigation }:{route:any, navigation:any}) => {
-  const { car } = route.params;
+const Details = ({route, navigation}: {route: any; navigation: any}) => {
+  const {car} = route.params;
 
-  const handleCall = (phoneNumber:any) => Linking.openURL(`tel:${phoneNumber}`);
-  const handleTextMessage = (phoneNumber:any) => Linking.openURL(`sms:${phoneNumber}`);
-  const handleWhatsApp = (phoneNumber:any) => Linking.openURL(`https://wa.me/${phoneNumber}`);
+  const handleCall = (phoneNumber: any) =>
+    Linking.openURL(`tel:${phoneNumber}`);
+  const handleTextMessage = (phoneNumber: any) =>
+    Linking.openURL(`sms:${phoneNumber}`);
+  const handleWhatsApp = (phoneNumber: any) =>
+    Linking.openURL(`https://wa.me/${phoneNumber}`);
+
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <Header title={'Detail'} centerContent={'Listing Details'} />
+    <ScrollView showsVerticalScrollIndicator={false}>
+      <SafeAreaView style={styles.container}   >
+
+      <Header navigation={navigation} />
       <View style={styles.detailsContainer}>
         <Image
-          source={car?.carImage  && car?.carImage !== 'N/A' ? { uri: car?.carImage } : defaultCarImage}
+          source={
+            car?.carImage && car?.carImage !== 'N/A'
+              ? {uri: car?.carImage}
+              : defaultCarImage
+          }
           style={styles.carImage}
           resizeMode={'contain'}
         />
@@ -67,9 +78,11 @@ const Details = ({ route, navigation }:{route:any, navigation:any}) => {
           ].map(([text, icon, action], index) => (
             <View key={index}>
               <TouchableOpacity
-                style={[styles.contactButton, styles[`${text.toLowerCase()}Button`]]}
-                onPress={() => action('+' + car?.phoneNumber)}
-              >
+                style={[
+                  styles.contactButton,
+                  styles[`${text.toLowerCase()}Button`],
+                ]}
+                onPress={() => action('+' + car?.phoneNumber)}>
                 <Image source={icon} style={styles.icon} />
               </TouchableOpacity>
               <Text style={styles.contactText}>{text}</Text>
@@ -77,7 +90,9 @@ const Details = ({ route, navigation }:{route:any, navigation:any}) => {
           ))}
         </View>
       </View>
-    </ScrollView>
+      </SafeAreaView>
+
+  </ScrollView>
   );
 };
 
@@ -108,13 +123,13 @@ const styles = StyleSheet.create({
   carTagContainer: {
     backgroundColor: Colors.gradientEnd,
     borderRadius: wp(10),
-    paddingHorizontal: wp(2),
     marginVertical: hp(2),
     alignSelf: 'center',
   },
   scrapText: {
     textTransform: 'capitalize',
-    padding: hp(1),
+    paddingHorizontal: wp(3),
+    paddingVertical: wp(1.5),
     textAlign: 'center',
     color: Colors.primary,
   },
@@ -159,7 +174,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
- 
+
   icon: {
     width: wp(12),
     height: wp(12),

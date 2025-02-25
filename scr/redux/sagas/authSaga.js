@@ -15,6 +15,7 @@ function* handleLogin(action) {
     const response = yield call(login, action.payload); // Call the login API
     yield put(loginSuccess(response)); // Dispatch success action with API response
   } catch (error) {
+    console.log('@error in saga',error)
     yield put(loginFailure(error.message || 'Login failed')); // Dispatch failure action
   }
 }
@@ -25,7 +26,8 @@ function* handleRegister(action) {
     const response = yield call(register, action.payload);
     yield put(registerSuccess(response));
   } catch (error) {
-    yield put(registerFailure(error.message));
+    console.log('@EERRR',error)
+    yield put(registerFailure(error.message || 'Registration failed'));
   }
 }
 

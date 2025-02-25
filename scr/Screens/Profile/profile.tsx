@@ -160,11 +160,8 @@ const Profile = ({navigation}: {navigation: any}) => {
   return (
     <ScrollView style={styles.container}>
       <Header 
-      centerContent={'User Detail'}
       navigation={navigation}
       />
-      
-
       <View style={styles.profileSection}>
         <View style={styles.profileContainer}>
           <Image
@@ -262,7 +259,7 @@ const Profile = ({navigation}: {navigation: any}) => {
           <Text style={styles.errorText}>{errors.phoneNumber}</Text>
         )} */}
 
-        <TouchableOpacity style={[styles.saveButton]} onPress={handleSave}>
+        <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
           <Text style={styles.saveButtonText}>Save</Text>
         </TouchableOpacity>
         {/* <TouchableOpacity style={styles.changePassword}>
@@ -273,7 +270,7 @@ const Profile = ({navigation}: {navigation: any}) => {
       {/* Save Button */}
 
       <TouchableOpacity
-        // style={styles.logout}
+        style={styles.logout}
 
         onPress={() => setModalVisible(true)}>
         <Text style={styles.logoutText}>Logout</Text>
@@ -434,7 +431,7 @@ const styles = StyleSheet.create({
   },
   logoutText: {
     fontSize: 16,
-    color: 'black',
+    color: 'red',
     textAlign: 'center',
   },
   saveButton: {
@@ -442,6 +439,13 @@ const styles = StyleSheet.create({
     padding: wp(3),
     borderRadius: 8,
     marginTop: wp(4),
+    alignItems: 'center',
+  },  logout: {
+    backgroundColor:Colors.white,
+    padding: wp(3),
+    borderRadius: 8,
+    borderWidth:0.3,
+    marginVertical: wp(1),
     alignItems: 'center',
   },
   disabledButton: {

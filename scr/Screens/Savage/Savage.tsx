@@ -1,6 +1,7 @@
 import {
   ActivityIndicator,
   FlatList,
+  SafeAreaView,
   StyleSheet,
   Text,
   View,
@@ -43,9 +44,9 @@ const Savage = () => {
     );
   }
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       {/* Header */}
-      <Header centerContent={'Saved'} navigation={navigation} />
+      <Header  navigation={navigation} />
       <FlatList
         data={data}
         renderItem={({item, index}) => (
@@ -54,7 +55,7 @@ const Savage = () => {
         showsVerticalScrollIndicator={false}
         keyExtractor={item => item._id}
       />
-    </View>
+    </SafeAreaView>
   );
 };
 

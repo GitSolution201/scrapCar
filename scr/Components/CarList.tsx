@@ -22,73 +22,91 @@ export default function CarList({
     return localImages[imageKeys[index % imageKeys.length]];
   };
   return (
-     <TouchableOpacity
-          onPress={() => navigation.navigate('CarDeatils', { car: item })}
-          style={styles.listingCard}>
-          {/* Heart Icon (Top-right corner) */}
-          <TouchableOpacity
-            style={styles.heartIconContainer}
-            onPress={() => console.log('Heart pressed for item:', item)}>
-            <Image
-              source={require('../assets/simpleHeart.png')} // Add your heart icon image
-              style={styles.heartIcon}
-            />
-          </TouchableOpacity>
-      
-          {/* Car Image */}
-          <Image
-            source={getLocalImage(itemIndex)}
-            style={styles.carImage}
-            resizeMode="contain"
-          />
-      
-          {/* Car Details */}
-          <View style={styles.detailsContainer}>
-             <View style={styles.carTagContainer}>
-                      <Text style={styles.scrapText}>{item.tag || 'Unknown'}</Text>
+    <TouchableOpacity
+         onPress={() => navigation.navigate('CarDeatils', { car: item })}
+         style={styles.listingCard}>
+         {/* Heart Icon (Top-right corner) */}
+         <TouchableOpacity
+           style={styles.heartIconContainer}
+           onPress={() => console.log('Heart pressed for item:', item)}>
+           <Image
+             source={require('../assets/simpleHeart.png')} 
+             style={styles.heartIcon}
+           />
+         </TouchableOpacity>
+     
+         {/* Car Image */}
+         <Image
+           source={getLocalImage(itemIndex)}
+           style={styles.carImage}
+           resizeMode="contain"
+         />
+     
+         {/* Car Details */}
+         <View style={styles.detailsContainer}>
+            <View style={styles.carTagContainer}>
+                     <Text style={styles.scrapText}>{item.tag || 'Unknown'}</Text>
+                   </View>
+           <Text style={styles.carTitle}>
+             {item.make} {item.model} ({item.yearOfManufacture})
+           </Text>
+             {[
+                    ['Registration:', item.registrationNumber],
+                    ['Year:', item.yearOfManufacture],
+                    ['PostCode:', item.postcode],
+                    ['Colors:', item.color],
+                    ['Model:', item.model],
+                    ['Fuel Type:', item.fuelType],
+                    ['Problem:', item.problem],
+                    // ['Phone:', car.phoneNumber ? `+${car.phoneNumber}` : 'N/A'],
+                    // ['MOT Status:', car.motStatus],
+                    // ['MOT Expiry:', car.motExpiryDate || 'No issues reported'],
+                  ].map(([label, value], index) => (
+                    <View key={index} style={styles.infoRow}>
+                      <Text style={styles.label}>{label}</Text>
+                      <Text style={styles.value} numberOfLines={1} ellipsizeMode="tail">
+                        {value?.toString().toUpperCase() || 'N/A'}
+                      </Text>
                     </View>
-            <Text style={styles.carTitle}>
-              {item.make} {item.model} ({item.yearOfManufacture})
-            </Text>
-            <Text style={styles.details}>
-              Registration: {item.registrationNumber}
-            </Text>
-            <Text style={styles.details}>Postcode: {item.postcode}</Text>
-            <Text style={styles.details}>
-              Engine Capacity: {item.engineCapacity} cc
-            </Text>
-            <Text style={styles.details}>Fuel Type: {item.fuelType}</Text>
-            <Text style={styles.details}>Problem: {item.problem}</Text>
-      
-            {/* Footer */}
-            <View style={styles.footer}>
-              <View style={{ alignItems: 'center' }}>
-                <Image
-                  source={require('../assets/pin.png')}
-                  style={styles.icon}
-                />
-                <Text style={styles.footerText}>
-                  {item?.distance ? item?.distance : '20.9 mi.'}
-                </Text>
-              </View>
-              <View style={{ alignItems: 'center' }}>
-                <Image
-                  source={require('../assets/timer.png')}
-                  style={styles.icon}
-                />
-                <Text style={styles.footerText}>{item.views} 50 minutes ago</Text>
-              </View>
-              <View style={{ alignItems: 'center' }}>
-                <Image
-                  source={require('../assets/eye.png')}
-                  style={styles.icon}
-                />
-                <Text style={styles.footerText}>{item.views} Views</Text>
-              </View>
-            </View>
-          </View>
-        </TouchableOpacity>
-  
+                  ))}
+           {/* <Text style={styles.details}>
+             Registration: {item.registrationNumber}
+           </Text>
+           <Text style={styles.details}>Postcode: {item.postcode}</Text>
+           <Text style={styles.details}>
+             Engine Capacity: {item.engineCapacity} cc
+           </Text>
+           <Text style={styles.details}>Fuel Type: {item.fuelType}</Text>
+           <Text style={styles.details}>Problem: {item.problem}</Text>
+      */}
+           {/* Footer */}
+           <View style={styles.footer}>
+             <View style={{ alignItems: 'center' }}>
+               <Image
+                 source={require('../assets/pin.png')}
+                 style={styles.icon}
+               />
+               <Text style={styles.footerText}>
+                 {item?.distance ? item?.distance : '20.9 mi.'}
+               </Text>
+             </View>
+             <View style={{ alignItems: 'center' }}>
+               <Image
+                 source={require('../assets/timer.png')}
+                 style={styles.icon}
+               />
+               <Text style={styles.footerText}>{item.views} 50 minutes ago</Text>
+             </View>
+             <View style={{ alignItems: 'center' }}>
+               <Image
+                 source={require('../assets/eye.png')}
+                 style={styles.icon}
+               />
+               <Text style={styles.footerText}>{item.views} Views</Text>
+             </View>
+           </View>
+         </View>
+       </TouchableOpacity>
   );
 }
 const styles = StyleSheet.create({
@@ -107,37 +125,58 @@ const styles = StyleSheet.create({
     shadowOffset: {width: 0, height: hp(0.5)},
     elevation: 3,
   },
-   heartIconContainer: {
+  heartIconContainer: {
     position: 'absolute',
-    top: hp(2), 
-    left:wp(7),
+    top: hp(2),
+    left: wp(7),
     zIndex: 1,
   },
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '90%',
+    alignSelf: 'center',
+    marginBottom: hp(1),
+  },
+  label: {
+    fontSize: wp(4),
+    color: Colors.darkGray,
+    minWidth: wp(30),
+    textAlign: 'right',
+    paddingRight: wp(3),
+  },
+  value: {
+    fontSize: wp(4),
+    color: Colors.darkGray,
+    fontWeight: 'bold',
+    width: '65%',
+  },
   heartIcon: {
-    width: wp(7), 
-    height: wp(7),
-    tintColor: Colors.black, 
+    width: wp(5.5),
+    height: wp(5.5),
+    tintColor: Colors.black,
   },
   carImage: {
     position: 'absolute',
-    top: -60,
+    top: wp(-30),
     right: -10,
     width: '70%',
     height: '70%',
   },
   detailsContainer: {
     padding: wp(2.5),
-  },  
+  },
   carTagContainer: {
     backgroundColor: Colors.primary,
     borderRadius: wp(10),
     paddingHorizontal: wp(2),
     alignSelf: 'flex-start',
-    marginTop:wp(3)
+    marginTop: wp(3),
   },
   scrapText: {
     textTransform: 'capitalize',
-    padding: hp(1),
+    paddingHorizontal: wp(3),
+    paddingVertical: wp(2),
     textAlign: 'center',
     color: Colors.white,
   },
@@ -157,13 +196,14 @@ const styles = StyleSheet.create({
     marginTop: hp(1),
   },
   footerText: {
-    marginTop:wp(2),
-    fontSize: wp(3.5),
+    marginTop: wp(2),
+    fontSize: wp(3),
     color: Colors.black,
-  },icon: {
-    width: wp(6),
-    resizeMode:'contain',
-    height: wp(6),
-    tintColor:Colors.black
   },
-})
+  icon: {
+    width: wp(4),
+    resizeMode: 'contain',
+    height: wp(4),
+    tintColor: Colors.black,
+  },
+});

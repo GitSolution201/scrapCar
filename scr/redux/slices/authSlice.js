@@ -1,25 +1,28 @@
-import {createSlice} from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  loading: false,
-  user: null,
-  error: null,
-  registerResponse: null,
-  loginResponse: null,
-  token: null, // ✅ Token stored in Redux only
+  loading: false, // Loading state for both login and register
+  user: null, // User data after successful login or register
+  error: null, // Error for both login and register
+  registerResponse: null, // Response for register
+  loginResponse: null, // Response for login
+  token: null, // Token after successful login
 };
 
 const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    loginRequest: state => {
+    // Login Actions
+    loginRequest: (state) => {
       state.loading = true;
       state.loginResponse = null;
+      state.error = null;
     },
     loginSuccess: (state, action) => {
       state.loading = false;
-      state.token = action.payload.access_token; // ✅ Save token in Redux state
+      state.token = action.payload.access_token; // Save token
+      state.user = action.payload.user; // Save user data
       state.loginResponse = {
         success: true,
         message: action.payload.message,
@@ -27,29 +30,22 @@ const authSlice = createSlice({
     },
     loginFailure: (state, action) => {
       state.loading = false;
-      state.token = null; // ✅ Ensure token is removed on failure
-      state.loginResponse = {
-        success: false,
-        error: action.payload,
-      };
+      state.error = action.payload; // Save error message
+      state.loginResponse = { success: false, error: action.payload };
     },
-    logout: state => {
-      state.loading = false;
-      state.user = null;
-      state.token = null; // ✅ Clear token on logout
-      state.loginResponse = null;
-      state.registerResponse = null;
-    },
-    registerRequest: state => {
+
+    // Register Actions
+    registerRequest: (state) => {
       state.loading = true;
       state.registerResponse = null;
+      state.error = null;
     },
     registerSuccess: (state, action) => {
       state.loading = false;
       state.registerResponse = {
         success: true,
         message: action.payload.message,
-        user: action.payload.user,
+        user: action.payload.user, // Save user data
       };
     },
     registerFailure: (state, action) => {
@@ -59,7 +55,19 @@ const authSlice = createSlice({
         error: action.payload,
       };
     },
-    resetRegisterResponse: state => {
+
+    // Logout Action
+    logout: (state) => {
+      state.loading = false;
+      state.user = null;
+      state.token = null;
+      state.loginResponse = null;
+      state.registerResponse = null;
+      state.error = null;
+    },
+
+    // Reset Register Response
+    resetRegisterResponse: (state) => {
       state.registerResponse = null;
     },
   },
@@ -69,11 +77,11 @@ export const {
   loginRequest,
   loginSuccess,
   loginFailure,
-  logout,
   registerRequest,
   registerSuccess,
   registerFailure,
+  logout,
   resetRegisterResponse,
 } = authSlice.actions;
 
-export default authSlice.reducer; // ✅ Persist removed
+export default authSlice.reducer;
