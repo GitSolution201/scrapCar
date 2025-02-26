@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, {useEffect} from 'react';
 import {Image} from 'react-native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
@@ -14,7 +14,7 @@ import Dashboard from './Screens/Dashboard/dashboard';
 import SubscriptionScreen from './Screens/Subscriptions/subscriptions';
 import {useSelector} from 'react-redux';
 import Savage from './Screens/Savage/Savage';
-import { axiosHeader } from './Services/apiHeader';
+import {axiosHeader} from './Services/apiHeader';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -32,7 +32,6 @@ const AuthStack = () => (
   <Stack.Navigator screenOptions={{headerShown: false}}>
     <Stack.Screen name="Login" component={Login} />
     <Stack.Screen name="Register" component={Register} />
-    <Stack.Screen name="MainTabs" component={MainStack} />
   </Stack.Navigator>
 );
 
@@ -81,7 +80,7 @@ const AppNavigation = () => {
   const token = useSelector(state => state.auth.token); // ✅ Directly Checking Token
   useEffect(() => {
     axiosHeader(token);
-  }, []);
+  }, [token]);
   return (
     <NavigationContainer>
       {token ? <MainStack /> : <AuthStack />}

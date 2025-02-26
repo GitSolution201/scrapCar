@@ -24,11 +24,12 @@ import Colors from '../../Helper/Colors';
 import {hp, wp} from '../../Helper/Responsive';
 import Toast from 'react-native-simple-toast';
 import CountryPicker from 'react-native-country-picker-modal';
-import {useIsFocused} from '@react-navigation/native';
+import {useIsFocused, useNavigation} from '@react-navigation/native';
 import Header from '../../Components/Header';
 import {Fonts} from '../../Helper/Fonts';
 
-const Profile = ({navigation}: {navigation: any}) => {
+const Profile = () => {
+  const navigation = useNavigation();
   const isFocused = useIsFocused();
   const token = useSelector((state: any) => state.auth?.token);
   const {
@@ -138,7 +139,6 @@ const Profile = ({navigation}: {navigation: any}) => {
   const handleLogout = () => {
     setModalVisible(false);
     dispatch(logout());
-    navigation.navigate('Login');
   };
 
   if (userLoading || updateLoading) {
