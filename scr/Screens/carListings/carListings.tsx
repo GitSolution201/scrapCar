@@ -501,6 +501,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.darkGray,
     color: Colors.primary,
     width: '90%',
+    fontFamily: Fonts.semiBold,
     marginHorizontal:10,
     alignSelf: 'center',
   },
