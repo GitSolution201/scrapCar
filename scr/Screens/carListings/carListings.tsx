@@ -23,6 +23,7 @@ import {
 } from '@react-navigation/native';
 import Banner from '../../Components/Banner';
 import {Fonts} from '../../Helper/Fonts';
+import {toggleFavoriteRequest} from '../../redux/slices/favouriteSlice';
 
 // Local images
 const localImages = {
@@ -36,7 +37,8 @@ const Listings = () => {
   const dispatch = useDispatch();
   const token = useSelector((state: any) => state.auth?.token);
   const {loading, error, data} = useSelector((state: any) => state.carListings);
-  const [activeFilters, setActiveFilters] = useState(['Scrap']);
+  const {favoriteItems} = useSelector((state: any) => state?.favourite);
+  const [activeFilters, setActiveFilters] = useState(['Scrap', 'Salvage']);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [isLocationModalVisible, setIsLocationModalVisible] = useState(false);
@@ -84,59 +86,69 @@ const Listings = () => {
     // Filter by search query (postcode or location name)
     const searchMatch =
       item.postcode.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.locationName?.toLowerCase().includes(searchQuery.toLowerCase());
+      item.fullAddress?.toLowerCase().includes(searchQuery.toLowerCase());
 
     return filterMatch && searchMatch;
   });
-  const renderItem = ({item, index}) => (
-    <TouchableOpacity
-      onPress={() => navigation.navigate('CarDeatils', {car: item})}
-      style={styles.listingCard}>
-      {/* Heart Icon (Top-right corner) */}
+  const noDataFound = filteredData?.length === 0 && searchQuery.trim() !== '';
+  const handleToggleFavorite = (item: any) => {
+    dispatch(toggleFavoriteRequest({carId: item?._id, token}));
+  };
+  const renderItem = ({item, index}) => {
+    const isFavorite = favoriteItems.includes(item._id); // Check if the item is favorited
+    return (
       <TouchableOpacity
-        style={styles.heartIconContainer}
-        onPress={() => console.log('Heart pressed for item:', item)}>
+        onPress={() => navigation.navigate('CarDeatils', {car: item})}
+        style={styles.listingCard}>
+        {/* Heart Icon (Top-right corner) */}
+        <TouchableOpacity
+          style={styles.heartIconContainer}
+          onPress={() => handleToggleFavorite(item)}>
+          <Image
+            source={
+              isFavorite
+                ? require('../../assets/simpleHeart.png')
+                : require('../../assets/favourite.png')
+            }
+            style={styles.heartIcon}
+          />
+        </TouchableOpacity>
+
+        {/* Car Image */}
         <Image
-          source={require('../../assets/simpleHeart.png')}
-          style={styles.heartIcon}
+          source={getLocalImage(index)}
+          style={styles.carImage}
+          resizeMode="contain"
         />
-      </TouchableOpacity>
 
-      {/* Car Image */}
-      <Image
-        source={getLocalImage(index)}
-        style={styles.carImage}
-        resizeMode="contain"
-      />
-
-      {/* Car Details */}
-      <View style={styles.detailsContainer}>
-        <View style={styles.carTagContainer}>
-          <Text style={styles.scrapText}>{item.tag || 'Unknown'}</Text>
-        </View>
-        <Text style={styles.carTitle}>
-          {item.make} {item.model} ({item.yearOfManufacture})
-        </Text>
-        {[
-          ['Registration:', item.registrationNumber],
-          ['Year:', item.yearOfManufacture],
-          ['PostCode:', item.postcode],
-          ['Colors:', item.color],
-          ['Model:', item.model],
-          ['Fuel Type:', item.fuelType],
-          ['Problem:', item.problem],
-          // ['Phone:', car.phoneNumber ? `+${car.phoneNumber}` : 'N/A'],
-          // ['MOT Status:', car.motStatus],
-          // ['MOT Expiry:', car.motExpiryDate || 'No issues reported'],
-        ].map(([label, value], index) => (
-          <View key={index} style={styles.infoRow}>
-            <Text style={styles.label}>{label}</Text>
-            <Text style={styles.value} numberOfLines={1} ellipsizeMode="tail">
-              {value?.toString().toUpperCase() || 'N/A'}
-            </Text>
+        {/* Car Details */}
+        <View style={styles.detailsContainer}>
+          <View style={styles.carTagContainer}>
+            <Text style={styles.scrapText}>{item.tag || 'Unknown'}</Text>
           </View>
-        ))}
-        {/* <Text style={styles.details}>
+          <Text style={styles.carTitle}>
+            {item.make} {item.model} ({item.yearOfManufacture})
+          </Text>
+          {[
+            ['Registration:', item.registrationNumber],
+            ['Year:', item.yearOfManufacture],
+            ['PostCode:', item.postcode],
+            ['Colors:', item.color],
+            ['Model:', item.model],
+            ['Fuel Type:', item.fuelType],
+            ['Problem:', item.problem],
+            // ['Phone:', car.phoneNumber ? `+${car.phoneNumber}` : 'N/A'],
+            // ['MOT Status:', car.motStatus],
+            // ['MOT Expiry:', car.motExpiryDate || 'No issues reported'],
+          ].map(([label, value], index) => (
+            <View key={index} style={styles.infoRow}>
+              <Text style={styles.label}>{label}</Text>
+              <Text style={styles.value} numberOfLines={1} ellipsizeMode="tail">
+                {value?.toString().toUpperCase() || 'N/A'}
+              </Text>
+            </View>
+          ))}
+          {/* <Text style={styles.details}>
           Registration: {item.registrationNumber}
         </Text>
         <Text style={styles.details}>Postcode: {item.postcode}</Text>
@@ -146,35 +158,36 @@ const Listings = () => {
         <Text style={styles.details}>Fuel Type: {item.fuelType}</Text>
         <Text style={styles.details}>Problem: {item.problem}</Text>
    */}
-        {/* Footer */}
-        <View style={styles.footer}>
-          <View style={{alignItems: 'center'}}>
-            <Image
-              source={require('../../assets/pin.png')}
-              style={styles.icon}
-            />
-            <Text style={styles.footerText}>
-              {item?.distance ? item?.distance : '20.9 mi.'}
-            </Text>
-          </View>
-          <View style={{alignItems: 'center'}}>
-            <Image
-              source={require('../../assets/timer.png')}
-              style={styles.icon}
-            />
-            <Text style={styles.footerText}>{item.views} 50 minutes ago</Text>
-          </View>
-          <View style={{alignItems: 'center'}}>
-            <Image
-              source={require('../../assets/eye.png')}
-              style={styles.icon}
-            />
-            <Text style={styles.footerText}>{item.views} Views</Text>
+          {/* Footer */}
+          <View style={styles.footer}>
+            <View style={{alignItems: 'center'}}>
+              <Image
+                source={require('../../assets/pin.png')}
+                style={styles.icon}
+              />
+              <Text style={styles.footerText}>
+                {item?.distance ? item?.distance : '20.9 mi.'}
+              </Text>
+            </View>
+            <View style={{alignItems: 'center'}}>
+              <Image
+                source={require('../../assets/timer.png')}
+                style={styles.icon}
+              />
+              <Text style={styles.footerText}>{item.views} 50 minutes ago</Text>
+            </View>
+            <View style={{alignItems: 'center'}}>
+              <Image
+                source={require('../../assets/eye.png')}
+                style={styles.icon}
+              />
+              <Text style={styles.footerText}>{item.views} Views</Text>
+            </View>
           </View>
         </View>
-      </View>
-    </TouchableOpacity>
-  );
+      </TouchableOpacity>
+    );
+  };
 
   if (loading) {
     return (
@@ -280,6 +293,13 @@ const Listings = () => {
         showsVerticalScrollIndicator={false}
         keyExtractor={item => item._id}
         contentContainerStyle={styles.list}
+        ListEmptyComponent={
+          noDataFound ? (
+            <View style={styles.noDataContainer}>
+              <Text style={styles.noDataText}>Data not found</Text>
+            </View>
+          ) : null
+        }
       />
     </SafeAreaView>
   );
@@ -390,6 +410,17 @@ const styles = StyleSheet.create({
   list: {
     paddingBottom: hp(2.5),
     marginTop: hp(2.5),
+  },
+  noDataContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: hp(20),
+  },
+  noDataText: {
+    fontSize: wp(4),
+    color: Colors.textGray,
+    fontFamily: Fonts.regular,
   },
   //render item
   listingCard: {

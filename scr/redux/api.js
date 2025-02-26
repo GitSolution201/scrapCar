@@ -10,9 +10,9 @@ const api = axios.create({
 });
 
 // Login API
-export const login = async (userData) => {
+export const login = async userData => {
   try {
-    const response = await api.post('/auth/login',JSON.stringify( userData));
+    const response = await api.post('/auth/login', JSON.stringify(userData));
     if (response.data?.message === 'Login successful') {
       return response.data; // Return success response
     } else {
@@ -26,22 +26,22 @@ export const login = async (userData) => {
 // Register API
 export const register = async userData => {
   try {
-  const response = await api.post('/auth/register', userData);
-  console.log('@RESP{ONCE ion register',response)
-  if (response.data?.message === 'Registration Successful') {
-    return response.data;
-  }else {
-    console.log('ELSE')
-    throw new Error(response.data?.message || 'Registration failed');
+    const response = await api.post('/auth/register', userData);
+    console.log('@RESP{ONCE ion register', response);
+    if (response.data?.message === 'Registration Successful') {
+      return response.data;
+    } else {
+      console.log('ELSE');
+      throw new Error(response.data?.message || 'Registration failed');
+    }
+  } catch (error) {
+    console.log('REGISTER API Error:', error.response?.data || error.message);
+    throw new Error(error.response?.data?.message || 'Registration failed');
   }
-}catch (error) {
-  console.log('REGISTER API Error:', error.response?.data || error.message);
-  throw new Error(error.response?.data?.message || 'Registration failed');
-}
 };
 // get All Car Listing
 // Get All Car Listing
-export const getUser = async (token) => {
+export const getUser = async token => {
   try {
     const response = await api.get('/car/get-all-listing', {
       headers: {
@@ -52,12 +52,14 @@ export const getUser = async (token) => {
     return response.data; // Return the data
   } catch (error) {
     console.log('Get User Error:', error.response?.data || error.message); // Log the error
-    throw new Error(error.response?.data?.message || 'Failed to fetch user data'); // Throw a meaningful error
+    throw new Error(
+      error.response?.data?.message || 'Failed to fetch user data',
+    ); // Throw a meaningful error
   }
 };
 
 // Get User Details
-export const fetchUserDetails = async (token) => {
+export const fetchUserDetails = async token => {
   try {
     const response = await api.get('/auth/get-user-details', {
       headers: {
@@ -66,8 +68,13 @@ export const fetchUserDetails = async (token) => {
     });
     return response.data; // Return the data
   } catch (error) {
-    console.log('Fetch User Details Error:', error.response?.data || error.message); // Log the error
-    throw new Error(error.response?.data?.message || 'Failed to fetch user details'); // Throw a meaningful error
+    console.log(
+      'Fetch User Details Error:',
+      error.response?.data || error.message,
+    ); // Log the error
+    throw new Error(
+      error.response?.data?.message || 'Failed to fetch user details',
+    ); // Throw a meaningful error
   }
 };
 
@@ -82,9 +89,35 @@ export const updateUserProfile = async (token, updatedData) => {
     console.log('Update User Profile Response:', response.data); // Log the response
     return response.data; // Return the data
   } catch (error) {
-    console.log('Update User Profile Error:', error.response?.data || error.message); // Log the error
-    throw new Error(error.response?.data?.message || 'Failed to update user profile'); // Throw a meaningful error
+    console.log(
+      'Update User Profile Error:',
+      error.response?.data || error.message,
+    ); // Log the error
+    throw new Error(
+      error.response?.data?.message || 'Failed to update user profile',
+    ); // Throw a meaningful error
   }
 };
-
+//Add to favourite
+export const addToSaved = async (carId, token) => {
+  try {
+    console.log('DATA SEND IN API', carId, token);
+    const response = await api.post(
+      `/auth/add-to-saved/${carId}`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+    console.log('@RESPONCE', response?.data);
+    return response.data; // Return the response from the server
+  } catch (error) {
+    console.log('API Error:', error.response?.data || error.message);
+    throw new Error(
+      error.response?.data?.message || 'Failed to toggle favorite',
+    );
+  }
+};
 export default api;
