@@ -320,7 +320,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: wp(5),
     backgroundColor: Colors.white,
-    margin: 20,
+    margin:Platform.OS==='ios'? 20:5,
   },
   headerTitleStyle: {
     flexDirection: 'row',

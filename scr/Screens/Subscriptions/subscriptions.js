@@ -1,9 +1,7 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {
-  View,
   Text,
   TouchableOpacity,
-  Switch,
   StyleSheet,
   Dimensions,
   SafeAreaView,
@@ -18,7 +16,6 @@ const {width: wp, height: hp} = Dimensions.get('window');
 
 const SubscriptionScreen = () => {
   const navigation = useNavigation();
-  const [isTrialEnabled, setIsTrialEnabled] = useState(true);
 
   return (
     <SafeAreaView
@@ -70,7 +67,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.gray,
     paddingHorizontal: wp * 0.05,
-    margin: 20,
+    margin:Platform.OS==='ios'? 20:5,
   },
 
   subHeader: {

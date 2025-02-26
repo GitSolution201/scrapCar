@@ -101,7 +101,6 @@ export const updateUserProfile = async (token, updatedData) => {
 //Add to favourite
 export const addToSaved = async (carId, token) => {
   try {
-    console.log('DATA SEND IN API', carId, token);
     const response = await api.post(
       `/auth/add-to-saved/${carId}`,
       {},
@@ -111,7 +110,6 @@ export const addToSaved = async (carId, token) => {
         },
       },
     );
-    console.log('@RESPONCE', response?.data);
     return response.data; // Return the response from the server
   } catch (error) {
     console.log('API Error:', error.response?.data || error.message);

@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: wp(5),
-    margin: 20,
+    margin:Platform.OS==='ios'? 20:5,
     backgroundColor: Colors.gray,
   },
   detailsContainer: {

@@ -32,7 +32,6 @@ const localImages = {
 };
 
 const Listings = () => {
-  const isFocused = useIsFocused();
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const token = useSelector((state: any) => state.auth?.token);
@@ -95,7 +94,26 @@ const Listings = () => {
     dispatch(toggleFavoriteRequest({carId: item?._id, token}));
   };
   const renderItem = ({item, index}) => {
-    const isFavorite = favoriteItems.includes(item._id); // Check if the item is favorited
+    const isFavorite = favoriteItems.includes(item._id);
+    const getTimeAgo = (dateString) => {
+      const dateAdded = new Date(dateString);
+      const now = new Date();
+      const diffInMs = now - dateAdded;
+      const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+      const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
+      const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+
+      if (diffInMinutes < 60) {
+          return `${diffInMinutes} minutes ago`;
+      } else if (diffInHours < 24) {
+          return `${diffInHours} hours ago`;
+      } else {
+          return `${diffInDays} days ago`;
+      }
+  };
+
+  const timeAgo = getTimeAgo(item.date_added);
+
     return (
       <TouchableOpacity
         onPress={() => navigation.navigate('CarDeatils', {car: item})}
@@ -174,7 +192,7 @@ const Listings = () => {
                 source={require('../../assets/timer.png')}
                 style={styles.icon}
               />
-              <Text style={styles.footerText}>{item.views} 50 minutes ago</Text>
+              <Text style={styles.footerText}>{item.views} {timeAgo}</Text>
             </View>
             <View style={{alignItems: 'center'}}>
               <Image
@@ -309,8 +327,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: hp(2),
-    margin: 20,
-    backgroundColor: Colors.gray,
+    ...Platform.select({
+      android: {
+        marginLeft: 20,
+        marginRight: 20,
+        marginTop: 20,
+      },
+      ios: {
+        margin: 20, // Apply margin to all sides for iOS
+      },}),
+          backgroundColor: Colors.gray,
   },
 
   loadingContainer: {

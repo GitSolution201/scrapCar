@@ -1,6 +1,7 @@
 import {
   ActivityIndicator,
   FlatList,
+  Platform,
   SafeAreaView,
   StyleSheet,
   Text,
@@ -21,13 +22,15 @@ const Savage = () => {
   const isFocused = useIsFocused();
   const token = useSelector((state: any) => state.auth?.token);
   const {loading, error, data} = useSelector((state: any) => state.carListings);
-
+ const  favLoading = useSelector(
+    (state: any) => state?.favourite?.loading,
+  );
   useEffect(() => {
     if (isFocused) {
       dispatch(getUserRequest(token));
     }
   }, [isFocused]);
-  if (loading) {
+  if (loading ||favLoading) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color={Colors.primary} />
@@ -66,7 +69,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: wp(5),
     backgroundColor: '#F5F5F5',
-    margin: 20,
+    margin:Platform.OS==='ios'? 20:5,
   },
 
   loadingContainer: {
