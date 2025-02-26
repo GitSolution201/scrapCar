@@ -14,7 +14,7 @@ import {hp, wp} from '../../Helper/Responsive';
 import Colors from '../../Helper/Colors';
 import Header from '../../Components/Header';
 import Banner from '../../Components/Banner';
-import { Fonts } from '../../Helper/Fonts';
+import {Fonts} from '../../Helper/Fonts';
 
 const defaultCarImage = require('../../assets/car2.png');
 
@@ -110,6 +110,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: wp(5),
+    margin: 20,
     backgroundColor: Colors.gray,
   },
   detailsContainer: {
@@ -125,7 +126,7 @@ const styles = StyleSheet.create({
   },
   carTitle: {
     fontSize: wp(6),
-    fontFamily:Fonts.bold,
+    fontFamily: Fonts.bold,
     color: Colors.primary,
     marginBottom: hp(1),
     textAlign: 'center',
@@ -141,7 +142,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(3),
     paddingVertical: wp(1.5),
     textAlign: 'center',
-    fontFamily:Fonts.regular,
+    fontFamily: Fonts.regular,
     color: Colors.primary,
   },
   infoRow: {
@@ -153,7 +154,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: wp(4),
-    fontFamily:Fonts.regular,
+    fontFamily: Fonts.regular,
     color: Colors.darkGray,
     minWidth: wp(30),
     textAlign: 'right',
@@ -161,7 +162,7 @@ const styles = StyleSheet.create({
   },
   value: {
     fontSize: wp(4),
-    fontFamily:Fonts.semiBold,
+    fontFamily: Fonts.semiBold,
     color: Colors.darkGray,
     width: '65%',
   },
@@ -173,7 +174,7 @@ const styles = StyleSheet.create({
   },
   contactTitle: {
     fontSize: wp(5),
-    fontFamily:Fonts.bold,
+    fontFamily: Fonts.bold,
     color: Colors.darkGray,
     marginBottom: hp(2),
     textAlign: 'center',
@@ -195,7 +196,7 @@ const styles = StyleSheet.create({
   contactText: {
     marginTop: hp(1),
     fontSize: wp(3.5),
-    fontFamily:Fonts.regular,    
+    fontFamily: Fonts.regular,
     color: Colors.black,
     textAlign: 'center',
   },

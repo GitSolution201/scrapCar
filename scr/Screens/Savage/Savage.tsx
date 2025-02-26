@@ -46,7 +46,7 @@ const Savage = () => {
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
-      <Header  navigation={navigation} />
+      <Header navigation={navigation} />
       <FlatList
         data={data}
         renderItem={({item, index}) => (
@@ -66,6 +66,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: wp(5),
     backgroundColor: '#F5F5F5',
+    margin: 20,
   },
 
   loadingContainer: {

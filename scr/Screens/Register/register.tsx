@@ -22,7 +22,7 @@ import {
 import CountryPicker from 'react-native-country-picker-modal';
 import Colors from '../../Helper/Colors';
 import {wp} from '../../Helper/Responsive';
-import { Fonts } from '../../Helper/Fonts';
+import {Fonts} from '../../Helper/Fonts';
 import Header from '../../Components/Header';
 
 const Register = ({navigation}: {navigation: any}) => {
@@ -67,32 +67,32 @@ const Register = ({navigation}: {navigation: any}) => {
   const handleRegister = () => {
     const Regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!firstName) {
-      setErrorMessages((prev:any) => ({
+      setErrorMessages((prev: any) => ({
         ...prev,
         firstNameError: 'Please enter your name',
       }));
     } else if (!lastName) {
-      setErrorMessages((prev:any) => ({
+      setErrorMessages((prev: any) => ({
         ...prev,
         lastNameError: 'Please enter your last name',
       }));
     } else if (!email) {
-      setErrorMessages((prev:any) => ({
+      setErrorMessages((prev: any) => ({
         ...prev,
         emailError: 'Please enter your email',
       }));
     } else if (!Regex.test(email)) {
-      setErrorMessages((prev:any) => ({
+      setErrorMessages((prev: any) => ({
         ...prev,
         emailError: 'Please enter a valid email',
       }));
     } else if (!phone) {
-      setErrorMessages((prev:any) => ({
+      setErrorMessages((prev: any) => ({
         ...prev,
         phoneError: 'Please enter your phone number',
       }));
     } else if (!password) {
-      setErrorMessages((prev:any) => ({
+      setErrorMessages((prev: any) => ({
         ...prev,
         passwordError: 'Please enter your password',
       }));
@@ -139,7 +139,7 @@ const Register = ({navigation}: {navigation: any}) => {
                 placeholder="First Name"
                 value={firstName}
                 onChangeText={text => {
-                  setErrorMessages((prevState:any) => ({
+                  setErrorMessages((prevState: any) => ({
                     ...prevState,
                     firstNameError: null,
                   }));
@@ -159,7 +159,7 @@ const Register = ({navigation}: {navigation: any}) => {
                 placeholder="Last Name"
                 value={lastName}
                 onChangeText={text => {
-                  setErrorMessages((prevState:any) => ({
+                  setErrorMessages((prevState: any) => ({
                     ...prevState,
                     lastNameError: null,
                   }));
@@ -179,7 +179,7 @@ const Register = ({navigation}: {navigation: any}) => {
                 placeholder="Email Address"
                 value={email}
                 onChangeText={text => {
-                  setErrorMessages((prevState:any) => ({
+                  setErrorMessages((prevState: any) => ({
                     ...prevState,
                     emailError: null,
                   }));
@@ -219,7 +219,7 @@ const Register = ({navigation}: {navigation: any}) => {
                   placeholder="Phone Number"
                   value={phone}
                   onChangeText={text => {
-                    setErrorMessages((prevState:any) => ({
+                    setErrorMessages((prevState: any) => ({
                       ...prevState,
                       phoneError: null,
                     }));
@@ -239,7 +239,7 @@ const Register = ({navigation}: {navigation: any}) => {
                   placeholder="Password"
                   value={password}
                   onChangeText={text => {
-                    setErrorMessages((prevState:any) => ({
+                    setErrorMessages((prevState: any) => ({
                       ...prevState,
                       passwordError: null,
                     }));
@@ -336,8 +336,8 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     color: '#6B7280',
-    marginVertical: 5,    fontFamily: Fonts.semiBold,
-    
+    marginVertical: 5,
+    fontFamily: Fonts.semiBold,
   },
   input: {
     borderWidth: 1,

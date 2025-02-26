@@ -12,7 +12,7 @@ import {
 import Colors from '../../Helper/Colors';
 import Header from '../../Components/Header';
 import {useNavigation} from '@react-navigation/native';
-import { Fonts } from '../../Helper/Fonts';
+import {Fonts} from '../../Helper/Fonts';
 
 const {width: wp, height: hp} = Dimensions.get('window');
 
@@ -48,8 +48,6 @@ const SubscriptionScreen = () => {
         </Text>
       </TouchableOpacity>
 
-      <Text style={styles.optionSubText}>(6 months at $3.99/mo. Save 20%)</Text>
-
       <TouchableOpacity
         style={[
           styles.optionSelected,
@@ -59,19 +57,6 @@ const SubscriptionScreen = () => {
           29.88$ / Year
         </Text>
       </TouchableOpacity>
-      <Text style={styles.optionSubText}>
-        (12 months at $2.49/mo. Save 20%)
-      </Text>
-
-      <Text style={styles.trialText}>
-        Try <Text style={styles.boldText}>3 days free</Text>, then $8 per month
-      </Text>
-      <Text style={styles.trialSubText}>Auto renewable & Cancel anytime</Text>
-
-      <View style={styles.switchContainer}>
-        <Text style={styles.switchLabel}>Enable Free Trial</Text>
-        <Switch  value={isTrialEnabled} onValueChange={setIsTrialEnabled} />
-      </View>
 
       <TouchableOpacity style={styles.continueButton}>
         <Text style={styles.continueText}>Continue</Text>
@@ -85,16 +70,19 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.gray,
     paddingHorizontal: wp * 0.05,
+    margin: 20,
   },
 
   subHeader: {
     fontSize: wp * 0.05,
-fontFamily:Fonts.semiBold,    textAlign: 'center',
+    fontFamily: Fonts.semiBold,
+    textAlign: 'center',
     color: Colors.primary,
     marginTop: hp * 0.02,
   },
   description: {
-    fontSize: wp * 0.04,fontFamily:Fonts.regular,  
+    fontSize: wp * 0.04,
+    fontFamily: Fonts.regular,
     color: Colors.dummyText,
     textAlign: 'center',
     marginVertical: hp * 0.02,
@@ -112,27 +100,30 @@ fontFamily:Fonts.semiBold,    textAlign: 'center',
   },
   optionText: {
     fontSize: wp * 0.04,
-    fontFamily:Fonts.semiBold,     color: Colors.primary,
+    fontFamily: Fonts.semiBold,
+    color: Colors.primary,
   },
   optionSubText: {
     fontSize: wp * 0.035,
-    marginTop: wp * 0.06,  fontFamily:Fonts.regular, 
-    textAlign:'center',
+    marginTop: wp * 0.06,
+    fontFamily: Fonts.regular,
+    textAlign: 'center',
     color: Colors.textGray,
   },
   trialText: {
     fontSize: wp * 0.04,
     marginTop: hp * 0.03,
-    textAlign:'center',
+    textAlign: 'center',
     color: Colors.black,
   },
   trialSubText: {
-    textAlign:'center',
+    textAlign: 'center',
     fontSize: wp * 0.035,
     color: Colors.footerGray,
   },
   boldText: {
-    fontFamily:Fonts.bold,   },
+    fontFamily: Fonts.bold,
+  },
   switchContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -144,7 +135,8 @@ fontFamily:Fonts.semiBold,    textAlign: 'center',
     marginVertical: hp * 0.02,
   },
   switchLabel: {
-    fontSize: wp * 0.04,  fontFamily:Fonts.regular, 
+    fontSize: wp * 0.04,
+    fontFamily: Fonts.regular,
     color: Colors.black,
   },
   continueButton: {
@@ -158,7 +150,8 @@ fontFamily:Fonts.semiBold,    textAlign: 'center',
   continueText: {
     color: Colors.white,
     fontSize: wp * 0.045,
-    fontFamily:Fonts.bold,   },
+    fontFamily: Fonts.bold,
+  },
 });
 
 export default SubscriptionScreen;

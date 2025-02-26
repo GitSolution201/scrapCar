@@ -22,11 +22,11 @@ import {
 } from '../../redux/slices/userProfileUpdateSlice';
 import Colors from '../../Helper/Colors';
 import {hp, wp} from '../../Helper/Responsive';
-import Toast from 'react-native-simple-toast'; 
+import Toast from 'react-native-simple-toast';
 import CountryPicker from 'react-native-country-picker-modal';
-import {useIsFocused } from '@react-navigation/native';
+import {useIsFocused} from '@react-navigation/native';
 import Header from '../../Components/Header';
-import { Fonts } from '../../Helper/Fonts';
+import {Fonts} from '../../Helper/Fonts';
 
 const Profile = ({navigation}: {navigation: any}) => {
   const isFocused = useIsFocused();
@@ -50,13 +50,13 @@ const Profile = ({navigation}: {navigation: any}) => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [errors, setErrors] = useState({});
   const [countryCode, setCountryCode] = useState('GB');
-  const [callingCode, setCallingCode] = useState('44'); 
-  const [visible, setVisible] = useState(false); 
+  const [callingCode, setCallingCode] = useState('44');
+  const [visible, setVisible] = useState(false);
   useEffect(() => {
     if (isFocused) {
-      dispatch(fetchUserRequest(token)); 
+      dispatch(fetchUserRequest(token));
     }
-    setErrors({}); 
+    setErrors({});
   }, [isFocused]);
   useEffect(() => {
     if (userData) {
@@ -69,7 +69,7 @@ const Profile = ({navigation}: {navigation: any}) => {
 
   useEffect(() => {
     if (updateSuccess && message) {
-      Toast.show(message, Toast.LONG); 
+      Toast.show(message, Toast.LONG);
 
       dispatch(resetProfileUpdateState());
       dispatch(fetchUserRequest(token));
@@ -101,11 +101,11 @@ const Profile = ({navigation}: {navigation: any}) => {
     }
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0; 
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleInputChange = (field, value) => {
-    setErrors(prevErrors => ({...prevErrors, [field]: null})); 
+    setErrors(prevErrors => ({...prevErrors, [field]: null}));
     switch (field) {
       case 'firstName':
         setFirstName(value);
@@ -131,7 +131,7 @@ const Profile = ({navigation}: {navigation: any}) => {
         last_name: lastName,
         phone: phoneNumber,
       };
-      dispatch(updateProfileRequest({token, updatedData})); 
+      dispatch(updateProfileRequest({token, updatedData}));
     }
   };
 
@@ -158,7 +158,9 @@ const Profile = ({navigation}: {navigation: any}) => {
     );
   }
   return (
-    <ScrollView showsVerticalScrollIndicator={false}>
+    <ScrollView
+      showsVerticalScrollIndicator={false}
+      style={{backgroundColor: Colors.white}}>
       <SafeAreaView
         style={[
           styles.container,
@@ -318,6 +320,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: wp(5),
     backgroundColor: Colors.white,
+    margin: 20,
   },
   headerTitleStyle: {
     flexDirection: 'row',
@@ -394,8 +397,8 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 15,
     backgroundColor: '#FFF',
-    fontSize: 16,   
-     fontFamily:Fonts.regular,
+    fontSize: 16,
+    fontFamily: Fonts.regular,
     color: '#333',
   },
   phoneContainer: {
@@ -435,7 +438,7 @@ const styles = StyleSheet.create({
   logoutText: {
     fontSize: 16,
     color: 'red',
-    fontFamily:Fonts.semiBold,
+    fontFamily: Fonts.semiBold,
     textAlign: 'center',
   },
   saveButton: {
@@ -451,7 +454,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 0.3,
     marginTop: wp(1),
-    marginBottom:wp(4),
+    marginBottom: wp(4),
     alignItems: 'center',
   },
   disabledButton: {
@@ -460,7 +463,7 @@ const styles = StyleSheet.create({
   saveButtonText: {
     color: '#FFF',
     fontSize: 16,
-    fontFamily:Fonts.bold
+    fontFamily: Fonts.bold,
   },
 
   modalContainer: {
@@ -483,12 +486,12 @@ const styles = StyleSheet.create({
   },
   modalTopText: {
     fontSize: 18,
-    fontFamily:Fonts.bold,
+    fontFamily: Fonts.bold,
     textAlign: 'center',
   },
   modalText: {
     fontSize: 16,
-    fontFamily:Fonts.regular,
+    fontFamily: Fonts.regular,
     marginVertical: 15,
     textAlign: 'center',
   },
@@ -507,11 +510,11 @@ const styles = StyleSheet.create({
   },
   cancelButton: {
     borderRightWidth: 1,
-    fontFamily:Fonts.regular,
+    fontFamily: Fonts.regular,
     borderColor: '#D3D3D3',
   },
   cancelButtonText: {
-    fontFamily:Fonts.bold,
+    fontFamily: Fonts.bold,
     color: '#007AFF',
   },
   logoutButton: {
@@ -519,7 +522,7 @@ const styles = StyleSheet.create({
   },
   logoutButtonText: {
     color: '#FF3B30',
-    fontFamily:Fonts.bold,
+    fontFamily: Fonts.bold,
   },
   loadingContainer: {
     flex: 1,
@@ -539,7 +542,7 @@ const styles = StyleSheet.create({
   hidingColor: {
     color: '#000000AB',
     paddingBottom: hp(1),
-    fontFamily:Fonts.semiBold
+    fontFamily: Fonts.semiBold,
   },
 });
 

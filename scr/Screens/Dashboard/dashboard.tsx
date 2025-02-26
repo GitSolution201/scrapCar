@@ -13,13 +13,12 @@ import {
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import Colors from '../../Helper/Colors';
-import { Fonts } from '../../Helper/Fonts';
+import {Fonts} from '../../Helper/Fonts';
 
 const Dashboard = ({navigation}: {navigation: any}) => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.innerContainer}>
-
         {/* Dashboard Items */}
         <TouchableOpacity style={styles.card}>
           <Image
@@ -38,7 +37,7 @@ const Dashboard = ({navigation}: {navigation: any}) => {
         <TouchableOpacity style={styles.card}>
           <Image
             source={require('../../assets/messenger.png')}
-            style={styles.icon}
+            style={[styles.icon, {height: hp('3.0%')}]}
           />
 
           <View style={styles.cardContent}>
@@ -100,13 +99,14 @@ const styles = StyleSheet.create({
   },
   innerContainer: {
     flex: 1,
-    paddingHorizontal: wp('5%'), 
+    margin: 20,
+
     paddingTop: Platform.OS === 'ios' ? hp('2%') : hp('5%'),
   },
 
   icon: {
-    width: wp('5%'), 
-    height: hp('2.5%'), 
+    width: wp('6%'),
+    height: hp('2.5%'),
   },
   loyalty: {
     width: wp('6%'),
@@ -116,28 +116,28 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: Colors.white,
-    borderRadius: wp('3%'), 
+    borderRadius: wp('3%'),
     padding: wp('4%'),
     marginBottom: hp('2%'),
     shadowColor: Colors.black,
     shadowOpacity: 0.1,
     shadowOffset: {width: 0, height: 2},
     shadowRadius: 4,
-    elevation: 3, 
+    elevation: 3,
   },
   cardContent: {
-    marginLeft: wp('4%'), 
+    marginLeft: wp('4%'),
   },
   cardTitle: {
-    fontSize: wp('4.5%'), 
-  fontFamily:Fonts.bold,
+    fontSize: wp('4.5%'),
+    fontFamily: Fonts.bold,
     color: Colors.darkGray,
   },
   cardSubtitle: {
-  fontFamily:Fonts.regular,
-  fontSize: wp('3.5%'), 
+    fontFamily: Fonts.regular,
+    fontSize: wp('3.5%'),
     color: Colors.textGray, // Platform-specific padding
-    marginTop: hp('0.5%'), 
+    marginTop: hp('0.5%'),
   },
 });
 

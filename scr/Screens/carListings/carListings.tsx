@@ -22,7 +22,7 @@ import {
   useNavigation,
 } from '@react-navigation/native';
 import Banner from '../../Components/Banner';
-import { Fonts } from '../../Helper/Fonts';
+import {Fonts} from '../../Helper/Fonts';
 
 // Local images
 const localImages = {
@@ -194,11 +194,7 @@ const Listings = () => {
   }
 
   return (
-    <SafeAreaView
-      style={
-        styles.container
-       
-     }>
+    <SafeAreaView style={styles.container}>
       <Banner navigation={navigation} />
       <View style={styles.searchMainContianer}>
         <View style={styles.searchContainer}>
@@ -239,7 +235,7 @@ const Listings = () => {
                   styles.locationOption,
                   index === locationOptions.length - 1 && {
                     borderBottomWidth: 0,
-                  }, 
+                  },
                 ]}
                 onPress={() => handleLocationSelect(location)}>
                 <Text style={styles.locationText}>{location}</Text>
@@ -292,8 +288,8 @@ const Listings = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: wp(5),
     paddingTop: hp(2),
+    margin: 20,
     backgroundColor: Colors.gray,
   },
 
@@ -325,7 +321,7 @@ const styles = StyleSheet.create({
   header: {
     marginVertical: wp(2),
   },
- 
+
   searchMainContianer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -364,7 +360,7 @@ const styles = StyleSheet.create({
   },
   searchBar: {
     flex: 1,
-    fontFamily:Fonts.regular,
+    fontFamily: Fonts.regular,
     fontSize: hp(2),
     color: Colors.black,
   },
@@ -384,7 +380,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primary,
   },
   filterText: {
-    fontFamily:Fonts.regular,
+    fontFamily: Fonts.regular,
     color: Colors.textGray,
     fontSize: wp(3),
   },
@@ -426,7 +422,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: wp(4),
-    fontFamily:Fonts.regular,
+    fontFamily: Fonts.regular,
     color: Colors.darkGray,
     minWidth: wp(30),
     textAlign: 'right',
@@ -435,7 +431,7 @@ const styles = StyleSheet.create({
   value: {
     fontSize: wp(4),
     color: Colors.darkGray,
-    fontFamily:Fonts.semiBold,
+    fontFamily: Fonts.semiBold,
     width: '65%',
   },
   heartIcon: {
@@ -465,12 +461,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(3),
     paddingVertical: wp(2),
     textAlign: 'center',
-    fontFamily:Fonts.regular,
+    fontFamily: Fonts.regular,
     color: Colors.white,
   },
   carTitle: {
     fontSize: wp(4.5),
-    fontFamily:Fonts.bold,
+    fontFamily: Fonts.bold,
     color: Colors.primary,
     paddingVertical: hp(1),
   },
@@ -485,7 +481,7 @@ const styles = StyleSheet.create({
   },
   footerText: {
     marginTop: wp(2),
-    fontFamily:Fonts.regular,
+    fontFamily: Fonts.regular,
     fontSize: wp(3),
     color: Colors.black,
   },
@@ -502,7 +498,7 @@ const styles = StyleSheet.create({
     color: Colors.primary,
     width: '90%',
     fontFamily: Fonts.semiBold,
-    marginHorizontal:10,
+    marginHorizontal: 10,
     alignSelf: 'center',
   },
   modalContent: {
@@ -510,7 +506,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingVertical: 10,
     width: '50%',
-    elevation: 5, 
+    elevation: 5,
     shadowColor: '#000',
     shadowOpacity: 0.2,
     shadowOffset: {width: 0, height: 2},
@@ -528,7 +524,7 @@ const styles = StyleSheet.create({
   locationText: {
     fontSize: 16,
     color: '#333',
-    fontFamily:Fonts.medium,
+    fontFamily: Fonts.medium,
   },
   tickIcon: {
     width: wp(5),
