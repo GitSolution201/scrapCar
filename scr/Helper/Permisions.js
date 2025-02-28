@@ -108,3 +108,84 @@ export const RequestGalleryPermission = async () => {
     return 'error';
   }
 };
+
+export const RequestLocationPermission = async () => {
+  const openSettings = () => {
+    Linking.openSettings();
+  };
+
+  if (Platform.OS !== 'android' && Platform.OS !== 'ios') {
+    Alert.alert(
+      'Unsupported Platform',
+      'This functionality is only available on Android and iOS.',
+    );
+    return 'unsupported_platform';
+  }
+
+  try {
+    let granted;
+
+    if (Platform.OS === 'android') {
+      granted = await request(PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION);
+    } else {
+      granted = await request(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
+    }
+
+    if (granted === RESULTS.GRANTED) {
+      console.log('Location permission granted');
+      return 'granted';
+    } else if (granted === RESULTS.DENIED) {
+      Alert.alert(
+        'Permission Denied',
+        'Location permission is denied. Please enable it manually in your device settings.',
+        [
+          {text: 'Open Settings', onPress: openSettings, style: 'destructive'},
+          {text: 'Cancel', style: 'cancel'},
+        ],
+      );
+      return 'denied';
+    } else if (granted === RESULTS.BLOCKED) {
+      Alert.alert(
+        'Permission Blocked',
+        'Location permission is blocked. Please enable it manually in your device settings.',
+        [
+          {text: 'Open Settings', onPress: openSettings, style: 'destructive'},
+          {text: 'Cancel', style: 'cancel'},
+        ],
+      );
+      return 'blocked';
+    }
+
+    return 'unknown';
+  } catch (error) {
+    console.error('Error while requesting location permission:', error);
+    return 'error';
+  }
+};
+
+// Function to Get Current Location
+export const getLocation = async () => {
+  try {
+    const hasLocationPermission = await RequestLocationPermission();
+    console.log('@loc', hasLocationPermission);
+
+    if (hasLocationPermission === 'granted') {
+      Geolocation.getCurrentPosition(
+        position => {
+          const {latitude, longitude} = position.coords;
+          console.log('Location:', latitude, longitude);
+          // UpdateDriverLocation(latitude, longitude, userData?.user?.id);
+        },
+        error => {
+          console.error('Geolocation Error:', error);
+          Alert.alert('Error', 'Unable to get location. Please try again.');
+        },
+        {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
+      );
+    } else {
+      console.warn('Location permission not granted');
+    }
+  } catch (error) {
+    console.error('Error in getLocation:', error);
+  }
+};

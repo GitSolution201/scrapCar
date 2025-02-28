@@ -24,6 +24,8 @@ import {
 import Banner from '../../Components/Banner';
 import {Fonts} from '../../Helper/Fonts';
 import {toggleFavoriteRequest} from '../../redux/slices/favouriteSlice';
+import {RequestLocationPermission} from '../../Helper/Permisions';
+import Geolocation from 'react-native-geolocation-service';
 
 // Local images
 const localImages = {
@@ -41,6 +43,10 @@ const Listings = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [isLocationModalVisible, setIsLocationModalVisible] = useState(false);
+  const [currentLocation, setCurrentLocation] = useState({
+    latitude: null,
+    longitude: null,
+  });
 
   const locationOptions = ['5 km', '10 km', '20 km', '25 km'];
   useFocusEffect(
@@ -51,6 +57,24 @@ const Listings = () => {
       fetchData();
     }, [token]),
   );
+  useEffect(() => {
+    getLocation();
+  }, []);
+  const getLocation = async () => {
+    const hasLocationPermission = await RequestLocationPermission();
+    if (hasLocationPermission === 'granted') {
+      Geolocation.getCurrentPosition(
+        position => {
+          const {latitude, longitude} = position.coords;
+          setCurrentLocation({latitude, longitude});
+        },
+        error => {
+          console.error(error);
+        },
+        {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
+      );
+    }
+  };
 
   const getLocalImage = (index: any) => {
     const imageKeys = Object.keys(localImages);
@@ -93,9 +117,15 @@ const Listings = () => {
   const handleToggleFavorite = (item: any) => {
     dispatch(toggleFavoriteRequest({carId: item?._id, token}));
   };
+  const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    const latDiff = lat2 - lat1; // Difference in latitude
+    const lonDiff = lon2 - lon1; // Difference in longitude
+    const distance = Math.sqrt(latDiff * latDiff + lonDiff * lonDiff) * 69; // Approx. miles
+    return distance.toFixed(1) + ' mi'; // Round to 1 decimal place
+  };
   const renderItem = ({item, index}) => {
     const isFavorite = favoriteItems.includes(item._id);
-    const getTimeAgo = (dateString) => {
+    const getTimeAgo = dateString => {
       const dateAdded = new Date(dateString);
       const now = new Date();
       const diffInMs = now - dateAdded;
@@ -104,16 +134,30 @@ const Listings = () => {
       const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
 
       if (diffInMinutes < 60) {
-          return `${diffInMinutes} minutes ago`;
+        return `${diffInMinutes} minutes ago`;
       } else if (diffInHours < 24) {
-          return `${diffInHours} hours ago`;
+        return `${diffInHours} hours ago`;
       } else {
-          return `${diffInDays} days ago`;
+        return `${diffInDays} days ago`;
       }
-  };
+    };
 
-  const timeAgo = getTimeAgo(item.date_added);
-
+    const timeAgo = getTimeAgo(item.date_added);
+    // Calculate distance if current location and item location are available
+    let distance = 'N/A';
+    if (
+      currentLocation.latitude &&
+      currentLocation.longitude &&
+      item.latitude &&
+      item.longitude
+    ) {
+      distance = calculateDistance(
+        currentLocation.latitude,
+        currentLocation.longitude,
+        item.latitude,
+        item.longitude,
+      );
+    }
     return (
       <TouchableOpacity
         onPress={() => navigation.navigate('CarDeatils', {car: item})}
@@ -184,7 +228,8 @@ const Listings = () => {
                 style={styles.icon}
               />
               <Text style={styles.footerText}>
-                {item?.distance ? item?.distance : '20.9 mi.'}
+                {distance}
+                {/* {item?.distance ? item?.distance : '20.9 mi.'} */}
               </Text>
             </View>
             <View style={{alignItems: 'center'}}>
@@ -192,7 +237,9 @@ const Listings = () => {
                 source={require('../../assets/timer.png')}
                 style={styles.icon}
               />
-              <Text style={styles.footerText}>{item.views} {timeAgo}</Text>
+              <Text style={styles.footerText}>
+                {item.views} {timeAgo}
+              </Text>
             </View>
             <View style={{alignItems: 'center'}}>
               <Image
@@ -335,8 +382,9 @@ const styles = StyleSheet.create({
       },
       ios: {
         margin: 20, // Apply margin to all sides for iOS
-      },}),
-          backgroundColor: Colors.gray,
+      },
+    }),
+    backgroundColor: Colors.gray,
   },
 
   loadingContainer: {
