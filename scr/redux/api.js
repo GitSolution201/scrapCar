@@ -27,11 +27,9 @@ export const login = async userData => {
 export const register = async userData => {
   try {
     const response = await api.post('/auth/register', userData);
-    console.log('@RESP{ONCE ion register', response);
     if (response.data?.message === 'Registration Successful') {
       return response.data;
     } else {
-      console.log('ELSE');
       throw new Error(response.data?.message || 'Registration failed');
     }
   } catch (error) {
@@ -86,7 +84,6 @@ export const updateUserProfile = async (token, updatedData) => {
         Authorization: `Bearer ${token}`,
       },
     });
-    console.log('Update User Profile Response:', response.data); // Log the response
     return response.data; // Return the data
   } catch (error) {
     console.log(

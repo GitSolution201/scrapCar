@@ -6,6 +6,7 @@ import { getUserRequest, getUserSuccess, getUserFailure } from '../slices/carLis
 function* handleGetUser(action) {
   try {
     const response = yield call(getUser, action.payload);
+    console.log('@RESPOCNE',response)
     yield put(getUserSuccess(response));
   } catch (error) {
     console.error('Error fetching user:', error);

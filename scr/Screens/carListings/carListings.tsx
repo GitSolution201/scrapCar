@@ -18,7 +18,6 @@ import {getUserRequest} from '../../redux/slices/carListingsSlice';
 import {hp, wp} from '../../Helper/Responsive'; // Import wp and hp
 import {
   useFocusEffect,
-  useIsFocused,
   useNavigation,
 } from '@react-navigation/native';
 import Banner from '../../Components/Banner';
@@ -26,6 +25,7 @@ import {Fonts} from '../../Helper/Fonts';
 import {toggleFavoriteRequest} from '../../redux/slices/favouriteSlice';
 import {RequestLocationPermission} from '../../Helper/Permisions';
 import Geolocation from 'react-native-geolocation-service';
+import Toast from 'react-native-simple-toast';
 
 // Local images
 const localImages = {
@@ -114,8 +114,14 @@ const Listings = () => {
     return filterMatch && searchMatch;
   });
   const noDataFound = filteredData?.length === 0 && searchQuery.trim() !== '';
-  const handleToggleFavorite = (item: any) => {
+  const handleToggleFavorite = (item: any,isFavorite:boolean) => {
     dispatch(toggleFavoriteRequest({carId: item?._id, token}));
+    if (isFavorite) {
+      Toast.show(`${item.make} added to Favorites`);
+
+    } else {
+      Toast.show(`${item.make} removed from Favorites`);
+    }
   };
   const calculateDistance = (lat1, lon1, lat2, lon2) => {
     const latDiff = lat2 - lat1; // Difference in latitude
@@ -165,12 +171,13 @@ const Listings = () => {
         {/* Heart Icon (Top-right corner) */}
         <TouchableOpacity
           style={styles.heartIconContainer}
-          onPress={() => handleToggleFavorite(item)}>
+          onPress={() => handleToggleFavorite(item, isFavorite)} // Pass isFavorite here
+>
           <Image
             source={
               isFavorite
                 ? require('../../assets/simpleHeart.png')
-                : require('../../assets/favourite.png')
+                : require('../../assets/heart.png')
             }
             style={styles.heartIcon}
           />
@@ -542,7 +549,6 @@ const styles = StyleSheet.create({
   heartIcon: {
     width: wp(5.5),
     height: wp(5.5),
-    tintColor: Colors.black,
   },
   carImage: {
     position: 'absolute',

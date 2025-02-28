@@ -163,29 +163,4 @@ export const RequestLocationPermission = async () => {
   }
 };
 
-// Function to Get Current Location
-export const getLocation = async () => {
-  try {
-    const hasLocationPermission = await RequestLocationPermission();
-    console.log('@loc', hasLocationPermission);
 
-    if (hasLocationPermission === 'granted') {
-      Geolocation.getCurrentPosition(
-        position => {
-          const {latitude, longitude} = position.coords;
-          console.log('Location:', latitude, longitude);
-          // UpdateDriverLocation(latitude, longitude, userData?.user?.id);
-        },
-        error => {
-          console.error('Geolocation Error:', error);
-          Alert.alert('Error', 'Unable to get location. Please try again.');
-        },
-        {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
-      );
-    } else {
-      console.warn('Location permission not granted');
-    }
-  } catch (error) {
-    console.error('Error in getLocation:', error);
-  }
-};

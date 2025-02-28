@@ -1,17 +1,14 @@
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  Image,
-} from 'react-native';
-import React from 'react';
+import {View, Text, TouchableOpacity, StyleSheet, Image} from 'react-native';
+import React, {useEffect, useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import Colors from '../Helper/Colors';
 import {hp, wp} from '../Helper/Responsive';
 import {Fonts} from '../Helper/Fonts';
 import {useDispatch, useSelector} from 'react-redux';
 import {toggleFavoriteRequest} from '../redux/slices/favouriteSlice';
+import {RequestLocationPermission} from '../Helper/Permisions';
+import Geolocation from 'react-native-geolocation-service';
+import Toast from 'react-native-simple-toast';
 
 const localImages = {
   car1: require('../assets/car.png'),
@@ -27,21 +24,46 @@ export default function CarList({
 }) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const {favoriteItems } = useSelector(
-    (state: any) => state?.favourite,
-  );
+  const {favoriteItems} = useSelector((state: any) => state?.favourite);
   const token = useSelector((state: any) => state.auth?.token);
   const isFavorite = favoriteItems.includes(item._id);
-
+  const [currentLocation, setCurrentLocation] = useState({
+    latitude: null,
+    longitude: null,
+  });
+  useEffect(() => {
+    getLocation();
+  }, []);
+  const getLocation = async () => {
+    const hasLocationPermission = await RequestLocationPermission();
+    if (hasLocationPermission === 'granted') {
+      Geolocation.getCurrentPosition(
+        position => {
+          const {latitude, longitude} = position.coords;
+          setCurrentLocation({latitude, longitude});
+        },
+        error => {
+          console.error(error);
+        },
+        {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
+      );
+    }
+  };
   const handleToggleFavorite = (item: any) => {
     dispatch(toggleFavoriteRequest({carId: item?._id, token}));
+    if (isFavorite) {
+      Toast.show(`${item.make} added to Favorites`);
+
+    } else {
+      Toast.show(`${item.make} removed from Favorites`);
+    }
   };
 
   const getLocalImage = (index: any) => {
     const imageKeys = Object.keys(localImages);
     return localImages[imageKeys[index % imageKeys.length]];
   };
-  const getTimeAgo = (dateString) => {
+  const getTimeAgo = dateString => {
     const dateAdded = new Date(dateString);
     const now = new Date();
     const diffInMs = now - dateAdded;
@@ -50,16 +72,35 @@ export default function CarList({
     const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
 
     if (diffInMinutes < 60) {
-        return `${diffInMinutes} minutes ago`;
+      return `${diffInMinutes} minutes ago`;
     } else if (diffInHours < 24) {
-        return `${diffInHours} hours ago`;
+      return `${diffInHours} hours ago`;
     } else {
-        return `${diffInDays} days ago`;
+      return `${diffInDays} days ago`;
     }
-};
+  };
 
-const timeAgo = getTimeAgo(item.date_added);
-
+  const timeAgo = getTimeAgo(item.date_added);
+  const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    const latDiff = lat2 - lat1;
+    const lonDiff = lon2 - lon1;
+    const distance = Math.sqrt(latDiff * latDiff + lonDiff * lonDiff) * 69;
+    return distance.toFixed(1) + ' mi';
+  };
+  let distance = 'N/A';
+  if (
+    currentLocation.latitude &&
+    currentLocation.longitude &&
+    item.latitude &&
+    item.longitude
+  ) {
+    distance = calculateDistance(
+      currentLocation.latitude,
+      currentLocation.longitude,
+      item.latitude,
+      item.longitude,
+    );
+  }
   return (
     <TouchableOpacity
       onPress={() => navigation.navigate('CarDeatils', {car: item})}
@@ -72,7 +113,7 @@ const timeAgo = getTimeAgo(item.date_added);
           source={
             isFavorite
               ? require('../assets/simpleHeart.png')
-              : require('../assets/favourite.png')
+              : require('../assets/heart.png')
           }
           style={styles.heartIcon}
         />
@@ -125,16 +166,16 @@ const timeAgo = getTimeAgo(item.date_added);
         <View style={styles.footer}>
           <View style={{alignItems: 'center'}}>
             <Image source={require('../assets/pin.png')} style={styles.icon} />
-            <Text style={styles.footerText}>
-              {item?.distance ? item?.distance : '20.9 mi.'}
-            </Text>
+            <Text style={styles.footerText}>{distance}</Text>
           </View>
           <View style={{alignItems: 'center'}}>
             <Image
               source={require('../assets/timer.png')}
               style={styles.icon}
             />
-            <Text style={styles.footerText}>{item.views} {timeAgo}</Text>
+            <Text style={styles.footerText}>
+              {item.views} {timeAgo}
+            </Text>
           </View>
           <View style={{alignItems: 'center'}}>
             <Image source={require('../assets/eye.png')} style={styles.icon} />
@@ -190,7 +231,6 @@ const styles = StyleSheet.create({
   heartIcon: {
     width: wp(5.5),
     height: wp(5.5),
-    tintColor: Colors.black,
   },
   carImage: {
     position: 'absolute',
