@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -12,20 +12,18 @@ import {
   SafeAreaView,
   Platform,
 } from 'react-native';
-import Colors from '../../Helper/Colors'; // Import Colors
-import {useDispatch, useSelector} from 'react-redux';
-import {getUserRequest} from '../../redux/slices/carListingsSlice';
-import {hp, wp} from '../../Helper/Responsive'; // Import wp and hp
-import {
-  useFocusEffect,
-  useNavigation,
-} from '@react-navigation/native';
+import Colors from '../../Helper/Colors';
+import { useDispatch, useSelector } from 'react-redux';
+import { getUserRequest } from '../../redux/slices/carListingsSlice';
+import { hp, wp } from '../../Helper/Responsive';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import Banner from '../../Components/Banner';
-import {Fonts} from '../../Helper/Fonts';
-import {toggleFavoriteRequest} from '../../redux/slices/favouriteSlice';
-import {RequestLocationPermission} from '../../Helper/Permisions';
+import { Fonts } from '../../Helper/Fonts';
+import { toggleFavoriteRequest } from '../../redux/slices/favouriteSlice';
+import { RequestLocationPermission } from '../../Helper/Permisions';
 import Geolocation from 'react-native-geolocation-service';
 import Toast from 'react-native-simple-toast';
+import { getDistance } from 'geolib'; // Import geolib for distance calculation
 
 // Local images
 const localImages = {
@@ -37,8 +35,8 @@ const Listings = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const token = useSelector((state: any) => state.auth?.token);
-  const {loading, error, data} = useSelector((state: any) => state.carListings);
-  const {favoriteItems} = useSelector((state: any) => state?.favourite);
+  const { loading, error, data } = useSelector((state: any) => state.carListings);
+  const { favoriteItems } = useSelector((state: any) => state?.favourite);
   const [activeFilters, setActiveFilters] = useState(['Scrap', 'Salvage']);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLocation, setSelectedLocation] = useState(null);
@@ -48,7 +46,8 @@ const Listings = () => {
     longitude: null,
   });
 
-  const locationOptions = ['5 km', '10 km', '20 km', '25 km'];
+  const locationOptions = ['5 miles', '10 miles', '20 miles', '25 miles', '50 miles'];
+
   useFocusEffect(
     useCallback(() => {
       const fetchData = async () => {
@@ -57,50 +56,65 @@ const Listings = () => {
       fetchData();
     }, [token]),
   );
+
   useEffect(() => {
     getLocation();
   }, []);
+
   const getLocation = async () => {
     const hasLocationPermission = await RequestLocationPermission();
     if (hasLocationPermission === 'granted') {
       Geolocation.getCurrentPosition(
-        position => {
-          const {latitude, longitude} = position.coords;
-          setCurrentLocation({latitude, longitude});
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setCurrentLocation({ latitude, longitude });
         },
-        error => {
+        (error) => {
           console.error(error);
         },
-        {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
       );
     }
   };
 
-  const getLocalImage = (index: any) => {
-    const imageKeys = Object.keys(localImages);
-    return localImages[imageKeys[index % imageKeys.length]];
-  };
-
-  const handleFilterPress = (filter: any) => {
+  const handleFilterPress = (filter) => {
     if (filter === 'Saved') {
       navigation.navigate('Savage');
     } else {
-      let updatedFilters = [...activeFilters];
-      if (updatedFilters.includes(filter)) {
-        updatedFilters = updatedFilters.filter(f => f !== filter);
-      } else {
-        updatedFilters.push(filter);
-      }
-      setActiveFilters(updatedFilters);
+      setActiveFilters((prevFilters) =>
+        prevFilters.includes(filter)
+          ? prevFilters.filter((f) => f !== filter)
+          : [...prevFilters, filter],
+      );
     }
   };
 
-  const handleLocationSelect = location => {
+  const handleLocationSelect = (location) => {
     setSelectedLocation(location);
-    setIsLocationModalVisible(false); // Close the modal after selection
+    setIsLocationModalVisible(false);
   };
-  // Filter data based on active filters and search query
-  const filteredData = data?.filter((item: any) => {
+
+  const resetFilter = () => {
+    setSelectedLocation(null); // Reset the selected location filter
+    setIsLocationModalVisible(false);
+  };
+
+  const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    if (!lat1 || !lon1 || !lat2 || !lon2) return 'N/A';
+
+    // Calculate distance in meters using geolib
+    const distanceInMeters = getDistance(
+      { latitude: lat1, longitude: lon1 },
+      { latitude: lat2, longitude: lon2 },
+    );
+
+    // Convert meters to miles (1 meter = 0.000621371 miles)
+    const distanceInMiles = (distanceInMeters * 0.000621371).toFixed(1); // Convert to miles and round to 1 decimal place
+
+    return `${distanceInMiles} mi`; // Return distance in miles
+  };
+
+  const filteredData = data?.filter((item) => {
     // Filter by active filters
     const filterMatch =
       (activeFilters.includes('Scrap') && item.tag === 'scrap') ||
@@ -111,27 +125,46 @@ const Listings = () => {
       item.postcode.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.fullAddress?.toLowerCase().includes(searchQuery.toLowerCase());
 
-    return filterMatch && searchMatch;
+    // Filter by distance if a location is selected
+    let distanceMatch = true;
+    if (selectedLocation && currentLocation.latitude && currentLocation.longitude && item.latitude && item.longitude) {
+      const distanceInMeters = getDistance(
+        { latitude: currentLocation.latitude, longitude: currentLocation.longitude },
+       { latitude:  item.latitude, longitude:item.longitude},
+      );
+
+      const distanceInMiles = distanceInMeters * 0.000621371; // Convert meters to miles
+
+      // Extract the numeric value from the selected location (e.g., "5 miles" -> 5)
+      const selectedDistance = parseFloat(selectedLocation);
+
+      // Ensure selectedDistance is a valid number
+      if (!isNaN(selectedDistance)) {
+        distanceMatch = distanceInMiles <= selectedDistance;
+      }
+    }
+
+    return filterMatch && searchMatch && distanceMatch;
   });
-  const noDataFound = filteredData?.length === 0 && searchQuery.trim() !== '';
-  const handleToggleFavorite = (item: any,isFavorite:boolean) => {
+
+  const noDataFound = filteredData?.length === 0;
+
+  const getLocalImage = (index: any) => {
+    const imageKeys = Object.keys(localImages);
+    return localImages[imageKeys[index % imageKeys.length]];
+  };
+  const handleToggleFavorite = (item: any, isFavorite: boolean) => {
     dispatch(toggleFavoriteRequest({carId: item?._id, token}));
     if (isFavorite) {
-      Toast.show(`${item.make} added to Favorites`);
-
-    } else {
       Toast.show(`${item.make} removed from Favorites`);
+    } else {
+      Toast.show(`${item.make} added to Favorites`);
     }
   };
-  const calculateDistance = (lat1, lon1, lat2, lon2) => {
-    const latDiff = lat2 - lat1; // Difference in latitude
-    const lonDiff = lon2 - lon1; // Difference in longitude
-    const distance = Math.sqrt(latDiff * latDiff + lonDiff * lonDiff) * 69; // Approx. miles
-    return distance.toFixed(1) + ' mi'; // Round to 1 decimal place
-  };
-  const renderItem = ({item, index}) => {
-    const isFavorite = favoriteItems.includes(item._id);
-    const getTimeAgo = dateString => {
+  const renderItem = ({ item, index }) => {
+    const isFavorite = favoriteItems?.includes(item._id);
+
+    const getTimeAgo = (dateString) => {
       const dateAdded = new Date(dateString);
       const now = new Date();
       const diffInMs = now - dateAdded;
@@ -139,58 +172,38 @@ const Listings = () => {
       const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
       const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
 
-      if (diffInMinutes < 60) {
-        return `${diffInMinutes} minutes ago`;
-      } else if (diffInHours < 24) {
-        return `${diffInHours} hours ago`;
-      } else {
-        return `${diffInDays} days ago`;
-      }
+      if (diffInMinutes < 60) return `${diffInMinutes} minutes ago`;
+      if (diffInHours < 24) return `${diffInHours} hours ago`;
+      return `${diffInDays} days ago`;
     };
 
     const timeAgo = getTimeAgo(item.date_added);
-    // Calculate distance if current location and item location are available
-    let distance = 'N/A';
-    if (
-      currentLocation.latitude &&
-      currentLocation.longitude &&
-      item.latitude &&
-      item.longitude
-    ) {
-      distance = calculateDistance(
-        currentLocation.latitude,
-        currentLocation.longitude,
-        item.latitude,
-        item.longitude,
-      );
-    }
+    const distance = calculateDistance(
+      currentLocation.latitude,
+      currentLocation.longitude,
+      item.latitude,
+      item.longitude,
+    );
+
     return (
       <TouchableOpacity
-        onPress={() => navigation.navigate('CarDeatils', {car: item})}
+        onPress={() => navigation.navigate('CarDeatils', { car: item })}
         style={styles.listingCard}>
-        {/* Heart Icon (Top-right corner) */}
         <TouchableOpacity
           style={styles.heartIconContainer}
-          onPress={() => handleToggleFavorite(item, isFavorite)} // Pass isFavorite here
->
+          onPress={() => handleToggleFavorite(item, isFavorite)}>
           <Image
             source={
               isFavorite
-                ? require('../../assets/simpleHeart.png')
-                : require('../../assets/heart.png')
+                ? require('../../assets/heart.png')
+                : require('../../assets/simpleHeart.png')
             }
             style={styles.heartIcon}
           />
         </TouchableOpacity>
 
-        {/* Car Image */}
-        <Image
-          source={getLocalImage(index)}
-          style={styles.carImage}
-          resizeMode="contain"
-        />
+        <Image source={getLocalImage(index)} style={styles.carImage} resizeMode="contain" />
 
-        {/* Car Details */}
         <View style={styles.detailsContainer}>
           <View style={styles.carTagContainer}>
             <Text style={styles.scrapText}>{item.tag || 'Unknown'}</Text>
@@ -206,9 +219,6 @@ const Listings = () => {
             ['Model:', item.model],
             ['Fuel Type:', item.fuelType],
             ['Problem:', item.problem],
-            // ['Phone:', car.phoneNumber ? `+${car.phoneNumber}` : 'N/A'],
-            // ['MOT Status:', car.motStatus],
-            // ['MOT Expiry:', car.motExpiryDate || 'No issues reported'],
           ].map(([label, value], index) => (
             <View key={index} style={styles.infoRow}>
               <Text style={styles.label}>{label}</Text>
@@ -217,43 +227,19 @@ const Listings = () => {
               </Text>
             </View>
           ))}
-          {/* <Text style={styles.details}>
-          Registration: {item.registrationNumber}
-        </Text>
-        <Text style={styles.details}>Postcode: {item.postcode}</Text>
-        <Text style={styles.details}>
-          Engine Capacity: {item.engineCapacity} cc
-        </Text>
-        <Text style={styles.details}>Fuel Type: {item.fuelType}</Text>
-        <Text style={styles.details}>Problem: {item.problem}</Text>
-   */}
-          {/* Footer */}
+
           <View style={styles.footer}>
-            <View style={{alignItems: 'center'}}>
-              <Image
-                source={require('../../assets/pin.png')}
-                style={styles.icon}
-              />
-              <Text style={styles.footerText}>
-                {distance}
-                {/* {item?.distance ? item?.distance : '20.9 mi.'} */}
-              </Text>
+            <View style={{ alignItems: 'center' }}>
+              <Image source={require('../../assets/pin.png')} style={styles.icon} />
+              <Text style={styles.footerText}>{distance}</Text>
             </View>
-            <View style={{alignItems: 'center'}}>
-              <Image
-                source={require('../../assets/timer.png')}
-                style={styles.icon}
-              />
-              <Text style={styles.footerText}>
-                {item.views} {timeAgo}
-              </Text>
+            <View style={{ alignItems: 'center' }}>
+              <Image source={require('../../assets/timer.png')} style={styles.icon} />
+              <Text style={styles.footerText}>{timeAgo}</Text>
             </View>
-            <View style={{alignItems: 'center'}}>
-              <Image
-                source={require('../../assets/eye.png')}
-                style={styles.icon}
-              />
-              <Text style={styles.footerText}>{item.views} Views</Text>
+            <View style={{ alignItems: 'center' }}>
+              <Image source={require('../../assets/eye.png')} style={styles.icon} />
+              <Text style={styles.footerText}>Views</Text>
             </View>
           </View>
         </View>
@@ -283,10 +269,7 @@ const Listings = () => {
       <Banner navigation={navigation} />
       <View style={styles.searchMainContianer}>
         <View style={styles.searchContainer}>
-          <Image
-            source={require('../../assets/search.png')}
-            style={styles.searchIcon}
-          />
+          <Image source={require('../../assets/search.png')} style={styles.searchIcon} />
           <TextInput
             style={styles.searchBar}
             placeholder="Search by postcode or location..."
@@ -296,12 +279,10 @@ const Listings = () => {
           />
         </View>
         <TouchableOpacity onPress={() => setIsLocationModalVisible(true)}>
-          <Image
-            source={require('../../assets/location.png')}
-            style={styles.locationIcon}
-          />
+          <Image source={require('../../assets/location.png')} style={styles.locationIcon} />
         </TouchableOpacity>
       </View>
+
       <Modal
         transparent={true}
         visible={isLocationModalVisible}
@@ -312,32 +293,32 @@ const Listings = () => {
           onPress={() => setIsLocationModalVisible(false)}>
           <View style={styles.modalContent}>
             <Text style={styles.distanceByFilter}>Distance by filter</Text>
-
             {locationOptions.map((location, index) => (
               <TouchableOpacity
                 key={location}
                 style={[
                   styles.locationOption,
-                  index === locationOptions.length - 1 && {
-                    borderBottomWidth: 0,
-                  },
+                  index === locationOptions.length - 1 && { borderBottomWidth: 0 },
                 ]}
                 onPress={() => handleLocationSelect(location)}>
                 <Text style={styles.locationText}>{location}</Text>
                 {selectedLocation === location && (
-                  <Image
-                    source={require('../../assets/tic.png')}
-                    style={styles.tickIcon}
-                  />
+                  <Image source={require('../../assets/tic.png')} style={styles.tickIcon} />
                 )}
               </TouchableOpacity>
             ))}
+            {/* Reset Filter Button */}
+            <TouchableOpacity
+              style={styles.resetButton}
+              onPress={resetFilter}>
+              <Text style={styles.resetButtonText}>Reset Filter</Text>
+            </TouchableOpacity>
           </View>
         </TouchableOpacity>
       </Modal>
 
       <View style={styles.filterContainer}>
-        {['Scrap', 'Salvage', 'Saved'].map(filter => (
+        {['Scrap', 'Salvage', 'Saved'].map((filter) => (
           <TouchableOpacity
             key={filter}
             style={[
@@ -356,27 +337,29 @@ const Listings = () => {
           </TouchableOpacity>
         ))}
       </View>
-      {/* Search Bar */}
 
-      {/* Listings */}
-      <FlatList
-        data={filteredData}
-        renderItem={renderItem}
-        showsVerticalScrollIndicator={false}
-        keyExtractor={item => item._id}
-        contentContainerStyle={styles.list}
-        ListEmptyComponent={
-          noDataFound ? (
-            <View style={styles.noDataContainer}>
-              <Text style={styles.noDataText}>Data not found</Text>
-            </View>
-          ) : null
-        }
-      />
+      {/* Show error message if no data is found */}
+      {noDataFound ? (
+        <View style={styles.noDataContainer}>
+          <Text style={styles.noDataText}>
+            No data found for the selected filters.
+          </Text>
+        </View>
+      ) : (
+        <FlatList
+          data={filteredData}
+          renderItem={renderItem}
+          showsVerticalScrollIndicator={false}
+          keyExtractor={(item) => item._id}
+          contentContainerStyle={styles.list}
+        />
+      )}
     </SafeAreaView>
   );
 };
 
+
+// Styles remain the same...
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -487,6 +470,17 @@ const styles = StyleSheet.create({
   },
   filterTextActive: {
     color: Colors.white,
+  }, resetButton: {
+    padding: 10,
+    alignItems: 'center',
+    backgroundColor: Colors.primary,
+    borderRadius: 5,
+    marginTop: 10,
+  },
+  resetButtonText: {
+    color: Colors.white,
+    fontFamily: Fonts.medium,
+    fontSize: 16,
   },
   list: {
     paddingBottom: hp(2.5),
@@ -500,7 +494,7 @@ const styles = StyleSheet.create({
   },
   noDataText: {
     fontSize: wp(4),
-    color: Colors.textGray,
+    color: Colors.red,
     fontFamily: Fonts.regular,
   },
   //render item
