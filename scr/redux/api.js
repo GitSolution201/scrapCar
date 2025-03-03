@@ -131,4 +131,23 @@ export const addToSaved = async (carId, token) => {
     );
   }
 };
+//Update View count
+export const updateViewCount = async (carId, token) => {
+  try {
+    const response = await api.post(
+      `/car/${carId}/view`,{},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+    return response.data; // Return the response from the server
+  } catch (error) {
+    console.log('API Error:', error.response?.data || error.message);
+    throw new Error(
+      error.response?.data?.message || 'Failed to update view count',
+    );
+  }
+};
 export default api;

@@ -25,6 +25,7 @@ import Geolocation from 'react-native-geolocation-service';
 import Toast from 'react-native-simple-toast';
 import {getDistance} from 'geolib'; // Import geolib for distance calculation
 import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
+import {updateViewCountRequest} from '../../redux/slices/viewCount';
 
 // Local images
 const localImages = {
@@ -225,6 +226,10 @@ const Listings = () => {
       Toast.show(`${item.make} added to Favorites`);
     }
   };
+  const handleCarDetailsNavigation = car => {
+    dispatch(updateViewCountRequest({carId: car._id, token})); // Dispatch the update view count action
+    navigation.navigate('CarDeatils', {car}); // Navigate to the car details page
+  };
   const renderItem = ({item, index}) => {
     const isFavorite = favoriteItems?.includes(item._id);
 
@@ -251,7 +256,7 @@ const Listings = () => {
 
     return (
       <TouchableOpacity
-        onPress={() => navigation.navigate('CarDeatils', {car: item})}
+        onPress={() => handleCarDetailsNavigation(item)}
         style={styles.listingCard}>
         <TouchableOpacity
           style={styles.heartIconContainer}
@@ -667,7 +672,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     borderRadius: wp(4),
     borderWidth: 0.2,
-    marginTop: hp(1),
+    marginTop: hp(1.5),
     marginBottom: hp(3.5),
     paddingTop: hp(3.5),
     paddingHorizontal: wp(3.5),
@@ -712,9 +717,9 @@ const styles = StyleSheet.create({
   carImage: {
     position: 'absolute',
     top: -100,
-    right: 5,
-    width: '70%',
-    height: '70%',
+    right: -5,
+    width: '60%',
+    height: '60%',
   },
   detailsContainer: {
     padding: wp(2.5),

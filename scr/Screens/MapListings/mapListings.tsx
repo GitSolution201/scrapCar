@@ -369,12 +369,12 @@ const MapListings = () => {
       <View style={styles.sliderContainer} pointerEvents="box-none">
         <Text style={styles.label}>Distance</Text>
         <Text style={styles.distanceText}>
-          {kilometersToMiles(distance).toFixed(2)} miles
+          {kilometersToMiles(distance).toFixed(0)} miles
         </Text>
         <Slider
           style={styles.slider}
           minimumValue={1}
-          maximumValue={50}
+          maximumValue={80}
           step={1}
           value={distance}
           minimumTrackTintColor="blue"

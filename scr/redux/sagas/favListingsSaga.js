@@ -6,7 +6,6 @@ import {  getFavListingsFailure, getFavListingsRequest, getFavListingsSuccess,  
 function* handleGetFavListings(action) {
   try {
     const response = yield call(getFavListings, action.payload);
-    console.log('dasdasdasdas',response)
     yield put(getFavListingsSuccess(response));
   } catch (error) {
     console.error('Error fetching user:', error);

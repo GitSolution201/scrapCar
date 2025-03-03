@@ -18,10 +18,10 @@ const localImages = {
 
 export default function CarList({
   item,
-  itemIndex,
+  itemIndex,onPress
 }: {
   item: any;
-  itemIndex: any;
+  itemIndex: any;onPress
 }) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
@@ -50,14 +50,7 @@ export default function CarList({
       );
     }
   };
-  const handleToggleFavorite = (item, isFavorite) => {
-    dispatch(toggleFavoriteRequest({ carId: item._id, token })); 
-    if (isFavorite) {
-      Toast.show(`${item.make} removed from Favorites`);
-    } else {
-      Toast.show(`${item.make} added to Favorites`);
-    }
-  };
+
    const getLocalImage = (index: any) => {
     const imageKeys = Object.keys(localImages);
     return localImages[imageKeys[index % imageKeys.length]];
@@ -107,7 +100,7 @@ export default function CarList({
       {/* Heart Icon (Top-right corner) */}
       <TouchableOpacity
         style={styles.heartIconContainer}
-        onPress={() => handleToggleFavorite(item)}>
+        onPress={onPress}>
         <Image
           source={
             isFavorite
@@ -173,12 +166,12 @@ export default function CarList({
               style={styles.icon}
             />
             <Text style={styles.footerText}>
-              {item.views} {timeAgo}
+             {timeAgo}
             </Text>
           </View>
           <View style={{alignItems: 'center'}}>
             <Image source={require('../assets/eye.png')} style={styles.icon} />
-            <Text style={styles.footerText}>{item.views} Views</Text>
+            <Text style={styles.footerText}>{item?.views?.length}</Text>
           </View>
         </View>
       </View>
