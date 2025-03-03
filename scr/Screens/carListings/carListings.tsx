@@ -68,70 +68,70 @@ const Listings = () => {
     getLocation();
   }, []);
 
-  // const getLocation = async () => {
-  //   const hasLocationPermission = await RequestLocationPermission();
-  //   if (hasLocationPermission === 'granted') {
-  //     Geolocation.getCurrentPosition(
-  //       position => {
-  //         const {latitude, longitude} = position.coords;
-  //         setCurrentLocation({latitude, longitude});
-  //       },
-  //       error => {
-  //         console.error(error);
-  //       },
-  //       {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
-  //     );
-  //   }
-  // };
-  const getLocation = () => {
-    Geolocation.getCurrentPosition(
-      position => {
-        const {latitude, longitude} = position.coords;
-        setCurrentLocation({latitude, longitude});
-
-        fetch(
-          `https://maps.googleapis.com/maps/api/geocode/json?latlng=${position?.coords.latitude},${position?.coords.longitude}&key=${API_KEY}`,
-          {
-            method: 'get',
-            headers: {
-              Accept: 'application/json',
-            },
-          },
-        )
-          .then(res => res.json())
-          .then(res => {
-            const {formatted_address} = res?.results[0];
-            const {lat, lng} = res?.results[0]?.geometry?.location;
-            // setAddress({
-            //   streetName: formatted_address,
-            //   latitude: lat,
-            //   longitude: lng,
-            // });
-            // setLocaiton({
-            //   evevtLocation: formatted_address,
-            //   eventLat: lat,
-            //   eventLng: lng,
-            // });
-            // animateToRegion({
-            //   latitude: lat,
-            //   longitude: lng,
-            //   latitudeDelta: 0.02305,
-            //   longitudeDelta: 0.010525,
-            // });
-            // Toast.show(ToastMessages.locationFetch, Toast.SHORT, {
-            //   backgroundColor: Colors.green,
-            // });
-          })
-          .catch(error => {
-            console.log(error);
-          });
-      },
-      error => {
-        console.log(error.code, error.message);
-      },
-      {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
-    );
+  const getLocation = async () => {
+    const hasLocationPermission = await RequestLocationPermission();
+    if (hasLocationPermission === 'granted') {
+      Geolocation.getCurrentPosition(
+        position => {
+          const {latitude, longitude} = position.coords;
+          setCurrentLocation({latitude, longitude});
+        },
+        error => {
+          console.error(error);
+        },
+        {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
+      );
+    }
   };
+  // const getLocation = () => {
+  // Geolocation.getCurrentPosition(
+  //   position => {
+  //     const {latitude, longitude} = position.coords;
+  //     setCurrentLocation({latitude, longitude});
+
+  //     fetch(
+  //       `https://maps.googleapis.com/maps/api/geocode/json?latlng=${position?.coords.latitude},${position?.coords.longitude}&key=${API_KEY}`,
+  //       {
+  //         method: 'get',
+  //         headers: {
+  //           Accept: 'application/json',
+  //         },
+  //       },
+  //     )
+  //       .then(res => res.json())
+  //       .then(res => {
+  //         const {formatted_address} = res?.results[0];
+  //         const {lat, lng} = res?.results[0]?.geometry?.location;
+  // setAddress({
+  //   streetName: formatted_address,
+  //   latitude: lat,
+  //   longitude: lng,
+  // });
+  // setLocaiton({
+  //   evevtLocation: formatted_address,
+  //   eventLat: lat,
+  //   eventLng: lng,
+  // });
+  // animateToRegion({
+  //   latitude: lat,
+  //   longitude: lng,
+  //   latitudeDelta: 0.02305,
+  //   longitudeDelta: 0.010525,
+  // });
+  // Toast.show(ToastMessages.locationFetch, Toast.SHORT, {
+  //   backgroundColor: Colors.green,
+  // });
+  //         })
+  //         .catch(error => {
+  //           console.log(error);
+  //         });
+  //     },
+  //     error => {
+  //       console.log(error.code, error.message);
+  //     },
+  //     {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
+  //   );
+  // };
   const handleFilterPress = filter => {
     if (filter === 'Saved') {
       navigation.navigate('Savage');
@@ -316,7 +316,7 @@ const Listings = () => {
                 source={require('../../assets/eye.png')}
                 style={styles.icon}
               />
-              <Text style={styles.footerText}>Views</Text>
+              <Text style={styles.footerText}>{item?.views?.length}</Text>
             </View>
           </View>
         </View>
@@ -345,68 +345,68 @@ const Listings = () => {
     <SafeAreaView style={styles.container}>
       <Banner navigation={navigation} />
       <View style={styles.locationContainer}>
-      <GooglePlacesAutocomplete
-  placeholder="Search by postcode or location..."
-  minLength={2}
-  returnKeyType={'search'}
-  fetchDetails={true}
-  onPress={(data, details = null) => {
-    console.log('Selected Place:', data);
-    console.log('Place Details:', details);
-  }}
-  textInputProps={{
-    placeholderTextColor: Colors.textGray,
-    style: styles.textInput,
-  }}
-  styles={{
-    container: {
-      flex: 1,
-    },
-    textInputContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      backgroundColor: Colors.white,
-      borderRadius: wp(10),
-      borderWidth: wp(0.5),
-      borderColor: Colors.lightGray,
-      paddingHorizontal: wp(3),
-    },
-    textInput: {
-      flex: 1,
-      height: hp(6),
-      fontSize: 14,
-      color: Colors.black,
-      paddingVertical: 0,
-    },
-    listView: {
-      backgroundColor: Colors.white,
-      marginHorizontal: wp(5),
-      borderWidth: wp(0.3),
-      borderColor: Colors.black,
-    },
-    row: {
-      backgroundColor: Colors.white,
-      height: hp(6),
-      flexDirection: 'row',
-    },
-    separator: {
-      height: hp(0.1),
-      backgroundColor: Colors.darkGray,
-    },
-    description: {
-      color: Colors.black,
-    },
-    poweredContainer: {
-      display: 'none', // Hide the "Powered by Google" logo
-    },
-  }}
-  query={{
-    key: 'AIzaSyC9PCVumxPB8jcTCo15qDfq2aRLto7Eivs', // Replace with your actual API key
-    language: 'en',
-    radius: '1000',
-  }}
-/>
-       <TouchableOpacity onPress={() => setIsLocationModalVisible(true)}>
+        <GooglePlacesAutocomplete
+          placeholder="Search by postcode or location..."
+          minLength={2}
+          returnKeyType={'search'}
+          fetchDetails={true}
+          onPress={(data, details = null) => {
+            console.log('Selected Place:', data);
+            console.log('Place Details:', details);
+          }}
+          textInputProps={{
+            placeholderTextColor: Colors.textGray,
+            style: styles.textInput,
+          }}
+          styles={{
+            container: {
+              flex: 1,
+            },
+            textInputContainer: {
+              flexDirection: 'row',
+              alignItems: 'center',
+              backgroundColor: Colors.white,
+              borderRadius: wp(10),
+              borderWidth: wp(0.5),
+              borderColor: Colors.lightGray,
+              paddingHorizontal: wp(3),
+            },
+            textInput: {
+              flex: 1,
+              height: hp(6),
+              fontSize: 14,
+              color: Colors.black,
+              paddingVertical: 0,
+            },
+            listView: {
+              backgroundColor: Colors.white,
+              marginHorizontal: wp(5),
+              borderWidth: wp(0.3),
+              borderColor: Colors.black,
+            },
+            row: {
+              backgroundColor: Colors.white,
+              height: hp(6),
+              flexDirection: 'row',
+            },
+            separator: {
+              height: hp(0.1),
+              backgroundColor: Colors.darkGray,
+            },
+            description: {
+              color: Colors.black,
+            },
+            poweredContainer: {
+              display: 'none', // Hide the "Powered by Google" logo
+            },
+          }}
+          query={{
+            key: 'AIzaSyC9PCVumxPB8jcTCo15qDfq2aRLto7Eivs', // Replace with your actual API key
+            language: 'en',
+            radius: '1000',
+          }}
+        />
+        <TouchableOpacity onPress={() => setIsLocationModalVisible(true)}>
           <Image
             source={require('../../assets/location.png')}
             style={styles.locationIcon}
@@ -414,7 +414,7 @@ const Listings = () => {
         </TouchableOpacity>
       </View>
       {/* <View> */}
-        {/* <View style={styles.searchContainer}>
+      {/* <View style={styles.searchContainer}>
           <Image source={require('../../assets/search.png')} style={styles.searchIcon} />
           <TextInput
             style={styles.searchBar}
@@ -424,7 +424,7 @@ const Listings = () => {
             onChangeText={setSearchQuery}
           />
         </View> */}
-        {/* <TouchableOpacity onPress={() => setIsLocationModalVisible(true)}>
+      {/* <TouchableOpacity onPress={() => setIsLocationModalVisible(true)}>
           <Image
             source={require('../../assets/location.png')}
             style={styles.locationIcon}
@@ -601,7 +601,8 @@ const styles = StyleSheet.create({
   },
   locationIcon: {
     width: wp(8),
-    height: wp(8),    tintColor: Colors.footerGray,
+    height: wp(8),
+    tintColor: Colors.footerGray,
     resizeMode: 'contain',
     marginLeft: wp(2),
   },
