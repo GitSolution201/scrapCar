@@ -55,7 +55,23 @@ export const getUser = async token => {
     ); // Throw a meaningful error
   }
 };
-
+//Get Fav Listings
+export const getFavListings = async token => {
+  try {
+    const response = await api.get('/auth/list-all-saved', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    return response.data; // Return the data
+  } catch (error) {
+    console.log('Get User Error:', error.response?.data || error.message); // Log the error
+    throw new Error(
+      error.response?.data?.message || 'Failed to fetch user data',
+    ); // Throw a meaningful error
+  }
+};
 // Get User Details
 export const fetchUserDetails = async token => {
   try {

@@ -9,6 +9,7 @@ import {toggleFavoriteRequest} from '../redux/slices/favouriteSlice';
 import {RequestLocationPermission} from '../Helper/Permisions';
 import Geolocation from 'react-native-geolocation-service';
 import Toast from 'react-native-simple-toast';
+import { getFavListingsRequest } from '../redux/slices/favouriteListingSlice';
 
 const localImages = {
   car1: require('../assets/car.png'),
@@ -49,17 +50,15 @@ export default function CarList({
       );
     }
   };
-  const handleToggleFavorite = (item: any) => {
-    dispatch(toggleFavoriteRequest({carId: item?._id, token}));
+  const handleToggleFavorite = (item, isFavorite) => {
+    dispatch(toggleFavoriteRequest({ carId: item._id, token })); 
     if (isFavorite) {
-      Toast.show(`${item.make} added to Favorites`);
-
-    } else {
       Toast.show(`${item.make} removed from Favorites`);
+    } else {
+      Toast.show(`${item.make} added to Favorites`);
     }
   };
-
-  const getLocalImage = (index: any) => {
+   const getLocalImage = (index: any) => {
     const imageKeys = Object.keys(localImages);
     return localImages[imageKeys[index % imageKeys.length]];
   };
@@ -112,8 +111,8 @@ export default function CarList({
         <Image
           source={
             isFavorite
-              ? require('../assets/simpleHeart.png')
-              : require('../assets/heart.png')
+              ? require('../assets/heart.png')
+              : require('../assets/simpleHeart.png')
           }
           style={styles.heartIcon}
         />

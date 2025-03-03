@@ -18,7 +18,7 @@ const favouriteSlice = createSlice({
     toggleFavoriteSuccess: (state, action) => {
       console.log('@ACTION', action);
       state.loading = false;
-      state.favoriteItems = action.payload.favorites; // Update the favorite list
+      state.favoriteItems = action.payload; // Update the favorite list
     },
     toggleFavoriteFailure: (state, action) => {
       state.loading = false;

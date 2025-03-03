@@ -7,11 +7,14 @@ import userDetail from './slices/userDetail';
 import carListingsReducer from './slices/carListingsSlice';
 import userProfileUpdateReducer from './slices/userProfileUpdateSlice';
 import favoritesReducer from './slices/favouriteSlice';
+import favListingsReducer from './slices/favouriteListingSlice';
 import authSaga from './sagas/authSaga';
 import userSaga from './sagas/carListingsSaga';
 import userDetailSaga from './sagas/userDetailSaga';
 import userProfileUpdateSage from './sagas/userProfileUpdateSage';
 import favouriteSaga from './sagas/favouriteSaga';
+import favListingsSaga from './sagas/favListingsSaga';
+
 
 const sagaMiddleware = createSagaMiddleware();
 
@@ -19,7 +22,7 @@ const sagaMiddleware = createSagaMiddleware();
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
-  whitelist: ['auth', 'carListings', 'user', 'profileUpdate', 'favourite'], // ✨ List all reducers you want to persist
+  whitelist: ['auth', 'carListings', 'user', 'profileUpdate', 'favourite','favListings'], // ✨ List all reducers you want to persist
 };
 
 // ✅ Combine all reducers
@@ -29,6 +32,7 @@ const rootReducer = combineReducers({
   user: userDetail,
   profileUpdate: userProfileUpdateReducer,
   favourite: favoritesReducer, // Add the new favorites reducer
+  favListings:favListingsReducer
 });
 
 // ✅ Apply persistReducer to rootReducer
@@ -53,5 +57,6 @@ sagaMiddleware.run(userSaga);
 sagaMiddleware.run(userDetailSaga);
 sagaMiddleware.run(userProfileUpdateSage);
 sagaMiddleware.run(favouriteSaga);
+sagaMiddleware.run(favListingsSaga);
 
 export {store, persistor};

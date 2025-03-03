@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -13,17 +13,18 @@ import {
   Platform,
 } from 'react-native';
 import Colors from '../../Helper/Colors';
-import { useDispatch, useSelector } from 'react-redux';
-import { getUserRequest } from '../../redux/slices/carListingsSlice';
-import { hp, wp } from '../../Helper/Responsive';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import {useDispatch, useSelector} from 'react-redux';
+import {getUserRequest} from '../../redux/slices/carListingsSlice';
+import {hp, wp} from '../../Helper/Responsive';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import Banner from '../../Components/Banner';
-import { Fonts } from '../../Helper/Fonts';
-import { toggleFavoriteRequest } from '../../redux/slices/favouriteSlice';
-import { RequestLocationPermission } from '../../Helper/Permisions';
+import {Fonts} from '../../Helper/Fonts';
+import {toggleFavoriteRequest} from '../../redux/slices/favouriteSlice';
+import {RequestLocationPermission} from '../../Helper/Permisions';
 import Geolocation from 'react-native-geolocation-service';
 import Toast from 'react-native-simple-toast';
-import { getDistance } from 'geolib'; // Import geolib for distance calculation
+import {getDistance} from 'geolib'; // Import geolib for distance calculation
+import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
 
 // Local images
 const localImages = {
@@ -35,8 +36,8 @@ const Listings = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const token = useSelector((state: any) => state.auth?.token);
-  const { loading, error, data } = useSelector((state: any) => state.carListings);
-  const { favoriteItems } = useSelector((state: any) => state?.favourite);
+  const {loading, error, data} = useSelector((state: any) => state.carListings);
+  const {favoriteItems} = useSelector((state: any) => state?.favourite);
   const [activeFilters, setActiveFilters] = useState(['Scrap', 'Salvage']);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLocation, setSelectedLocation] = useState(null);
@@ -46,7 +47,13 @@ const Listings = () => {
     longitude: null,
   });
 
-  const locationOptions = ['5 miles', '10 miles', '20 miles', '25 miles', '50 miles'];
+  const locationOptions = [
+    '5 miles',
+    '10 miles',
+    '20 miles',
+    '25 miles',
+    '50 miles',
+  ];
 
   useFocusEffect(
     useCallback(() => {
@@ -61,35 +68,83 @@ const Listings = () => {
     getLocation();
   }, []);
 
-  const getLocation = async () => {
-    const hasLocationPermission = await RequestLocationPermission();
-    if (hasLocationPermission === 'granted') {
-      Geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          setCurrentLocation({ latitude, longitude });
-        },
-        (error) => {
-          console.error(error);
-        },
-        { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
-      );
-    }
-  };
+  // const getLocation = async () => {
+  //   const hasLocationPermission = await RequestLocationPermission();
+  //   if (hasLocationPermission === 'granted') {
+  //     Geolocation.getCurrentPosition(
+  //       position => {
+  //         const {latitude, longitude} = position.coords;
+  //         setCurrentLocation({latitude, longitude});
+  //       },
+  //       error => {
+  //         console.error(error);
+  //       },
+  //       {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
+  //     );
+  //   }
+  // };
+  const getLocation = () => {
+    Geolocation.getCurrentPosition(
+      position => {
+        const {latitude, longitude} = position.coords;
+        setCurrentLocation({latitude, longitude});
 
-  const handleFilterPress = (filter) => {
+        fetch(
+          `https://maps.googleapis.com/maps/api/geocode/json?latlng=${position?.coords.latitude},${position?.coords.longitude}&key=${API_KEY}`,
+          {
+            method: 'get',
+            headers: {
+              Accept: 'application/json',
+            },
+          },
+        )
+          .then(res => res.json())
+          .then(res => {
+            const {formatted_address} = res?.results[0];
+            const {lat, lng} = res?.results[0]?.geometry?.location;
+            // setAddress({
+            //   streetName: formatted_address,
+            //   latitude: lat,
+            //   longitude: lng,
+            // });
+            // setLocaiton({
+            //   evevtLocation: formatted_address,
+            //   eventLat: lat,
+            //   eventLng: lng,
+            // });
+            // animateToRegion({
+            //   latitude: lat,
+            //   longitude: lng,
+            //   latitudeDelta: 0.02305,
+            //   longitudeDelta: 0.010525,
+            // });
+            // Toast.show(ToastMessages.locationFetch, Toast.SHORT, {
+            //   backgroundColor: Colors.green,
+            // });
+          })
+          .catch(error => {
+            console.log(error);
+          });
+      },
+      error => {
+        console.log(error.code, error.message);
+      },
+      {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
+    );
+  };
+  const handleFilterPress = filter => {
     if (filter === 'Saved') {
       navigation.navigate('Savage');
     } else {
-      setActiveFilters((prevFilters) =>
+      setActiveFilters(prevFilters =>
         prevFilters.includes(filter)
-          ? prevFilters.filter((f) => f !== filter)
+          ? prevFilters.filter(f => f !== filter)
           : [...prevFilters, filter],
       );
     }
   };
 
-  const handleLocationSelect = (location) => {
+  const handleLocationSelect = location => {
     setSelectedLocation(location);
     setIsLocationModalVisible(false);
   };
@@ -104,8 +159,8 @@ const Listings = () => {
 
     // Calculate distance in meters using geolib
     const distanceInMeters = getDistance(
-      { latitude: lat1, longitude: lon1 },
-      { latitude: lat2, longitude: lon2 },
+      {latitude: lat1, longitude: lon1},
+      {latitude: lat2, longitude: lon2},
     );
 
     // Convert meters to miles (1 meter = 0.000621371 miles)
@@ -114,7 +169,7 @@ const Listings = () => {
     return `${distanceInMiles} mi`; // Return distance in miles
   };
 
-  const filteredData = data?.filter((item) => {
+  const filteredData = data?.filter(item => {
     // Filter by active filters
     const filterMatch =
       (activeFilters.includes('Scrap') && item.tag === 'scrap') ||
@@ -127,10 +182,19 @@ const Listings = () => {
 
     // Filter by distance if a location is selected
     let distanceMatch = true;
-    if (selectedLocation && currentLocation.latitude && currentLocation.longitude && item.latitude && item.longitude) {
+    if (
+      selectedLocation &&
+      currentLocation.latitude &&
+      currentLocation.longitude &&
+      item.latitude &&
+      item.longitude
+    ) {
       const distanceInMeters = getDistance(
-        { latitude: currentLocation.latitude, longitude: currentLocation.longitude },
-       { latitude:  item.latitude, longitude:item.longitude},
+        {
+          latitude: currentLocation.latitude,
+          longitude: currentLocation.longitude,
+        },
+        {latitude: item.latitude, longitude: item.longitude},
       );
 
       const distanceInMiles = distanceInMeters * 0.000621371; // Convert meters to miles
@@ -161,10 +225,10 @@ const Listings = () => {
       Toast.show(`${item.make} added to Favorites`);
     }
   };
-  const renderItem = ({ item, index }) => {
+  const renderItem = ({item, index}) => {
     const isFavorite = favoriteItems?.includes(item._id);
 
-    const getTimeAgo = (dateString) => {
+    const getTimeAgo = dateString => {
       const dateAdded = new Date(dateString);
       const now = new Date();
       const diffInMs = now - dateAdded;
@@ -187,7 +251,7 @@ const Listings = () => {
 
     return (
       <TouchableOpacity
-        onPress={() => navigation.navigate('CarDeatils', { car: item })}
+        onPress={() => navigation.navigate('CarDeatils', {car: item})}
         style={styles.listingCard}>
         <TouchableOpacity
           style={styles.heartIconContainer}
@@ -202,7 +266,11 @@ const Listings = () => {
           />
         </TouchableOpacity>
 
-        <Image source={getLocalImage(index)} style={styles.carImage} resizeMode="contain" />
+        <Image
+          source={getLocalImage(index)}
+          style={styles.carImage}
+          resizeMode="contain"
+        />
 
         <View style={styles.detailsContainer}>
           <View style={styles.carTagContainer}>
@@ -229,16 +297,25 @@ const Listings = () => {
           ))}
 
           <View style={styles.footer}>
-            <View style={{ alignItems: 'center' }}>
-              <Image source={require('../../assets/pin.png')} style={styles.icon} />
+            <View style={{alignItems: 'center'}}>
+              <Image
+                source={require('../../assets/pin.png')}
+                style={styles.icon}
+              />
               <Text style={styles.footerText}>{distance}</Text>
             </View>
-            <View style={{ alignItems: 'center' }}>
-              <Image source={require('../../assets/timer.png')} style={styles.icon} />
+            <View style={{alignItems: 'center'}}>
+              <Image
+                source={require('../../assets/timer.png')}
+                style={styles.icon}
+              />
               <Text style={styles.footerText}>{timeAgo}</Text>
             </View>
-            <View style={{ alignItems: 'center' }}>
-              <Image source={require('../../assets/eye.png')} style={styles.icon} />
+            <View style={{alignItems: 'center'}}>
+              <Image
+                source={require('../../assets/eye.png')}
+                style={styles.icon}
+              />
               <Text style={styles.footerText}>Views</Text>
             </View>
           </View>
@@ -267,8 +344,77 @@ const Listings = () => {
   return (
     <SafeAreaView style={styles.container}>
       <Banner navigation={navigation} />
-      <View style={styles.searchMainContianer}>
-        <View style={styles.searchContainer}>
+      <View style={styles.locationContainer}>
+      <GooglePlacesAutocomplete
+  placeholder="Search by postcode or location..."
+  minLength={2}
+  returnKeyType={'search'}
+  fetchDetails={true}
+  onPress={(data, details = null) => {
+    console.log('Selected Place:', data);
+    console.log('Place Details:', details);
+  }}
+  textInputProps={{
+    placeholderTextColor: Colors.textGray,
+    style: styles.textInput,
+  }}
+  styles={{
+    container: {
+      flex: 1,
+    },
+    textInputContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: Colors.white,
+      borderRadius: wp(10),
+      borderWidth: wp(0.5),
+      borderColor: Colors.lightGray,
+      paddingHorizontal: wp(3),
+    },
+    textInput: {
+      flex: 1,
+      height: hp(6),
+      fontSize: 14,
+      color: Colors.black,
+      paddingVertical: 0,
+    },
+    listView: {
+      backgroundColor: Colors.white,
+      marginHorizontal: wp(5),
+      borderWidth: wp(0.3),
+      borderColor: Colors.black,
+    },
+    row: {
+      backgroundColor: Colors.white,
+      height: hp(6),
+      flexDirection: 'row',
+    },
+    separator: {
+      height: hp(0.1),
+      backgroundColor: Colors.darkGray,
+    },
+    description: {
+      color: Colors.black,
+    },
+    poweredContainer: {
+      display: 'none', // Hide the "Powered by Google" logo
+    },
+  }}
+  query={{
+    key: 'AIzaSyC9PCVumxPB8jcTCo15qDfq2aRLto7Eivs', // Replace with your actual API key
+    language: 'en',
+    radius: '1000',
+  }}
+/>
+       <TouchableOpacity onPress={() => setIsLocationModalVisible(true)}>
+          <Image
+            source={require('../../assets/location.png')}
+            style={styles.locationIcon}
+          />
+        </TouchableOpacity>
+      </View>
+      {/* <View> */}
+        {/* <View style={styles.searchContainer}>
           <Image source={require('../../assets/search.png')} style={styles.searchIcon} />
           <TextInput
             style={styles.searchBar}
@@ -277,11 +423,14 @@ const Listings = () => {
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
-        </View>
-        <TouchableOpacity onPress={() => setIsLocationModalVisible(true)}>
-          <Image source={require('../../assets/location.png')} style={styles.locationIcon} />
-        </TouchableOpacity>
-      </View>
+        </View> */}
+        {/* <TouchableOpacity onPress={() => setIsLocationModalVisible(true)}>
+          <Image
+            source={require('../../assets/location.png')}
+            style={styles.locationIcon}
+          />
+        </TouchableOpacity> */}
+      {/* </View> */}
 
       <Modal
         transparent={true}
@@ -298,19 +447,22 @@ const Listings = () => {
                 key={location}
                 style={[
                   styles.locationOption,
-                  index === locationOptions.length - 1 && { borderBottomWidth: 0 },
+                  index === locationOptions.length - 1 && {
+                    borderBottomWidth: 0,
+                  },
                 ]}
                 onPress={() => handleLocationSelect(location)}>
                 <Text style={styles.locationText}>{location}</Text>
                 {selectedLocation === location && (
-                  <Image source={require('../../assets/tic.png')} style={styles.tickIcon} />
+                  <Image
+                    source={require('../../assets/tic.png')}
+                    style={styles.tickIcon}
+                  />
                 )}
               </TouchableOpacity>
             ))}
             {/* Reset Filter Button */}
-            <TouchableOpacity
-              style={styles.resetButton}
-              onPress={resetFilter}>
+            <TouchableOpacity style={styles.resetButton} onPress={resetFilter}>
               <Text style={styles.resetButtonText}>Reset Filter</Text>
             </TouchableOpacity>
           </View>
@@ -318,7 +470,7 @@ const Listings = () => {
       </Modal>
 
       <View style={styles.filterContainer}>
-        {['Scrap', 'Salvage', 'Saved'].map((filter) => (
+        {['Scrap', 'Salvage', 'Saved'].map(filter => (
           <TouchableOpacity
             key={filter}
             style={[
@@ -350,14 +502,13 @@ const Listings = () => {
           data={filteredData}
           renderItem={renderItem}
           showsVerticalScrollIndicator={false}
-          keyExtractor={(item) => item._id}
+          keyExtractor={item => item._id}
           contentContainerStyle={styles.list}
         />
       )}
     </SafeAreaView>
   );
 };
-
 
 // Styles remain the same...
 const styles = StyleSheet.create({
@@ -435,12 +586,24 @@ const styles = StyleSheet.create({
     marginRight: wp(1),
     tintColor: Colors.textGray,
   },
+  locationContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: hp(2),
+  },
+  textInput: {
+    flex: 1,
+    height: hp(6),
+    fontSize: 14,
+    color: Colors.black,
+    paddingVertical: 0,
+  },
   locationIcon: {
-    tintColor: Colors.footerGray,
-    width: wp(7),
-    marginTop: wp(3),
-    height: wp(7),
+    width: wp(8),
+    height: wp(8),    tintColor: Colors.footerGray,
     resizeMode: 'contain',
+    marginLeft: wp(2),
   },
   searchBar: {
     flex: 1,
@@ -470,7 +633,8 @@ const styles = StyleSheet.create({
   },
   filterTextActive: {
     color: Colors.white,
-  }, resetButton: {
+  },
+  resetButton: {
     padding: 10,
     alignItems: 'center',
     backgroundColor: Colors.primary,

@@ -12,7 +12,7 @@ function* handleToggleFavorite(action) {
   try {
     const {carId, token} = action.payload;
     const response = yield call(addToSaved, carId, token); // Call the API
-    yield put(toggleFavoriteSuccess(response)); // Dispatch success action
+    yield put(toggleFavoriteSuccess(response.favorites)); // Update the state with the new favorites list
   } catch (error) {
     yield put(
       toggleFavoriteFailure(error.message || 'Failed to toggle favorite'),

@@ -12,25 +12,22 @@ import Colors from '../../Helper/Colors';
 import {wp} from '../../Helper/Responsive';
 import {useIsFocused, useNavigation} from '@react-navigation/native';
 import {useDispatch, useSelector} from 'react-redux';
-import {getUserRequest} from '../../redux/slices/carListingsSlice';
 import CarList from '../../Components/CarList';
 import Header from '../../Components/Header';
+import {getFavListingsRequest} from '../../redux/slices/favouriteListingSlice';
 
 const Savage = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const isFocused = useIsFocused();
   const token = useSelector((state: any) => state.auth?.token);
-  const {loading, error, data} = useSelector((state: any) => state.carListings);
- const  favLoading = useSelector(
-    (state: any) => state?.favourite?.loading,
-  );
+  const {loading, error, data} = useSelector((state: any) => state.favListings);
   useEffect(() => {
     if (isFocused) {
-      dispatch(getUserRequest(token));
+      dispatch(getFavListingsRequest(token));
     }
   }, [isFocused]);
-  if (loading ||favLoading) {
+  if (loading) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color={Colors.primary} />
@@ -69,7 +66,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: wp(5),
     backgroundColor: '#F5F5F5',
-    margin:Platform.OS==='ios'? 20:5,
+    margin: Platform.OS === 'ios' ? 20 : 5,
   },
 
   loadingContainer: {
