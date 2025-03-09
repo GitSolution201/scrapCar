@@ -128,11 +128,10 @@ export default function CarList({
         {[
           ['Registration:', item.registrationNumber],
           ['Year:', item.yearOfManufacture],
-          ['PostCode:', item.postcode],
+          ['Postcode:', item.postcode],
           ['Colors:', item.color],
           ['Model:', item.model],
           ['Fuel Type:', item.fuelType],
-          ['Problem:', item.problem],
           // ['Phone:', car.phoneNumber ? `+${car.phoneNumber}` : 'N/A'],
           // ['MOT Status:', car.motStatus],
           // ['MOT Expiry:', car.motExpiryDate || 'No issues reported'],

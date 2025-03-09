@@ -11,12 +11,13 @@ import {
   Modal,
   SafeAreaView,
   Platform,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import Colors from '../../Helper/Colors';
 import {useDispatch, useSelector} from 'react-redux';
 import {getUserRequest} from '../../redux/slices/carListingsSlice';
 import {hp, wp} from '../../Helper/Responsive';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import {useFocusEffect, useIsFocused, useNavigation} from '@react-navigation/native';
 import Banner from '../../Components/Banner';
 import {Fonts} from '../../Helper/Fonts';
 import {toggleFavoriteRequest} from '../../redux/slices/favouriteSlice';
@@ -26,6 +27,7 @@ import Toast from 'react-native-simple-toast';
 import {getDistance} from 'geolib'; // Import geolib for distance calculation
 import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
 import {updateViewCountRequest} from '../../redux/slices/viewCount';
+import {axiosHeader} from '../../Services/apiHeader';
 
 // Local images
 const localImages = {
@@ -36,6 +38,7 @@ const localImages = {
 const Listings = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
+    const isFocused = useIsFocused();
   const token = useSelector((state: any) => state.auth?.token);
   const {loading, error, data} = useSelector((state: any) => state.carListings);
   const {favoriteItems} = useSelector((state: any) => state?.favourite);
@@ -47,7 +50,8 @@ const Listings = () => {
     latitude: null,
     longitude: null,
   });
-
+  const [adress, setAddress] = useState('');
+  const [location, setLocation] = useState('');
   const locationOptions = [
     '5 miles',
     '10 miles',
@@ -56,15 +60,11 @@ const Listings = () => {
     '50 miles',
   ];
 
-  useFocusEffect(
-    useCallback(() => {
-      const fetchData = async () => {
-        await dispatch(getUserRequest(token));
-      };
-      fetchData();
-    }, [token]),
-  );
-
+  useEffect(() => {
+    if (isFocused) {
+      dispatch(getUserRequest(token));
+    }
+  }, [isFocused]);
   useEffect(() => {
     getLocation();
   }, []);
@@ -85,43 +85,47 @@ const Listings = () => {
     }
   };
   // const getLocation = () => {
-  // Geolocation.getCurrentPosition(
-  //   position => {
-  //     const {latitude, longitude} = position.coords;
-  //     setCurrentLocation({latitude, longitude});
+  //   Geolocation.getCurrentPosition(
+  //     position => {
+  //       const {latitude, longitude} = position.coords;
+  //       setCurrentLocation({latitude, longitude});
 
-  //     fetch(
-  //       `https://maps.googleapis.com/maps/api/geocode/json?latlng=${position?.coords.latitude},${position?.coords.longitude}&key=${API_KEY}`,
-  //       {
-  //         method: 'get',
-  //         headers: {
-  //           Accept: 'application/json',
+  //       fetch(
+  //         `https://maps.googleapis.com/maps/api/geocode/json?latlng=${
+  //           position?.coords.latitude
+  //         },${
+  //           position?.coords.longitude
+  //         }&key=${'AIzaSyC9PCVumxPB8jcTCo15qDfq2aRLto7Eivs'}`,
+  //         {
+  //           method: 'get',
+  //           headers: {
+  //             Accept: 'application/json',
+  //           },
   //         },
-  //       },
-  //     )
-  //       .then(res => res.json())
-  //       .then(res => {
-  //         const {formatted_address} = res?.results[0];
-  //         const {lat, lng} = res?.results[0]?.geometry?.location;
-  // setAddress({
-  //   streetName: formatted_address,
-  //   latitude: lat,
-  //   longitude: lng,
-  // });
-  // setLocaiton({
-  //   evevtLocation: formatted_address,
-  //   eventLat: lat,
-  //   eventLng: lng,
-  // });
-  // animateToRegion({
-  //   latitude: lat,
-  //   longitude: lng,
-  //   latitudeDelta: 0.02305,
-  //   longitudeDelta: 0.010525,
-  // });
-  // Toast.show(ToastMessages.locationFetch, Toast.SHORT, {
-  //   backgroundColor: Colors.green,
-  // });
+  //       )
+  //         .then(res => res.json())
+  //         .then(res => {
+  //           const {formatted_address} = res?.results[0];
+  //           const {lat, lng} = res?.results[0]?.geometry?.location;
+  //           setAddress({
+  //             streetName: formatted_address,
+  //             latitude: lat,
+  //             longitude: lng,
+  //           });
+  //           setLocation({
+  //             evevtLocation: formatted_address,
+  //             eventLat: lat,
+  //             eventLng: lng,
+  //           });
+  //           // animateToRegion({
+  //           //   latitude: lat,
+  //           //   longitude: lng,
+  //           //   latitudeDelta: 0.02305,
+  //           //   longitudeDelta: 0.010525,
+  //           // });
+  //           // Toast.show(ToastMessages.locationFetch, Toast.SHORT, {
+  //           //   backgroundColor: Colors.green,
+  //           // });
   //         })
   //         .catch(error => {
   //           console.log(error);
@@ -227,8 +231,8 @@ const Listings = () => {
     }
   };
   const handleCarDetailsNavigation = car => {
-    dispatch(updateViewCountRequest({carId: car._id, token})); // Dispatch the update view count action
-    navigation.navigate('CarDeatils', {car}); // Navigate to the car details page
+    dispatch(updateViewCountRequest({carId: car._id, token})); 
+    navigation.navigate('CarDeatils', {car}); 
   };
   const renderItem = ({item, index}) => {
     const isFavorite = favoriteItems?.includes(item._id);
@@ -258,7 +262,7 @@ const Listings = () => {
       <TouchableOpacity
         onPress={() => handleCarDetailsNavigation(item)}
         style={styles.listingCard}>
-        <TouchableOpacity
+        <TouchableWithoutFeedback
           style={styles.heartIconContainer}
           onPress={() => handleToggleFavorite(item, isFavorite)}>
           <Image
@@ -269,7 +273,7 @@ const Listings = () => {
             }
             style={styles.heartIcon}
           />
-        </TouchableOpacity>
+        </TouchableWithoutFeedback>
 
         <Image
           source={getLocalImage(index)}
@@ -287,11 +291,10 @@ const Listings = () => {
           {[
             ['Registration:', item.registrationNumber],
             ['Year:', item.yearOfManufacture],
-            ['PostCode:', item.postcode],
+            ['Postcode:', item.postcode],
             ['Colors:', item.color],
             ['Model:', item.model],
             ['Fuel Type:', item.fuelType],
-            ['Problem:', item.problem],
           ].map(([label, value], index) => (
             <View key={index} style={styles.infoRow}>
               <Text style={styles.label}>{label}</Text>
@@ -352,6 +355,76 @@ const Listings = () => {
       <View style={styles.locationContainer}>
         <GooglePlacesAutocomplete
           placeholder="Search by postcode or location..."
+          minLength={2} // Minimum length of text to trigger search
+          returnKeyType={'search'}
+          fetchDetails={true}
+          onPress={(data, details = null) => {
+            console.log('Selected Place:', data);
+            console.log('Place Details:', details);
+            // You can set the selected location or perform other actions here
+          }}
+          textInputProps={{
+            placeholderTextColor: Colors.textGray,
+            style: styles.textInput,
+          }}
+          styles={{
+            container: {
+              flex: 1,
+            },
+            textInputContainer: {
+              flexDirection: 'row',
+              alignItems: 'center',
+              backgroundColor: Colors.white,
+              borderRadius: wp(10),
+              borderWidth: wp(0.5),
+              borderColor: Colors.lightGray,
+              paddingHorizontal: wp(3),
+            },
+            textInput: {
+              flex: 1,
+              height: hp(6),
+              fontSize: 14,
+              color: Colors.black,
+              paddingVertical: 0,
+            },
+            listView: {
+              backgroundColor: Colors.white,
+              marginHorizontal: wp(5),
+              borderWidth: wp(0.3),
+              height: '50%',
+              borderColor: Colors.black,
+              elevation: 3, // Add elevation for Android
+              zIndex: 1000, // Ensure it appears above other elements
+              maxHeight: hp(30),
+            },
+            row: {
+              backgroundColor: Colors.white,
+              height: hp(6),
+              flexDirection: 'row',
+              alignItems: 'center',
+              paddingHorizontal: wp(3),
+            },
+            separator: {
+              height: hp(0.1),
+              backgroundColor: Colors.darkGray,
+            },
+            description: {
+              color: Colors.black,
+              fontSize: 14,
+            },
+            poweredContainer: {
+              display: 'none', // Hide the "Powered by Google" logo
+            },
+          }}
+          query={{
+            key: 'AIzaSyC9PCVumxPB8jcTCo15qDfq2aRLto7Eivs', // Replace with your actual API key
+            language: 'en',
+            radius: '1000',
+          }}
+          debounce={200} // Add debounce to avoid too many requests
+        />
+        {/* <GooglePlacesAutocomplete
+          placeholder="Search by postcode or location..."
           minLength={2}
           returnKeyType={'search'}
           fetchDetails={true}
@@ -410,7 +483,7 @@ const Listings = () => {
             language: 'en',
             radius: '1000',
           }}
-        />
+        /> */}
         <TouchableOpacity onPress={() => setIsLocationModalVisible(true)}>
           <Image
             source={require('../../assets/location.png')}
@@ -716,7 +789,7 @@ const styles = StyleSheet.create({
   },
   carImage: {
     position: 'absolute',
-    top: -100,
+  top: -90,
     right: -5,
     width: '60%',
     height: '60%',

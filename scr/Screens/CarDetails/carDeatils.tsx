@@ -9,6 +9,7 @@ import {
   Linking,
   SafeAreaView,
   Platform,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import {hp, wp} from '../../Helper/Responsive';
 import Colors from '../../Helper/Colors';
@@ -20,14 +21,20 @@ const defaultCarImage = require('../../assets/car2.png');
 
 const Details = ({route, navigation}: {route: any; navigation: any}) => {
   const {car} = route.params;
-
   const handleCall = (phoneNumber: any) =>
     Linking.openURL(`tel:${phoneNumber}`);
   const handleTextMessage = (phoneNumber: any) =>
     Linking.openURL(`sms:${phoneNumber}`);
   const handleWhatsApp = (phoneNumber: any) =>
     Linking.openURL(`https://wa.me/${phoneNumber}`);
-
+  const formatDate = dateString => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+    });
+  };
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
       <SafeAreaView
@@ -56,14 +63,10 @@ const Details = ({route, navigation}: {route: any; navigation: any}) => {
           {[
             ['Registration:', car.registrationNumber],
             ['Year:', car.yearOfManufacture],
-            ['PostCode:', car.postcode],
+            ['Postcode:', car.postcode],
             ['Colors:', car.color],
             ['Model:', car.model],
             ['Fuel Type:', car.fuelType],
-            ['Problem:', car.problem],
-            // ['Phone:', car.phoneNumber ? `+${car.phoneNumber}` : 'N/A'],
-            // ['MOT Status:', car.motStatus],
-            // ['MOT Expiry:', car.motExpiryDate || 'No issues reported'],
           ].map(([label, value], index) => (
             <View key={index} style={styles.infoRow}>
               <Text style={styles.label}>{label}</Text>
@@ -72,6 +75,29 @@ const Details = ({route, navigation}: {route: any; navigation: any}) => {
               </Text>
             </View>
           ))}
+          <View style={styles.motContainer}>
+            <Image
+              source={require('../../assets/Union.png')}
+              style={styles.motImage}
+            />
+            <View style={styles.textContainer}>
+              <View style={styles.rowText}>
+                <Text style={styles.title}>MOT Status: {car?.motStatus}</Text>
+                <TouchableOpacity
+                  style={styles.motHistoryButton}
+                  onPress={() =>
+                    Linking.openURL(
+                      `https://www.check-mot.service.gov.uk/results?registration=${car?.registrationNumber}`,
+                    )
+                  }>
+                  <Text style={styles.motHistoryText}>MOT history</Text>
+                </TouchableOpacity>
+              </View>
+              <Text style={styles.expiry}>
+                Expiry: {formatDate(car?.date_added)}
+              </Text>
+            </View>
+          </View>
           <Banner navigation={navigation} />
         </View>
 
@@ -110,7 +136,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: wp(5),
-    margin:Platform.OS==='ios'? 20:5,
+    margin: Platform.OS === 'ios' ? 20 : 5,
     backgroundColor: Colors.gray,
   },
   detailsContainer: {
@@ -166,6 +192,51 @@ const styles = StyleSheet.create({
     color: Colors.darkGray,
     width: '65%',
   },
+  motContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'center',
+    backgroundColor: '#f5f5f5',
+    paddingVertical: hp(1.5),
+    paddingHorizontal: wp(4),
+    borderRadius: wp(3),
+    marginBottom: hp(2),
+    width: wp(80),
+  },
+  motImage: {
+    width: wp(6),
+    height: wp(6),
+    tintColor: '#3A5179',
+    resizeMode: 'contain',
+  },
+  textContainer: {
+    flex: 1,
+    marginLeft: wp(2),
+  },
+  rowText: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  title: {
+    fontSize: wp(3.5),
+    fontFamily: Fonts.semiBold,
+    color: '#3b4d6c',
+    flex: 1,
+  },
+  viewText: {
+    fontFamily: Fonts.semiBold,
+    fontSize: wp(3.2),
+    color: '#3b4d6c',
+    marginLeft: wp(2),
+  },
+  expiry: {
+    fontSize: wp(3),
+    fontFamily: Fonts.regular,
+    color: '#3b4d6c',
+  },
+
   contactContainer: {
     backgroundColor: Colors.white,
     padding: wp(5),
@@ -199,6 +270,18 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.regular,
     color: Colors.black,
     textAlign: 'center',
+  },
+  motHistoryButton: {
+    backgroundColor: Colors.primary,
+    paddingHorizontal: wp(3),
+    paddingVertical: wp(1),
+    borderRadius: wp(5),
+    marginLeft: wp(2),
+  },
+  motHistoryText: {
+    color: Colors.white,
+    fontSize: wp(3),
+    fontFamily: Fonts.semiBold,
   },
 });
 

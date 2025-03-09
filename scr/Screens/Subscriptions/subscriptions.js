@@ -1,63 +1,132 @@
-import React from 'react';
+import * as React from 'react';
 import {
+  View,
   Text,
   TouchableOpacity,
   StyleSheet,
   Dimensions,
   SafeAreaView,
   Platform,
+  useWindowDimensions,
 } from 'react-native';
+import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import Colors from '../../Helper/Colors';
 import Header from '../../Components/Header';
-import {useNavigation} from '@react-navigation/native';
-import {Fonts} from '../../Helper/Fonts';
+import { useNavigation } from '@react-navigation/native';
+import { Fonts } from '../../Helper/Fonts';
 
-const {width: wp, height: hp} = Dimensions.get('window');
+const { width: wp, height: hp } = Dimensions.get('window');
+
+// Define the SalvageRoute component
+const SalvageRoute = () => (
+  <View style={styles.tabContent}>
+    <TouchableOpacity style={styles.optionSelected}>
+      <Text style={styles.optionText}>4.99$ / month</Text>
+    </TouchableOpacity>
+
+    <TouchableOpacity
+      style={[
+        styles.optionSelected,
+        { marginTop: wp * 0.07, borderColor: Colors.black, borderWidth: 0.5 },
+      ]}>
+      <Text style={[styles.optionText, { color: Colors.black }]}>
+        23.99$ / 6 months
+      </Text>
+    </TouchableOpacity>
+
+    <TouchableOpacity
+      style={[
+        styles.optionSelected,
+        { marginTop: wp * 0.07, borderColor: Colors.black, borderWidth: 0.5 },
+      ]}>
+      <Text style={[styles.optionText, { color: Colors.black }]}>
+        29.88$ / Year
+      </Text>
+    </TouchableOpacity>
+
+    <TouchableOpacity style={styles.continueButton}>
+      <Text style={styles.continueText}>Continue</Text>
+    </TouchableOpacity>
+  </View>
+);
+
+// Define the ScrapRoute component
+const ScrapRoute = () => (
+  <View style={styles.tabContent}>
+    <TouchableOpacity style={styles.optionSelected}>
+      <Text style={styles.optionText}>4.99$ / month</Text>
+    </TouchableOpacity>
+
+    <TouchableOpacity
+      style={[
+        styles.optionSelected,
+        { marginTop: wp * 0.07, borderColor: Colors.black, borderWidth: 0.5 },
+      ]}>
+      <Text style={[styles.optionText, { color: Colors.black }]}>
+        23.99$ / 6 months
+      </Text>
+    </TouchableOpacity>
+
+    <TouchableOpacity
+      style={[
+        styles.optionSelected,
+        { marginTop: wp * 0.07, borderColor: Colors.black, borderWidth: 0.5 },
+      ]}>
+      <Text style={[styles.optionText, { color: Colors.black }]}>
+        29.88$ / Year
+      </Text>
+    </TouchableOpacity>
+
+    <TouchableOpacity style={styles.continueButton}>
+      <Text style={styles.continueText}>Continue</Text>
+    </TouchableOpacity>
+  </View>
+);
+
+// Map the scenes for the TabView
+const renderScene = SceneMap({
+  salvage: SalvageRoute,
+  scrap: ScrapRoute,
+});
 
 const SubscriptionScreen = () => {
   const navigation = useNavigation();
+  const layout = useWindowDimensions();
+  const [index, setIndex] = React.useState(0);
+
+  const routes = [
+    { key: 'salvage', title: 'Salvage' },
+    { key: 'scrap', title: 'Scrap' },
+  ];
 
   return (
     <SafeAreaView
       style={[
         styles.container,
-        {paddingTop: Platform.OS === 'ios' ? '2%' : 0},
+        { paddingTop: Platform.OS === 'ios' ? '2%' : 0 },
       ]}>
       <Header navigation={navigation} />
 
-      <Text style={styles.subHeader}>Upgrade to Pro</Text>
-      <Text style={styles.description}>
-        Quickly analyze images, accurately classify visual elements, and easily
-        train models, Anytime, Anywhere
-      </Text>
-
-      <TouchableOpacity style={styles.optionSelected}>
-        <Text style={styles.optionText}>4.99$ / month</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={[
-          styles.optionSelected,
-          {marginTop: wp * 0.07, borderColor: Colors.black, borderWidth: 0.5},
-        ]}>
-        <Text style={[styles.optionText, {color: Colors.black}]}>
-          23.99$ / 6 months
-        </Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={[
-          styles.optionSelected,
-          {marginTop: wp * 0.07, borderColor: Colors.black, borderWidth: 0.5},
-        ]}>
-        <Text style={[styles.optionText, {color: Colors.black}]}>
-          29.88$ / Year
-        </Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.continueButton}>
-        <Text style={styles.continueText}>Continue</Text>
-      </TouchableOpacity>
+      {/* Add the TabView component */}
+      <TabView
+        navigationState={{ index, routes }}
+        renderScene={renderScene}
+        onIndexChange={setIndex}
+        initialLayout={{ width: layout.width }}
+        style={styles.tabView}
+      
+        renderTabBar={(props) => (
+          <TabBar
+            {...props}
+            indicatorStyle={styles.tabIndicator}
+            style={styles.tabBar}
+            labelStyle={styles.tabLabel}
+            activeColor={Colors.primary}
+            inactiveColor={Colors.textGray}
+            pressColor={Colors.primary} 
+          />
+        )}
+      />
     </SafeAreaView>
   );
 };
@@ -67,24 +136,34 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.gray,
     paddingHorizontal: wp * 0.05,
-    margin:Platform.OS==='ios'? 20:5,
+    margin: Platform.OS === 'ios' ? 20 : 5,
   },
-
-  subHeader: {
-    fontSize: wp * 0.05,
-    fontFamily: Fonts.semiBold,
-    textAlign: 'center',
-    color: Colors.primary,
+  tabContent: {
+    flex: 1,
+    paddingHorizontal: wp * 0.05,
+    paddingTop: hp * 0.02,
+  },
+  tabView: {
+    flex: 1,
     marginTop: hp * 0.02,
   },
-  description: {
-    fontSize: wp * 0.04,
-    fontFamily: Fonts.regular,
-    color: Colors.dummyText,
-    textAlign: 'center',
-    marginVertical: hp * 0.02,
+  tabBar: {
+    backgroundColor: Colors.white, // Default tab bar background color
+    elevation: 0,
+    shadowOpacity: 0,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.lightGray,
   },
-
+  tabIndicator: {
+    backgroundColor: Colors.primary, // Indicator color
+    height: 3,
+  },
+  tabLabel: {
+    fontSize: wp * 0.04,
+    fontFamily: Fonts.semiBold,
+    textTransform: 'capitalize',
+  },
+  
   optionSelected: {
     width: '100%',
     padding: hp * 0.02,
@@ -93,48 +172,12 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     borderColor: Colors.primary,
     alignItems: 'center',
-    marginTop: hp * 0.015,
+    marginTop: hp * 0.03,
   },
   optionText: {
     fontSize: wp * 0.04,
     fontFamily: Fonts.semiBold,
     color: Colors.primary,
-  },
-  optionSubText: {
-    fontSize: wp * 0.035,
-    marginTop: wp * 0.06,
-    fontFamily: Fonts.regular,
-    textAlign: 'center',
-    color: Colors.textGray,
-  },
-  trialText: {
-    fontSize: wp * 0.04,
-    marginTop: hp * 0.03,
-    textAlign: 'center',
-    color: Colors.black,
-  },
-  trialSubText: {
-    textAlign: 'center',
-    fontSize: wp * 0.035,
-    color: Colors.footerGray,
-  },
-  boldText: {
-    fontFamily: Fonts.bold,
-  },
-  switchContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-    alignItems: 'center',
-    backgroundColor: Colors.white,
-    padding: hp * 0.02,
-    borderRadius: 10,
-    marginVertical: hp * 0.02,
-  },
-  switchLabel: {
-    fontSize: wp * 0.04,
-    fontFamily: Fonts.regular,
-    color: Colors.black,
   },
   continueButton: {
     width: '100%',

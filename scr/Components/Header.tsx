@@ -1,5 +1,5 @@
 
-import {View, StyleSheet, TouchableOpacity, Image} from 'react-native';
+import {View, StyleSheet, Image, TouchableWithoutFeedback} from 'react-native';
 import React from 'react';
 import Colors from '../Helper/Colors';
 import {hp, wp} from '../Helper/Responsive';
@@ -11,7 +11,7 @@ export default function Header({navigation}:
     <View style={styles.headerContainer}>
       {/* Left Side: Back Button */}
       <View style={styles.leftSection}>
-        <TouchableOpacity
+        <TouchableWithoutFeedback
           style={styles.backButton}
           onPress={() => navigation.goBack()}>
           <Image
@@ -19,7 +19,7 @@ export default function Header({navigation}:
             style={styles.iconBack}
             tintColor={Colors?.backIconColor}
           />
-        </TouchableOpacity>
+        </TouchableWithoutFeedback>
       </View>
 
       <View style={styles.rightSection} />
