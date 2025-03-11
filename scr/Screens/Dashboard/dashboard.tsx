@@ -36,7 +36,7 @@ const Dashboard = ({navigation}: {navigation: any}) => {
 
         <TouchableOpacity style={styles.card}>
           <Image
-            source={require('../../assets/messenger.png')}
+            source={require('../../assets/comment.png')}
             style={[styles.icon, {height: hp('3.0%')}]}
           />
 

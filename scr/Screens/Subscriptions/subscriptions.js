@@ -8,82 +8,67 @@ import {
   SafeAreaView,
   Platform,
   useWindowDimensions,
+  Image,
 } from 'react-native';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import Colors from '../../Helper/Colors';
-import Header from '../../Components/Header';
 import { useNavigation } from '@react-navigation/native';
 import { Fonts } from '../../Helper/Fonts';
+import SubcriptionsHeader from '../../Components/HomeHeader';
 
 const { width: wp, height: hp } = Dimensions.get('window');
 
-// Define the SalvageRoute component
+// SalvageRoute Component
 const SalvageRoute = () => (
   <View style={styles.tabContent}>
-    <TouchableOpacity style={styles.optionSelected}>
-      <Text style={styles.optionText}>4.99$ / month</Text>
-    </TouchableOpacity>
-
-    <TouchableOpacity
-      style={[
-        styles.optionSelected,
-        { marginTop: wp * 0.07, borderColor: Colors.black, borderWidth: 0.5 },
-      ]}>
-      <Text style={[styles.optionText, { color: Colors.black }]}>
-        23.99$ / 6 months
-      </Text>
-    </TouchableOpacity>
-
-    <TouchableOpacity
-      style={[
-        styles.optionSelected,
-        { marginTop: wp * 0.07, borderColor: Colors.black, borderWidth: 0.5 },
-      ]}>
-      <Text style={[styles.optionText, { color: Colors.black }]}>
-        29.88$ / Year
-      </Text>
-    </TouchableOpacity>
-
+    <Text style={styles.subHeader}>Salvage Monthly Subscription:</Text>
+    <Text style={styles.description}>
+      Find salvaged cars at competitive prices. Connect with sellers looking to offload salvage vehicles. Expand your inventory with unique opportunities.
+    </Text>
+    <View style={styles.tabContainer}>
+      <TouchableOpacity style={styles.optionSelected}>
+        <Image
+          source={require('../../assets/loyalty.png')}
+          style={styles.optionImage}
+          resizeMode="contain"
+        />
+        <Text style={styles.optionText}>1 Month</Text>
+        <Text style={styles.sharingText}>Family sharing included</Text>
+        <Text style={styles.optionSubText}>4.99$</Text>
+      </TouchableOpacity>
+    </View>
     <TouchableOpacity style={styles.continueButton}>
       <Text style={styles.continueText}>Continue</Text>
     </TouchableOpacity>
   </View>
 );
 
-// Define the ScrapRoute component
+// ScrapRoute Component
 const ScrapRoute = () => (
   <View style={styles.tabContent}>
-    <TouchableOpacity style={styles.optionSelected}>
-      <Text style={styles.optionText}>4.99$ / month</Text>
-    </TouchableOpacity>
-
-    <TouchableOpacity
-      style={[
-        styles.optionSelected,
-        { marginTop: wp * 0.07, borderColor: Colors.black, borderWidth: 0.5 },
-      ]}>
-      <Text style={[styles.optionText, { color: Colors.black }]}>
-        23.99$ / 6 months
-      </Text>
-    </TouchableOpacity>
-
-    <TouchableOpacity
-      style={[
-        styles.optionSelected,
-        { marginTop: wp * 0.07, borderColor: Colors.black, borderWidth: 0.5 },
-      ]}>
-      <Text style={[styles.optionText, { color: Colors.black }]}>
-        29.88$ / Year
-      </Text>
-    </TouchableOpacity>
-
+    <Text style={styles.subHeader}>Scrap Monthly Subscription:</Text>
+    <Text style={styles.description}>
+      Access a curated list of potential car sellers. Get real-time updates on available vehicles. Contact sellers directly to negotiate and close deals.
+    </Text>
+    <View style={styles.tabContainer}>
+      <TouchableOpacity style={styles.optionSelected}>
+        <Image
+          source={require('../../assets/loyalty.png')}
+          style={styles.optionImage}
+          resizeMode="contain"
+        />
+        <Text style={styles.optionText}>1 Month</Text>
+        <Text style={styles.sharingText}>Family sharing included</Text>
+        <Text style={styles.optionSubText}>4.99$</Text>
+      </TouchableOpacity>
+    </View>
     <TouchableOpacity style={styles.continueButton}>
       <Text style={styles.continueText}>Continue</Text>
     </TouchableOpacity>
   </View>
 );
 
-// Map the scenes for the TabView
+// Scene Map for TabView
 const renderScene = SceneMap({
   salvage: SalvageRoute,
   scrap: ScrapRoute,
@@ -100,30 +85,22 @@ const SubscriptionScreen = () => {
   ];
 
   return (
-    <SafeAreaView
-      style={[
-        styles.container,
-        { paddingTop: Platform.OS === 'ios' ? '2%' : 0 },
-      ]}>
-      <Header navigation={navigation} />
-
-      {/* Add the TabView component */}
+    <SafeAreaView style={styles.container}>
+      <SubcriptionsHeader navigation={navigation} centerContent="Subscriptions" />
       <TabView
         navigationState={{ index, routes }}
         renderScene={renderScene}
         onIndexChange={setIndex}
         initialLayout={{ width: layout.width }}
         style={styles.tabView}
-      
-        renderTabBar={(props) => (
+        renderTabBar={props => (
           <TabBar
             {...props}
             indicatorStyle={styles.tabIndicator}
             style={styles.tabBar}
-            labelStyle={styles.tabLabel}
             activeColor={Colors.primary}
             inactiveColor={Colors.textGray}
-            pressColor={Colors.primary} 
+            pressColor={Colors.primary}
           />
         )}
       />
@@ -131,53 +108,80 @@ const SubscriptionScreen = () => {
   );
 };
 
+// Stylesheet
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.gray,
-    paddingHorizontal: wp * 0.05,
+    backgroundColor: Colors.white,
     margin: Platform.OS === 'ios' ? 20 : 5,
   },
   tabContent: {
-    flex: 1,
     paddingHorizontal: wp * 0.05,
-    paddingTop: hp * 0.02,
+    paddingTop: hp * 0.03,
+  },
+  subHeader: {
+    fontSize: wp * 0.05,
+    fontFamily: Fonts.semiBold,
+    textAlign: 'center',
+    color: Colors.black,
+    paddingBottom: wp * 0.03,
+  },
+  description: {
+    fontSize: wp * 0.04,
+    fontFamily: Fonts.regular,
+    textAlign: 'center',
+    color: Colors.footerGray,
+  },
+  tabContainer: {
+    marginTop: wp * 0.05,
+  },
+  optionSelected: {
+    width: '100%',
+    height: wp * 0.4,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: Colors.primary,
+    backgroundColor: Colors.white,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: wp * 0.05,
+  },
+  optionImage: {
+    width: '20%',
+    height: '20%',
+  },
+  optionText: {
+    marginTop: wp * 0.02,
+    fontSize: wp * 0.05,
+    fontFamily: Fonts.bold,
+    color: Colors.black,
+  },
+  sharingText: {
+    marginTop: wp * 0.01,
+    fontSize: wp * 0.03,
+    fontFamily: Fonts.regular,
+    color: Colors.footerGray,
+  },
+  optionSubText: {
+    marginTop: wp * 0.02,
+    fontSize: wp * 0.05,
+    fontFamily: Fonts.bold,
+    color: Colors.black,
   },
   tabView: {
     flex: 1,
     marginTop: hp * 0.02,
   },
   tabBar: {
-    backgroundColor: Colors.white, // Default tab bar background color
+    backgroundColor: Colors.white,
     elevation: 0,
     shadowOpacity: 0,
     borderBottomWidth: 1,
     borderBottomColor: Colors.lightGray,
   },
   tabIndicator: {
-    backgroundColor: Colors.primary, // Indicator color
+    backgroundColor: Colors.primary,
     height: 3,
-  },
-  tabLabel: {
-    fontSize: wp * 0.04,
-    fontFamily: Fonts.semiBold,
-    textTransform: 'capitalize',
-  },
-  
-  optionSelected: {
-    width: '100%',
-    padding: hp * 0.02,
-    borderRadius: 10,
-    borderWidth: 1,
-    backgroundColor: Colors.white,
-    borderColor: Colors.primary,
-    alignItems: 'center',
-    marginTop: hp * 0.03,
-  },
-  optionText: {
-    fontSize: wp * 0.04,
-    fontFamily: Fonts.semiBold,
-    color: Colors.primary,
   },
   continueButton: {
     width: '100%',

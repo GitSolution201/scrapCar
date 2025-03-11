@@ -206,7 +206,7 @@ const styles = StyleSheet.create({
   motImage: {
     width: wp(6),
     height: wp(6),
-    tintColor: '#3A5179',
+    // tintColor: '#3A5179',
     resizeMode: 'contain',
   },
   textContainer: {

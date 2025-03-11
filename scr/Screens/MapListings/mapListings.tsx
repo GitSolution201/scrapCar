@@ -16,7 +16,7 @@ import {useSelector} from 'react-redux';
 import Slider from '@react-native-community/slider';
 import {hp, wp} from '../../Helper/Responsive';
 import {Fonts} from '../../Helper/Fonts';
-import { RequestLocationPermission } from '../../Helper/Permisions';
+import {RequestLocationPermission} from '../../Helper/Permisions';
 import Geolocation from 'react-native-geolocation-service';
 import {getDistance} from 'geolib'; // Import geolib for distance calculation
 
@@ -26,9 +26,9 @@ const MapListings = () => {
   const {data} = useSelector((state: any) => state.carListings);
   const [distance, setDistance] = useState(5); // Distance in kilometers
   const [currentLocation, setCurrentLocation] = useState({
-      latitude: null,
-      longitude: null,
-    });
+    latitude: null,
+    longitude: null,
+  });
   useEffect(() => {
     getLocation();
   }, []);
@@ -119,7 +119,6 @@ const MapListings = () => {
     setDistance(value);
     updateRegion(value);
   };
- 
 
   return (
     <SafeAreaView
@@ -142,7 +141,7 @@ const MapListings = () => {
           minimumTrackTintColor="blue"
           maximumTrackTintColor="gray"
           thumbTintColor="blue"
-          onSlidingComplete={handleSliderComplete} 
+          onSlidingComplete={handleSliderComplete}
         />
       </View>
 
@@ -206,41 +205,36 @@ const MapListings = () => {
 
             {/* Features Section */}
             <View>
-              <Text style={[styles.headerTitle, styles.headerFeatureText]}>
-                View Listings
-              </Text>
               <View style={styles.footer}>
-                        <View style={{alignItems: 'center'}}>
-                          <Image
-                            source={require('../../assets/pin.png')}
-                            style={styles.icon}
-                    tintColor={Colors.primary}
-
-                          />
-                          <Text style={styles.footerText}>{distanceCalculate}</Text>
-                        </View>
-                        <View style={{alignItems: 'center'}}>
-                          <Image
-                            source={require('../../assets/timer.png')}
-                            style={styles.icon}
-                    tintColor={Colors.primary}
-
-                          />
-                          <Text style={styles.footerText}>{timeAgo}</Text>
-                        </View>
-                      </View>
+                <View style={{alignItems: 'center'}}>
+                  <Image
+                    source={require('../../assets/pin.png')}
+                    style={styles.footerIcon}
+                    resizeMode="contain"
+                  />
+                  <Text style={styles.footerText}>{distanceCalculate}</Text>
+                </View>
+                <View style={{alignItems: 'center'}}>
+                  <Image
+                    source={require('../../assets/timer.png')}
+                    style={styles.footerIcon}
+                    resizeMode="contain"
+                  />
+                  <Text style={styles.footerText}>{timeAgo}</Text>
+                </View>
+              </View>
               <View style={styles.featuresContainer}>
-              <View style={styles.featureCard}>
+                <View style={styles.featureCard}>
                   <Image
                     source={require('../../assets/license_plate.png')}
                     style={styles.registericon}
                     tintColor={'#3A58E891'}
                     resizeMode="contain"
                   />
-                <Text style={styles.featureTitle}>Reg No.</Text>
-    <Text style={styles.featureSubText}>
-      {selectedCar?.registrationNumber || 'N/A'}
-    </Text>
+                  <Text style={styles.featureTitle}>Reg No.</Text>
+                  <Text style={styles.featureSubText}>
+                    {selectedCar?.registrationNumber || 'N/A'}
+                  </Text>
                 </View>
                 <View style={styles.featureCard}>
                   <Image
@@ -265,8 +259,6 @@ const MapListings = () => {
                     {selectedCar?.engineCapacity} cc
                   </Text>
                 </View>
-                
-            
               </View>
             </View>
           </TouchableOpacity>
@@ -312,18 +304,20 @@ const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
     justifyContent: 'flex-end',
-    // backgroundColor: 'rgba(0, 0, 0, 0.13)', // Semi-transparent background
   },
   icon: {
     width: 30,
     height: 30,
-    marginVertical: hp(1),  alignSelf: 'center',
-
-    // alignSelf:'center',
-    // alignItems:'center',
-    // marginRight: 20,
+    marginVertical: hp(1),
+    alignSelf: 'center',
   },
-  registericon:{
+  footerIcon: {
+    width: wp(4),
+    height: wp(4),
+    marginTop: hp(1),
+    alignSelf: 'center',
+  },
+  registericon: {
     width: 40,
     height: 40,
     marginVertical: hp(0.5),
@@ -346,12 +340,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
   },
-  headerTitle: {
-    fontSize: 20,
-    paddingBottom: hp(2),
-    fontFamily: Fonts.bold,
-    color: '#FFF',
-  },
+
   headerTitleStyle: {
     fontSize: 20,
     paddingRight: hp(3),
@@ -359,11 +348,7 @@ const styles = StyleSheet.create({
     width: wp(50),
     color: '#FFF',
   },
-  headerFeatureText: {
-    color: Colors.primary,
-    paddingVertical: wp(2),
-    paddingHorizontal:wp(5)
-  },
+
   headerSubText: {
     fontSize: 16,
     color: '#E0E0E0',
@@ -380,18 +365,16 @@ const styles = StyleSheet.create({
   // Features Section
   featuresContainer: {
     flexDirection: 'row',
-  justifyContent: 'space-between', // 
-    margin: 10,
+    justifyContent: 'space-between',
+    margin: hp(2),
     borderColor: 'grey',
     borderWidth: 0.5,
     borderRadius: 10,
   },
   featureCard: {
-    // padding: 10,
     alignItems: 'center',
-    paddingVertical:wp(2),
-    paddingHorizontal:wp(4),
-    // width: '38%',
+    paddingVertical: wp(4),
+    paddingHorizontal: wp(4),
     ...(Platform.OS === 'android'
       ? {elevation: 0}
       : {
@@ -414,7 +397,7 @@ const styles = StyleSheet.create({
   footer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    // marginTop: hp(1),
+    marginTop: hp(3),
   },
   footerText: {
     marginTop: wp(2),

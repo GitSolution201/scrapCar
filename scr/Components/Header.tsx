@@ -1,25 +1,28 @@
-
-import {View, StyleSheet, Image, TouchableWithoutFeedback} from 'react-native';
+import {
+  View,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+} from 'react-native';
 import React from 'react';
 import Colors from '../Helper/Colors';
 import {hp, wp} from '../Helper/Responsive';
 
-export default function Header({navigation}:
-    {navigation:any}
-) {
+export default function Header({navigation}: {navigation: any}) {
   return (
     <View style={styles.headerContainer}>
       {/* Left Side: Back Button */}
       <View style={styles.leftSection}>
-        <TouchableWithoutFeedback
+        <TouchableOpacity
           style={styles.backButton}
-          onPress={() => navigation.goBack()}>
+          onPress={() => navigation.goBack()}
+          activeOpacity={0.4}>
           <Image
             source={require('../assets/left-arrow.png')}
             style={styles.iconBack}
             tintColor={Colors?.backIconColor}
           />
-        </TouchableWithoutFeedback>
+        </TouchableOpacity>
       </View>
 
       <View style={styles.rightSection} />
@@ -37,14 +40,14 @@ const styles = StyleSheet.create({
   leftSection: {
     flexDirection: 'row',
     alignItems: 'center',
-    width: wp(30), 
+    marginLeft: wp(2),
   },
   backButton: {
     marginRight: wp(1),
   },
   iconBack: {
-    width: wp(4), 
-    height: wp(4), 
+    width: wp(5),
+    height: wp(5),
     resizeMode: 'contain',
   },
   titleText: {

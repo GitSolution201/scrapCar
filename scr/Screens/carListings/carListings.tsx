@@ -217,7 +217,11 @@ const Listings = () => {
   });
 
   const noDataFound = filteredData?.length === 0;
-
+  const sortedData = filteredData?.sort((a, b) => {
+    const dateA = new Date(a.date_added);
+    const dateB = new Date(b.date_added);
+    return dateB - dateA; 
+  });
   const getLocalImage = (index: any) => {
     const imageKeys = Object.keys(localImages);
     return localImages[imageKeys[index % imageKeys.length]];
@@ -257,7 +261,7 @@ const Listings = () => {
       item.latitude,
       item.longitude,
     );
-
+ 
     return (
       <TouchableOpacity
         onPress={() => handleCarDetailsNavigation(item)}
@@ -577,7 +581,7 @@ const Listings = () => {
         </View>
       ) : (
         <FlatList
-          data={filteredData}
+          data={sortedData}
           renderItem={renderItem}
           showsVerticalScrollIndicator={false}
           keyExtractor={item => item._id}
