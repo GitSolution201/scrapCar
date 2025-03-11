@@ -40,7 +40,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingTop: hp(3.5),
-    paddingHorizontal: wp(4),
   },
   leftSection: {
     flexDirection: 'row',

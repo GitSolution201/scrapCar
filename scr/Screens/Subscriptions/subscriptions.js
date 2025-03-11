@@ -10,20 +10,26 @@ import {
   useWindowDimensions,
   Image,
 } from 'react-native';
-import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
+import {TabView, SceneMap, TabBar} from 'react-native-tab-view';
 import Colors from '../../Helper/Colors';
-import { useNavigation } from '@react-navigation/native';
-import { Fonts } from '../../Helper/Fonts';
+import {useNavigation} from '@react-navigation/native';
+import {Fonts} from '../../Helper/Fonts';
 import SubcriptionsHeader from '../../Components/HomeHeader';
 
-const { width: wp, height: hp } = Dimensions.get('window');
+const {width: wp, height: hp} = Dimensions.get('window');
 
 // SalvageRoute Component
 const SalvageRoute = () => (
   <View style={styles.tabContent}>
     <Text style={styles.subHeader}>Salvage Monthly Subscription:</Text>
     <Text style={styles.description}>
-      Find salvaged cars at competitive prices. Connect with sellers looking to offload salvage vehicles. Expand your inventory with unique opportunities.
+      Find salvaged cars at competitive prices.{' '}
+    </Text>
+    <Text style={styles.description}>
+      Connect with sellers offload vehicles.
+    </Text>
+    <Text style={styles.description}>
+      Expand your inventory with unique opportunities.
     </Text>
     <View style={styles.tabContainer}>
       <TouchableOpacity style={styles.optionSelected}>
@@ -48,7 +54,12 @@ const ScrapRoute = () => (
   <View style={styles.tabContent}>
     <Text style={styles.subHeader}>Scrap Monthly Subscription:</Text>
     <Text style={styles.description}>
-      Access a curated list of potential car sellers. Get real-time updates on available vehicles. Contact sellers directly to negotiate and close deals.
+      Access a curated list of car sellers.
+    </Text>
+
+    <Text style={styles.description}> Get real-time updates on vehicles.</Text>
+    <Text style={styles.description}>
+      Contact sellers directly to negotiate and close deals.
     </Text>
     <View style={styles.tabContainer}>
       <TouchableOpacity style={styles.optionSelected}>
@@ -80,18 +91,21 @@ const SubscriptionScreen = () => {
   const [index, setIndex] = React.useState(0);
 
   const routes = [
-    { key: 'salvage', title: 'Salvage' },
-    { key: 'scrap', title: 'Scrap' },
+    {key: 'salvage', title: 'Salvage'},
+    {key: 'scrap', title: 'Scrap'},
   ];
 
   return (
     <SafeAreaView style={styles.container}>
-      <SubcriptionsHeader navigation={navigation} centerContent="Subscriptions" />
+      <SubcriptionsHeader
+        navigation={navigation}
+        centerContent="Subscriptions"
+      />
       <TabView
-        navigationState={{ index, routes }}
+        navigationState={{index, routes}}
         renderScene={renderScene}
         onIndexChange={setIndex}
-        initialLayout={{ width: layout.width }}
+        initialLayout={{width: layout.width}}
         style={styles.tabView}
         renderTabBar={props => (
           <TabBar
@@ -131,13 +145,13 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.regular,
     textAlign: 'center',
     color: Colors.footerGray,
+    marginTop: 10,
   },
   tabContainer: {
     marginTop: wp * 0.05,
   },
   optionSelected: {
     width: '100%',
-    height: wp * 0.4,
     borderRadius: 10,
     borderWidth: 1,
     borderColor: Colors.primary,
@@ -145,6 +159,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: wp * 0.05,
+    height: hp / 3,
   },
   optionImage: {
     width: '20%',

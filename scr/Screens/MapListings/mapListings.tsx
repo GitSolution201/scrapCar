@@ -77,8 +77,8 @@ const MapListings = () => {
     return `${distanceInMiles} mi`; // Return distance in miles
   };
   const distanceCalculate = calculateDistance(
-    currentLocation.latitude,
-    currentLocation.longitude,
+    currentLocation?.latitude,
+    currentLocation?.longitude,
     selectedCar?.latitude,
     selectedCar?.longitude,
   );
