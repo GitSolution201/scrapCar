@@ -139,6 +139,7 @@ const Profile = () => {
   const handleLogout = () => {
     setModalVisible(false);
     dispatch(logout());
+    Toast.show('You have been logged out successfully.', Toast.LONG);
   };
 
   if (userLoading || updateLoading) {

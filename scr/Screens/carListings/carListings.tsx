@@ -17,7 +17,11 @@ import Colors from '../../Helper/Colors';
 import {useDispatch, useSelector} from 'react-redux';
 import {getUserRequest} from '../../redux/slices/carListingsSlice';
 import {hp, wp} from '../../Helper/Responsive';
-import {useFocusEffect, useIsFocused, useNavigation} from '@react-navigation/native';
+import {
+  useFocusEffect,
+  useIsFocused,
+  useNavigation,
+} from '@react-navigation/native';
 import Banner from '../../Components/Banner';
 import {Fonts} from '../../Helper/Fonts';
 import {toggleFavoriteRequest} from '../../redux/slices/favouriteSlice';
@@ -39,7 +43,7 @@ const localImages = {
 const Listings = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
-    const isFocused = useIsFocused();
+  const isFocused = useIsFocused();
   const token = useSelector((state: any) => state.auth?.token);
   // const {loading, error, carListings} = useSelector((state: any) => state.carListings);
   const [loading, setLoading] = useState(false); // Loading state
@@ -70,7 +74,6 @@ const Listings = () => {
   //   }
   // }, [isFocused]);
 
-
   // Fetch carListings when the screen is focused
   useEffect(() => {
     if (isFocused) {
@@ -81,29 +84,67 @@ const Listings = () => {
     getLocation();
   }, []);
   const fetchCarListings = async () => {
-    setLoading(true); // Set loading to true
-    setError(null); // Reset error state
-
+    setLoading(true);
+    setError(null);
+  
     try {
-     
       if (!token) {
         throw new Error('Token not found');
       }
-
+  
+      console.log('Token:', token);
+  
       const response = await api.get('/car/get-all-listing', {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       });
-      setCarListings(response.data); // Store carListings in state
+      setCarListings(response.data);
     } catch (err) {
-      console.error('API Error:', err);
-      setError(err.message || 'Failed to fetch car listings'); // Set error message
+      if (err.response) {
+        // Server response with error status (4xx, 5xx)
+        console.log('API Error Response:', err.response.data);
+        console.log('Status Code:', err.response.status);
+        console.log('Headers:', err.response.headers);
+        setError(err.response.data?.message || 'Something went wrong!');
+      } else if (err.request) {
+        // No response from server (Network error)
+        console.log('API Request Error:', err.request);
+        setError('No response from server. Please check your internet connection.');
+      } else {
+        // Other errors
+        console.log('API Unexpected Error:', err.message);
+        setError(err.message);
+      }
     } finally {
-      setLoading(false); // Set loading to false
+      setLoading(false);
     }
   };
+  
+//   const fetchCarListings = async () => {
+//     setLoading(true); // Set loading to true
+//     setError(null); // Reset error state
+
+//     try {
+//       if (!token) {
+//         throw new Error('Token not found');
+//       }
+// console.log(token)
+//       const response = await api.get('/car/get-all-listing', {
+//         headers: {
+//           Authorization: `Bearer ${token}`,
+//           'Content-Type': 'application/json',
+//         },
+//       });
+//       setCarListings(response.data); // Store carListings in state
+//     } catch (err) {
+//       console.log('API Error:', err);
+//       setError(err.message || 'Failed to fetch car listings'); // Set error message
+//     } finally {
+//       setLoading(false); // Set loading to false
+//     }
+//   };
   const getLocation = async () => {
     const hasLocationPermission = await RequestLocationPermission();
     if (hasLocationPermission === 'granted') {
@@ -255,7 +296,7 @@ const Listings = () => {
   const sortedData = filteredData?.sort((a, b) => {
     const dateA = new Date(a.date_added);
     const dateB = new Date(b.date_added);
-    return dateB - dateA; 
+    return dateB - dateA;
   });
   const getLocalImage = (index: any) => {
     const imageKeys = Object.keys(localImages);
@@ -270,8 +311,8 @@ const Listings = () => {
     }
   };
   const handleCarDetailsNavigation = car => {
-    dispatch(updateViewCountRequest({carId: car._id, token})); 
-    navigation.navigate('CarDeatils', {car}); 
+    dispatch(updateViewCountRequest({carId: car._id, token}));
+    navigation.navigate('CarDeatils', {car});
   };
   const renderItem = ({item, index}) => {
     const isFavorite = favoriteItems?.includes(item._id);
@@ -314,7 +355,8 @@ const Listings = () => {
         </TouchableWithoutFeedback>
 
         <Image
-          source={getLocalImage(index)}
+          // source={getLocalImage(index)}
+          source={{uri:item?.displayImage}}
           style={styles.carImage}
           resizeMode="contain"
         />
@@ -522,16 +564,19 @@ const Listings = () => {
             radius: '1000',
           }}
         /> */}
-        {/* <TouchableOpacity onPress={() => setIsLocationModalVisible(true)}>
+      {/* <TouchableOpacity onPress={() => setIsLocationModalVisible(true)}>
           <Image
             source={require('../../assets/location.png')}
             style={styles.locationIcon}
           />
         </TouchableOpacity> */}
-      {/* </View> */} 
+      {/* </View> */}
       <View style={styles.locationContainer}>
-      <View style={styles.searchContainer}>
-          <Image source={require('../../assets/search.png')} style={styles.searchIcon} />
+        <View style={styles.searchContainer}>
+          <Image
+            source={require('../../assets/search.png')}
+            style={styles.searchIcon}
+          />
           <TextInput
             style={styles.searchBar}
             placeholder="Search by postcode or location..."
@@ -540,7 +585,7 @@ const Listings = () => {
             onChangeText={setSearchQuery}
           />
         </View>
-      <TouchableOpacity onPress={() => setIsLocationModalVisible(true)}>
+        <TouchableOpacity onPress={() => setIsLocationModalVisible(true)}>
           <Image
             source={require('../../assets/location.png')}
             style={styles.locationIcon}
@@ -661,7 +706,7 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: wp(4),
-    color: Colors.red,
+    color: Colors.textGray,
   },
   icon: {
     width: wp(4),
@@ -827,8 +872,8 @@ const styles = StyleSheet.create({
   },
   carImage: {
     position: 'absolute',
-  top: -90,
-    right: -5,
+    top: -90,
+    right: 0,
     width: '60%',
     height: '60%',
   },

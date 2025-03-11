@@ -3,7 +3,7 @@ import axios from 'axios';
 // Set up the base Axios instance
 const api = axios.create({
   baseURL: 'https://scrape4you.onrender.com', // Replace this with your actual API base URL
-  timeout: 3000, // Timeout in milliseconds
+  timeout: 10000, // Timeout in milliseconds
   headers: {
     'Content-Type': 'application/json',
   },
@@ -47,6 +47,7 @@ export const getUser = async token => {
         'Content-Type': 'application/json',
       },
     });
+    
     return response.data; // Return the data
   } catch (error) {
     console.log('Get User Error:', error.response?.data || error.message); // Log the error

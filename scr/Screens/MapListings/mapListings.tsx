@@ -11,17 +11,21 @@ import {
 } from 'react-native';
 import MapView, {Marker} from 'react-native-maps';
 import Colors from '../../Helper/Colors';
-import {useNavigation} from '@react-navigation/native';
-import {useSelector} from 'react-redux';
+import {useIsFocused, useNavigation} from '@react-navigation/native';
+import {useDispatch, useSelector} from 'react-redux';
 import Slider from '@react-native-community/slider';
 import {hp, wp} from '../../Helper/Responsive';
 import {Fonts} from '../../Helper/Fonts';
 import {RequestLocationPermission} from '../../Helper/Permisions';
 import Geolocation from 'react-native-geolocation-service';
 import {getDistance} from 'geolib'; // Import geolib for distance calculation
+import { getUserRequest } from '../../redux/slices/carListingsSlice';
 
 const MapListings = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation(); 
+   const dispatch = useDispatch();
+  const isFocused = useIsFocused();
+  const token = useSelector((state: any) => state.auth?.token);
   const [selectedCar, setSelectedCar] = useState(null);
   const {data} = useSelector((state: any) => state.carListings);
   const [distance, setDistance] = useState(5); // Distance in kilometers
@@ -30,8 +34,14 @@ const MapListings = () => {
     longitude: null,
   });
   useEffect(() => {
-    getLocation();
   }, []);
+ useEffect(() => {
+    if (isFocused) {
+      dispatch(getUserRequest(token));
+    getLocation();
+
+    }
+  }, [isFocused]);
 
   const getLocation = async () => {
     const hasLocationPermission = await RequestLocationPermission();
@@ -60,7 +70,6 @@ const MapListings = () => {
     if (diffInHours < 24) return `${diffInHours} hours ago`;
     return `${diffInDays} days ago`;
   };
-
   const timeAgo = getTimeAgo(selectedCar?.date_added);
   const calculateDistance = (lat1, lon1, lat2, lon2) => {
     if (!lat1 || !lon1 || !lat2 || !lon2) return 'N/A';
@@ -87,6 +96,7 @@ const MapListings = () => {
   };
 
   const handleModalContentPress = () => {
+   
     // Navigate to CarDetails when modal content is pressed
     navigation.navigate('CarDeatils', {car: selectedCar});
     setSelectedCar(null); // Close the modal

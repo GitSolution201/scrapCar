@@ -112,7 +112,8 @@ export default function CarList({
       </TouchableOpacity>
       {/* Car Image */}
       <Image
-        source={getLocalImage(itemIndex)}
+        // source={getLocalImage(itemIndex)}
+        source={{uri:item?.displayImage}}
         style={styles.carImage}
         resizeMode="contain"
       />
@@ -225,10 +226,10 @@ const styles = StyleSheet.create({
   },
   carImage: {
     position: 'absolute',
-    top: wp(-33),
-    right: -5,
-    width: '70%',
-    height: '70%',
+    top: wp(-30),
+    right: 0,
+    width: '65%',
+    height: '65%',
   },
   detailsContainer: {
     padding: wp(2.5),

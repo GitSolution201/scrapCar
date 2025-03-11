@@ -46,8 +46,8 @@ const Details = ({route, navigation}: {route: any; navigation: any}) => {
         <View style={styles.detailsContainer}>
           <Image
             source={
-              car?.carImage && car?.carImage !== 'N/A'
-                ? {uri: car?.carImage}
+              car?.displayImage && car?.displayImage !== 'N/A'
+                ? {uri: car?.displayImage}
                 : defaultCarImage
             }
             style={styles.carImage}

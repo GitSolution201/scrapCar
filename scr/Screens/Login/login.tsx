@@ -15,7 +15,7 @@ import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
-import Toast from 'react-native-simple-toast'; // Import the toast package
+import Toast from 'react-native-simple-toast';
 import {axiosHeader} from '../../Services/apiHeader';
 import {Fonts} from '../../Helper/Fonts';
 
