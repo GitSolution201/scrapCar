@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
     fontSize: wp * 0.05,
     fontFamily: Fonts.semiBold,
     textAlign: 'center',
-    color: Colors.black,
+    color: Colors.primary,
     paddingBottom: wp * 0.03,
   },
   description: {

@@ -28,6 +28,7 @@ import {getDistance} from 'geolib'; // Import geolib for distance calculation
 import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
 import {updateViewCountRequest} from '../../redux/slices/viewCount';
 import {axiosHeader} from '../../Services/apiHeader';
+import api from '../../redux/api';
 
 // Local images
 const localImages = {
@@ -40,7 +41,10 @@ const Listings = () => {
   const dispatch = useDispatch();
     const isFocused = useIsFocused();
   const token = useSelector((state: any) => state.auth?.token);
-  const {loading, error, data} = useSelector((state: any) => state.carListings);
+  // const {loading, error, carListings} = useSelector((state: any) => state.carListings);
+  const [loading, setLoading] = useState(false); // Loading state
+  const [error, setError] = useState(null); // Error state
+  const [carListings, setCarListings] = useState([]); // Data state
   const {favoriteItems} = useSelector((state: any) => state?.favourite);
   const [activeFilters, setActiveFilters] = useState(['Scrap', 'Salvage']);
   const [searchQuery, setSearchQuery] = useState('');
@@ -60,15 +64,46 @@ const Listings = () => {
     '50 miles',
   ];
 
+  // useEffect(() => {
+  //   if (isFocused) {
+  //     dispatch(getUserRequest(token));
+  //   }
+  // }, [isFocused]);
+
+
+  // Fetch carListings when the screen is focused
   useEffect(() => {
     if (isFocused) {
-      dispatch(getUserRequest(token));
+      fetchCarListings();
     }
   }, [isFocused]);
   useEffect(() => {
     getLocation();
   }, []);
+  const fetchCarListings = async () => {
+    setLoading(true); // Set loading to true
+    setError(null); // Reset error state
 
+    try {
+     
+      if (!token) {
+        throw new Error('Token not found');
+      }
+
+      const response = await api.get('/car/get-all-listing', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      setCarListings(response.data); // Store carListings in state
+    } catch (err) {
+      console.error('API Error:', err);
+      setError(err.message || 'Failed to fetch car listings'); // Set error message
+    } finally {
+      setLoading(false); // Set loading to false
+    }
+  };
   const getLocation = async () => {
     const hasLocationPermission = await RequestLocationPermission();
     if (hasLocationPermission === 'granted') {
@@ -174,7 +209,7 @@ const Listings = () => {
     return `${distanceInMiles} mi`; // Return distance in miles
   };
 
-  const filteredData = data?.filter(item => {
+  const filteredData = carListings?.filter(item => {
     // Filter by active filters
     const filterMatch =
       (activeFilters.includes('Scrap') && item.tag === 'scrap') ||
@@ -261,7 +296,6 @@ const Listings = () => {
       item.latitude,
       item.longitude,
     );
- 
     return (
       <TouchableOpacity
         onPress={() => handleCarDetailsNavigation(item)}
@@ -356,14 +390,14 @@ const Listings = () => {
   return (
     <SafeAreaView style={styles.container}>
       <Banner navigation={navigation} />
-      <View style={styles.locationContainer}>
+      {/* <View style={styles.locationContainer}>
         <GooglePlacesAutocomplete
           placeholder="Search by postcode or location..."
           minLength={2} // Minimum length of text to trigger search
           returnKeyType={'search'}
           fetchDetails={true}
-          onPress={(data, details = null) => {
-            console.log('Selected Place:', data);
+          onPress={(carListings, details = null) => {
+            console.log('Selected Place:', carListings);
             console.log('Place Details:', details);
             // You can set the selected location or perform other actions here
           }}
@@ -403,7 +437,7 @@ const Listings = () => {
             },
             row: {
               backgroundColor: Colors.white,
-              height: hp(6),
+              // height: hp(6),
               flexDirection: 'row',
               alignItems: 'center',
               paddingHorizontal: wp(3),
@@ -432,8 +466,8 @@ const Listings = () => {
           minLength={2}
           returnKeyType={'search'}
           fetchDetails={true}
-          onPress={(data, details = null) => {
-            console.log('Selected Place:', data);
+          onPress={(carListings, details = null) => {
+            console.log('Selected Place:', carListings);
             console.log('Place Details:', details);
           }}
           textInputProps={{
@@ -488,15 +522,15 @@ const Listings = () => {
             radius: '1000',
           }}
         /> */}
-        <TouchableOpacity onPress={() => setIsLocationModalVisible(true)}>
+        {/* <TouchableOpacity onPress={() => setIsLocationModalVisible(true)}>
           <Image
             source={require('../../assets/location.png')}
             style={styles.locationIcon}
           />
-        </TouchableOpacity>
-      </View>
-      {/* <View> */}
-      {/* <View style={styles.searchContainer}>
+        </TouchableOpacity> */}
+      {/* </View> */} 
+      <View style={styles.locationContainer}>
+      <View style={styles.searchContainer}>
           <Image source={require('../../assets/search.png')} style={styles.searchIcon} />
           <TextInput
             style={styles.searchBar}
@@ -505,14 +539,14 @@ const Listings = () => {
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
-        </View> */}
-      {/* <TouchableOpacity onPress={() => setIsLocationModalVisible(true)}>
+        </View>
+      <TouchableOpacity onPress={() => setIsLocationModalVisible(true)}>
           <Image
             source={require('../../assets/location.png')}
             style={styles.locationIcon}
           />
-        </TouchableOpacity> */}
-      {/* </View> */}
+        </TouchableOpacity>
+      </View>
 
       <Modal
         transparent={true}
@@ -572,11 +606,11 @@ const Listings = () => {
         ))}
       </View>
 
-      {/* Show error message if no data is found */}
+      {/* Show error message if no carListings is found */}
       {noDataFound ? (
         <View style={styles.noDataContainer}>
           <Text style={styles.noDataText}>
-            No data found for the selected filters.
+            No carListings found for the selected filters.
           </Text>
         </View>
       ) : (
