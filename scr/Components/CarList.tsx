@@ -9,7 +9,7 @@ import {toggleFavoriteRequest} from '../redux/slices/favouriteSlice';
 import {RequestLocationPermission} from '../Helper/Permisions';
 import Geolocation from 'react-native-geolocation-service';
 import Toast from 'react-native-simple-toast';
-import { getFavListingsRequest } from '../redux/slices/favouriteListingSlice';
+import {getFavListingsRequest} from '../redux/slices/favouriteListingSlice';
 
 const localImages = {
   car1: require('../assets/car.png'),
@@ -18,10 +18,12 @@ const localImages = {
 
 export default function CarList({
   item,
-  itemIndex,onPress
+  itemIndex,
+  onPress,
 }: {
   item: any;
-  itemIndex: any;onPress
+  itemIndex: any;
+  onPress;
 }) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
@@ -51,7 +53,7 @@ export default function CarList({
     }
   };
 
-   const getLocalImage = (index: any) => {
+  const getLocalImage = (index: any) => {
     const imageKeys = Object.keys(localImages);
     return localImages[imageKeys[index % imageKeys.length]];
   };
@@ -98,9 +100,7 @@ export default function CarList({
       onPress={() => navigation.navigate('CarDeatils', {car: item})}
       style={styles.listingCard}>
       {/* Heart Icon (Top-right corner) */}
-      <TouchableOpacity
-        style={styles.heartIconContainer}
-        onPress={onPress}>
+      <TouchableOpacity style={styles.heartIconContainer} onPress={onPress}>
         <Image
           source={
             isFavorite
@@ -108,12 +108,13 @@ export default function CarList({
               : require('../assets/simpleHeart.png')
           }
           style={styles.heartIcon}
+          tintColor={Colors?.black}
         />
       </TouchableOpacity>
       {/* Car Image */}
       <Image
         // source={getLocalImage(itemIndex)}
-        source={{uri:item?.displayImage}}
+        source={{uri: item?.displayImage}}
         style={styles.carImage}
         resizeMode="contain"
       />
@@ -165,9 +166,7 @@ export default function CarList({
               source={require('../assets/timer.png')}
               style={styles.icon}
             />
-            <Text style={styles.footerText}>
-             {timeAgo}
-            </Text>
+            <Text style={styles.footerText}>{timeAgo}</Text>
           </View>
           <View style={{alignItems: 'center'}}>
             <Image source={require('../assets/eye.png')} style={styles.icon} />
