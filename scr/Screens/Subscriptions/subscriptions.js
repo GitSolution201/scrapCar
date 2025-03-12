@@ -10,6 +10,7 @@ import {
   useWindowDimensions,
   Image,
   Modal,
+  Button,
   KeyboardAvoidingView,
   ScrollView,
 } from 'react-native';
@@ -18,51 +19,125 @@ import Colors from '../../Helper/Colors';
 import {useNavigation} from '@react-navigation/native';
 import {Fonts} from '../../Helper/Fonts';
 import SubcriptionsHeader from '../../Components/HomeHeader';
-import {StripeProvider, CardField, useStripe} from '@stripe/stripe-react-native';
+import {
+  StripeProvider,
+  CardField,
+  useStripe,
+} from '@stripe/stripe-react-native';
 
 const {width: wp, height: hp} = Dimensions.get('window');
 
 // SalvageRoute Component
 const SalvageRoute = () => {
   const {confirmPayment} = useStripe();
+  const {initPaymentSheet, presentPaymentSheet} = useStripe();
   const [cardDetails, setCardDetails] = React.useState(null);
   const [showBottomSheet, setShowBottomSheet] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
 
-  const handlePayment = async () => {
-    if (!cardDetails?.complete) {
-      alert('Please enter complete card details');
-      return;
-    }
+  React.useEffect(() => {
+    initializePaymentSheet();
+  }, []);
 
-    try {
-      // Step 1: Create Payment Intent on Backend
-      const response = await fetch('https://your-backend-url.com/create-payment-intent', {
+  // const handlePayment = async () => {
+  //   if (!cardDetails?.complete) {
+  //     alert('Please enter complete card details');
+  //     return;
+  //   }
+
+  //   try {
+  //     // Step 1: Create Payment Intent on Backend
+  //     const response = await fetch(
+  //       'https://your-backend-url.com/create-payment-intent',
+  //       {
+  //         method: 'POST',
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //         },
+  //         body: JSON.stringify({
+  //           amount: 499, // Amount in cents (4.99$)
+  //           currency: 'usd',
+  //         }),
+  //       },
+  //     );
+
+  //     const {clientSecret} = await response.json();
+
+  //     // Step 2: Confirm Payment on Frontend
+  //     const {error, paymentIntent} = await confirmPayment(clientSecret, {
+  //       paymentMethodType: 'Card',
+  //     });
+
+  //     if (error) {
+  //       alert(`Payment failed: ${error.message}`);
+  //     } else if (paymentIntent) {
+  //       alert('Payment Successful!');
+  //       setShowBottomSheet(false); // Close bottom sheet after successful payment
+  //     }
+  //   } catch (error) {
+  //     console.log('Error during payment:', error);
+  //     alert('Payment Failed! Try Again');
+  //   }
+  // };
+  const fetchPaymentSheetParams = async () => {
+    const response = await fetch(
+      `https://scrape4you.onrender.com/stripe/payment/sheet`,
+      {
         method: 'POST',
+        body: JSON.stringify({
+          email: 'tayabjamil777@gmail.com',
+        }),
+
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          amount: 499, // Amount in cents (4.99$)
-          currency: 'usd',
-        }),
-      });
+      },
+    );
+    const {paymentIntent, ephemeralKey, customer} = await response.json();
+    console.log('payment------', paymentIntent, ephemeralKey, customer);
 
-      const {clientSecret} = await response.json();
+    return {
+      paymentIntent,
+      ephemeralKey,
+      customer,
+    };
+  };
+  const initializePaymentSheet = async () => {
+    const {paymentIntent, ephemeralKey, customer} =
+      await fetchPaymentSheetParams();
+    console.log('payment------2', customer);
 
-      // Step 2: Confirm Payment on Frontend
-      const {error, paymentIntent} = await confirmPayment(clientSecret, {
-        paymentMethodType: 'Card',
-      });
+    const {error} = await initPaymentSheet({
+      merchantDisplayName: 'Example, Inc.',
+      customerId: customer,
+      customerEphemeralKeySecret: ephemeralKey,
+      paymentIntentClientSecret: paymentIntent,
+      // Set `allowsDelayedPaymentMethods` to true if your business can handle payment
+      //methods that complete payment after a delay, like SEPA Debit and Sofort.
+      allowsDelayedPaymentMethods: true,
+      returnURL: 'your-app://stripe-redirect',
+      defaultBillingDetails: {
+        name: 'Jane Doe',
+      },
+    });
 
-      if (error) {
-        alert(`Payment failed: ${error.message}`);
-      } else if (paymentIntent) {
-        alert('Payment Successful!');
-        setShowBottomSheet(false); // Close bottom sheet after successful payment
-      }
-    } catch (error) {
-      console.log('Error during payment:', error);
-      alert('Payment Failed! Try Again');
+    console.log('error----2', error);
+
+    if (!error) {
+      console.log('error----1', error);
+
+      setLoading(true);
+    }
+  };
+  const openPaymentSheet = async () => {
+    // see below
+    const {error} = await presentPaymentSheet();
+    console.log(error);
+
+    if (error) {
+      Alert.alert(`Error code: ${error.code}`, error.message);
+    } else {
+      Alert.alert('Success', 'Your order is confirmed!');
     }
   };
 
@@ -91,9 +166,15 @@ const SalvageRoute = () => {
             <Text style={styles.optionSubText}>4.99$</Text>
           </TouchableOpacity>
         </View>
+        {/* <Button
+          variant="primary"
+          disabled={!loading}
+          title="Checkout"
+          onPress={openPaymentSheet}
+        /> */}
         <TouchableOpacity
           style={styles.continueButton}
-          onPress={() => setShowBottomSheet(true)}>
+          onPress={() => openPaymentSheet()}>
           <Text style={styles.continueText}>Continue</Text>
         </TouchableOpacity>
       </View>
@@ -132,9 +213,9 @@ const SalvageRoute = () => {
                 setCardDetails(cardDetails);
               }}
             />
-            <TouchableOpacity style={styles.payButton} onPress={handlePayment}>
+            {/* <TouchableOpacity style={styles.payButton} onPress={handlePayment}>
               <Text style={styles.payButtonText}>Pay Now</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </KeyboardAvoidingView>
         </View>
       </Modal>
@@ -148,43 +229,46 @@ const ScrapRoute = () => {
   const [cardDetails, setCardDetails] = React.useState(null);
   const [showBottomSheet, setShowBottomSheet] = React.useState(false);
 
-  const handlePayment = async () => {
-    if (!cardDetails?.complete) {
-      alert('Please enter complete card details');
-      return;
-    }
+  // const handlePayment = async () => {
+  //   if (!cardDetails?.complete) {
+  //     alert('Please enter complete card details');
+  //     return;
+  //   }
 
-    try {
-      // Step 1: Create Payment Intent on Backend
-      const response = await fetch('https://your-backend-url.com/create-payment-intent', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          amount: 499, // Amount in cents (4.99$)
-          currency: 'usd',
-        }),
-      });
+  //   try {
+  //     // Step 1: Create Payment Intent on Backend
+  //     const response = await fetch(
+  //       'https://your-backend-url.com/create-payment-intent',
+  //       {
+  //         method: 'POST',
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //         },
+  //         body: JSON.stringify({
+  //           amount: 499, // Amount in cents (4.99$)
+  //           currency: 'usd',
+  //         }),
+  //       },
+  //     );
 
-      const {clientSecret} = await response.json();
+  //     const {clientSecret} = await response.json();
 
-      // Step 2: Confirm Payment on Frontend
-      const {error, paymentIntent} = await confirmPayment(clientSecret, {
-        paymentMethodType: 'Card',
-      });
+  //     // Step 2: Confirm Payment on Frontend
+  //     const {error, paymentIntent} = await confirmPayment(clientSecret, {
+  //       paymentMethodType: 'Card',
+  //     });
 
-      if (error) {
-        alert(`Payment failed: ${error.message}`);
-      } else if (paymentIntent) {
-        alert('Payment Successful!');
-        setShowBottomSheet(false); // Close bottom sheet after successful payment
-      }
-    } catch (error) {
-      console.log('Error during payment:', error);
-      alert('Payment Failed! Try Again');
-    }
-  };
+  //     if (error) {
+  //       alert(`Payment failed: ${error.message}`);
+  //     } else if (paymentIntent) {
+  //       alert('Payment Successful!');
+  //       setShowBottomSheet(false); // Close bottom sheet after successful payment
+  //     }
+  //   } catch (error) {
+  //     console.log('Error during payment:', error);
+  //     alert('Payment Failed! Try Again');
+  //   }
+  // };
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -193,7 +277,10 @@ const ScrapRoute = () => {
         <Text style={styles.description}>
           Access a curated list of car sellers.
         </Text>
-        <Text style={styles.description}> Get real-time updates on vehicles.</Text>
+        <Text style={styles.description}>
+          {' '}
+          Get real-time updates on vehicles.
+        </Text>
         <Text style={styles.description}>
           Contact sellers directly to negotiate and close deals.
         </Text>
@@ -250,7 +337,7 @@ const ScrapRoute = () => {
                 setCardDetails(cardDetails);
               }}
             />
-            <TouchableOpacity style={styles.payButton} onPress={handlePayment}>
+            <TouchableOpacity style={styles.payButton}>
               <Text style={styles.payButtonText}>Pay Now</Text>
             </TouchableOpacity>
           </KeyboardAvoidingView>
@@ -311,8 +398,8 @@ const SubscriptionScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.white,
-    margin: Platform.OS === 'ios' ? 20 : 5,
+    // backgroundColor: Colors.white,
+    // margin: Platform.OS === 'ios' ? 20 : 5,
   },
   scrollContent: {
     flexGrow: 1,
@@ -377,7 +464,7 @@ const styles = StyleSheet.create({
     marginTop: hp * 0.02,
   },
   tabBar: {
-    backgroundColor: Colors.white,
+    backgroundColor: Colors.gray,
     elevation: 0,
     shadowOpacity: 0,
     borderBottomWidth: 1,

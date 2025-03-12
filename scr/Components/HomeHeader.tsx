@@ -45,6 +45,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     width: wp(29),
+    paddingLeft: 15,
   },
   backButton: {
     marginRight: wp(1),
