@@ -351,6 +351,7 @@ const Listings = () => {
                 : require('../../assets/simpleHeart.png')
             }
             style={styles.heartIcon}
+            tintColor={Colors?.black}
           />
         </TouchableWithoutFeedback>
 
@@ -372,7 +373,7 @@ const Listings = () => {
             ['Registration:', item.registrationNumber],
             ['Year:', item.yearOfManufacture],
             ['Postcode:', item.postcode],
-            ['Colors:', item.color],
+            ['Colour:', item.color],
             ['Model:', item.model],
             ['Fuel Type:', item.fuelType],
           ].map(([label, value], index) => (

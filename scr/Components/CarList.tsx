@@ -130,7 +130,7 @@ export default function CarList({
           ['Registration:', item.registrationNumber],
           ['Year:', item.yearOfManufacture],
           ['Postcode:', item.postcode],
-          ['Colors:', item.color],
+          ['Colour:', item.color],
           ['Model:', item.model],
           ['Fuel Type:', item.fuelType],
           // ['Phone:', car.phoneNumber ? `+${car.phoneNumber}` : 'N/A'],

@@ -64,7 +64,7 @@ const Details = ({route, navigation}: {route: any; navigation: any}) => {
             ['Registration:', car.registrationNumber],
             ['Year:', car.yearOfManufacture],
             ['Postcode:', car.postcode],
-            ['Colors:', car.color],
+            ['Colour:', car.color],
             ['Model:', car.model],
             ['Fuel Type:', car.fuelType],
           ].map(([label, value], index) => (
