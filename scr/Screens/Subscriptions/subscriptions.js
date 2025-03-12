@@ -9,75 +9,256 @@ import {
   Platform,
   useWindowDimensions,
   Image,
+  Modal,
+  KeyboardAvoidingView,
+  ScrollView,
 } from 'react-native';
 import {TabView, SceneMap, TabBar} from 'react-native-tab-view';
 import Colors from '../../Helper/Colors';
 import {useNavigation} from '@react-navigation/native';
 import {Fonts} from '../../Helper/Fonts';
 import SubcriptionsHeader from '../../Components/HomeHeader';
+import {StripeProvider, CardField, useStripe} from '@stripe/stripe-react-native';
 
 const {width: wp, height: hp} = Dimensions.get('window');
 
 // SalvageRoute Component
-const SalvageRoute = () => (
-  <View style={styles.tabContent}>
-    <Text style={styles.subHeader}>Salvage Monthly Subscription:</Text>
-    <Text style={styles.description}>
-      Find salvaged cars at competitive prices.{' '}
-    </Text>
-    <Text style={styles.description}>
-      Connect with sellers offload vehicles.
-    </Text>
-    <Text style={styles.description}>
-      Expand your inventory with unique opportunities.
-    </Text>
-    <View style={styles.tabContainer}>
-      <TouchableOpacity style={styles.optionSelected}>
-        <Image
-          source={require('../../assets/loyalty.png')}
-          style={styles.optionImage}
-          resizeMode="contain"
-        />
-        <Text style={styles.optionText}>1 Month</Text>
-        <Text style={styles.sharingText}>Family sharing included</Text>
-        <Text style={styles.optionSubText}>4.99$</Text>
-      </TouchableOpacity>
-    </View>
-    <TouchableOpacity style={styles.continueButton}>
-      <Text style={styles.continueText}>Continue</Text>
-    </TouchableOpacity>
-  </View>
-);
+const SalvageRoute = () => {
+  const {confirmPayment} = useStripe();
+  const [cardDetails, setCardDetails] = React.useState(null);
+  const [showBottomSheet, setShowBottomSheet] = React.useState(false);
+
+  const handlePayment = async () => {
+    if (!cardDetails?.complete) {
+      alert('Please enter complete card details');
+      return;
+    }
+
+    try {
+      // Step 1: Create Payment Intent on Backend
+      const response = await fetch('https://your-backend-url.com/create-payment-intent', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          amount: 499, // Amount in cents (4.99$)
+          currency: 'usd',
+        }),
+      });
+
+      const {clientSecret} = await response.json();
+
+      // Step 2: Confirm Payment on Frontend
+      const {error, paymentIntent} = await confirmPayment(clientSecret, {
+        paymentMethodType: 'Card',
+      });
+
+      if (error) {
+        alert(`Payment failed: ${error.message}`);
+      } else if (paymentIntent) {
+        alert('Payment Successful!');
+        setShowBottomSheet(false); // Close bottom sheet after successful payment
+      }
+    } catch (error) {
+      console.log('Error during payment:', error);
+      alert('Payment Failed! Try Again');
+    }
+  };
+
+  return (
+    <ScrollView contentContainerStyle={styles.scrollContent}>
+      <View style={styles.tabContent}>
+        <Text style={styles.subHeader}>Salvage Monthly Subscription:</Text>
+        <Text style={styles.description}>
+          Find salvaged cars at competitive prices.{' '}
+        </Text>
+        <Text style={styles.description}>
+          Connect with sellers offload vehicles.
+        </Text>
+        <Text style={styles.description}>
+          Expand your inventory with unique opportunities.
+        </Text>
+        <View style={styles.tabContainer}>
+          <TouchableOpacity style={styles.optionSelected}>
+            <Image
+              source={require('../../assets/loyalty.png')}
+              style={styles.optionImage}
+              resizeMode="contain"
+            />
+            <Text style={styles.optionText}>1 Month</Text>
+            <Text style={styles.sharingText}>Family sharing included</Text>
+            <Text style={styles.optionSubText}>4.99$</Text>
+          </TouchableOpacity>
+        </View>
+        <TouchableOpacity
+          style={styles.continueButton}
+          onPress={() => setShowBottomSheet(true)}>
+          <Text style={styles.continueText}>Continue</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Custom Bottom Sheet */}
+      <Modal
+        visible={showBottomSheet}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowBottomSheet(false)}>
+        <View style={styles.bottomSheetOverlay}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={styles.bottomSheetContainer}>
+            <View style={styles.bottomSheetHeader}>
+              <Text style={styles.bottomSheetTitle}>Enter Card Details</Text>
+              <TouchableOpacity onPress={() => setShowBottomSheet(false)}>
+                <Text style={styles.bottomSheetClose}>Close</Text>
+              </TouchableOpacity>
+            </View>
+            <CardField
+              postalCodeEnabled={true}
+              placeholders={{
+                number: '4242 4242 4242 4242',
+              }}
+              cardStyle={{
+                backgroundColor: '#E9E9E9',
+                textColor: '#000000',
+              }}
+              style={{
+                width: '100%',
+                height: 50,
+                marginVertical: 20,
+              }}
+              onCardChange={cardDetails => {
+                setCardDetails(cardDetails);
+              }}
+            />
+            <TouchableOpacity style={styles.payButton} onPress={handlePayment}>
+              <Text style={styles.payButtonText}>Pay Now</Text>
+            </TouchableOpacity>
+          </KeyboardAvoidingView>
+        </View>
+      </Modal>
+    </ScrollView>
+  );
+};
 
 // ScrapRoute Component
-const ScrapRoute = () => (
-  <View style={styles.tabContent}>
-    <Text style={styles.subHeader}>Scrap Monthly Subscription:</Text>
-    <Text style={styles.description}>
-      Access a curated list of car sellers.
-    </Text>
+const ScrapRoute = () => {
+  const {confirmPayment} = useStripe();
+  const [cardDetails, setCardDetails] = React.useState(null);
+  const [showBottomSheet, setShowBottomSheet] = React.useState(false);
 
-    <Text style={styles.description}> Get real-time updates on vehicles.</Text>
-    <Text style={styles.description}>
-      Contact sellers directly to negotiate and close deals.
-    </Text>
-    <View style={styles.tabContainer}>
-      <TouchableOpacity style={styles.optionSelected}>
-        <Image
-          source={require('../../assets/loyalty.png')}
-          style={styles.optionImage}
-          resizeMode="contain"
-        />
-        <Text style={styles.optionText}>1 Month</Text>
-        <Text style={styles.sharingText}>Family sharing included</Text>
-        <Text style={styles.optionSubText}>4.99$</Text>
-      </TouchableOpacity>
-    </View>
-    <TouchableOpacity style={styles.continueButton}>
-      <Text style={styles.continueText}>Continue</Text>
-    </TouchableOpacity>
-  </View>
-);
+  const handlePayment = async () => {
+    if (!cardDetails?.complete) {
+      alert('Please enter complete card details');
+      return;
+    }
+
+    try {
+      // Step 1: Create Payment Intent on Backend
+      const response = await fetch('https://your-backend-url.com/create-payment-intent', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          amount: 499, // Amount in cents (4.99$)
+          currency: 'usd',
+        }),
+      });
+
+      const {clientSecret} = await response.json();
+
+      // Step 2: Confirm Payment on Frontend
+      const {error, paymentIntent} = await confirmPayment(clientSecret, {
+        paymentMethodType: 'Card',
+      });
+
+      if (error) {
+        alert(`Payment failed: ${error.message}`);
+      } else if (paymentIntent) {
+        alert('Payment Successful!');
+        setShowBottomSheet(false); // Close bottom sheet after successful payment
+      }
+    } catch (error) {
+      console.log('Error during payment:', error);
+      alert('Payment Failed! Try Again');
+    }
+  };
+
+  return (
+    <ScrollView contentContainerStyle={styles.scrollContent}>
+      <View style={styles.tabContent}>
+        <Text style={styles.subHeader}>Scrap Monthly Subscription:</Text>
+        <Text style={styles.description}>
+          Access a curated list of car sellers.
+        </Text>
+        <Text style={styles.description}> Get real-time updates on vehicles.</Text>
+        <Text style={styles.description}>
+          Contact sellers directly to negotiate and close deals.
+        </Text>
+        <View style={styles.tabContainer}>
+          <TouchableOpacity style={styles.optionSelected}>
+            <Image
+              source={require('../../assets/loyalty.png')}
+              style={styles.optionImage}
+              resizeMode="contain"
+            />
+            <Text style={styles.optionText}>1 Month</Text>
+            <Text style={styles.sharingText}>Family sharing included</Text>
+            <Text style={styles.optionSubText}>4.99$</Text>
+          </TouchableOpacity>
+        </View>
+        <TouchableOpacity
+          style={styles.continueButton}
+          onPress={() => setShowBottomSheet(true)}>
+          <Text style={styles.continueText}>Continue</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Custom Bottom Sheet */}
+      <Modal
+        visible={showBottomSheet}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowBottomSheet(false)}>
+        <View style={styles.bottomSheetOverlay}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={styles.bottomSheetContainer}>
+            <View style={styles.bottomSheetHeader}>
+              <Text style={styles.bottomSheetTitle}>Enter Card Details</Text>
+              <TouchableOpacity onPress={() => setShowBottomSheet(false)}>
+                <Text style={styles.bottomSheetClose}>Close</Text>
+              </TouchableOpacity>
+            </View>
+            <CardField
+              postalCodeEnabled={true}
+              placeholders={{
+                number: '4242 4242 4242 4242',
+              }}
+              cardStyle={{
+                backgroundColor: '#E9E9E9',
+                textColor: '#000000',
+              }}
+              style={{
+                width: '100%',
+                height: 50,
+                marginVertical: 20,
+              }}
+              onCardChange={cardDetails => {
+                setCardDetails(cardDetails);
+              }}
+            />
+            <TouchableOpacity style={styles.payButton} onPress={handlePayment}>
+              <Text style={styles.payButtonText}>Pay Now</Text>
+            </TouchableOpacity>
+          </KeyboardAvoidingView>
+        </View>
+      </Modal>
+    </ScrollView>
+  );
+};
 
 // Scene Map for TabView
 const renderScene = SceneMap({
@@ -96,29 +277,33 @@ const SubscriptionScreen = () => {
   ];
 
   return (
-    <SafeAreaView style={styles.container}>
-      <SubcriptionsHeader
-        navigation={navigation}
-        centerContent="Subscriptions"
-      />
-      <TabView
-        navigationState={{index, routes}}
-        renderScene={renderScene}
-        onIndexChange={setIndex}
-        initialLayout={{width: layout.width}}
-        style={styles.tabView}
-        renderTabBar={props => (
-          <TabBar
-            {...props}
-            indicatorStyle={styles.tabIndicator}
-            style={styles.tabBar}
-            activeColor={Colors.primary}
-            inactiveColor={Colors.textGray}
-            pressColor={Colors.primary}
-          />
-        )}
-      />
-    </SafeAreaView>
+    <StripeProvider
+      publishableKey="pk_test_51OZ9CNH4pKZw8NygKt1JrptxV9ZKSOfQInCzhuX6wvSjhL7qd4bRHVCE7XUDj5aCk2GlUBRcesKZTNcOjWIDm6ac00MENXwqtg" // Replace with your publishable key
+    >
+      <SafeAreaView style={styles.container}>
+        <SubcriptionsHeader
+          navigation={navigation}
+          centerContent="Subscriptions"
+        />
+        <TabView
+          navigationState={{index, routes}}
+          renderScene={renderScene}
+          onIndexChange={setIndex}
+          initialLayout={{width: layout.width}}
+          style={styles.tabView}
+          renderTabBar={props => (
+            <TabBar
+              {...props}
+              indicatorStyle={styles.tabIndicator}
+              style={styles.tabBar}
+              activeColor={Colors.primary}
+              inactiveColor={Colors.textGray}
+              pressColor={Colors.primary}
+            />
+          )}
+        />
+      </SafeAreaView>
+    </StripeProvider>
   );
 };
 
@@ -128,6 +313,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.white,
     margin: Platform.OS === 'ios' ? 20 : 5,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: hp * 0.03,
   },
   tabContent: {
     paddingHorizontal: wp * 0.05,
@@ -207,6 +396,47 @@ const styles = StyleSheet.create({
     marginTop: hp * 0.03,
   },
   continueText: {
+    color: Colors.white,
+    fontSize: wp * 0.045,
+    fontFamily: Fonts.bold,
+  },
+  // Bottom Sheet Styles
+  bottomSheetOverlay: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  bottomSheetContainer: {
+    backgroundColor: Colors.white,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,
+  },
+  bottomSheetHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  bottomSheetTitle: {
+    fontSize: wp * 0.05,
+    fontFamily: Fonts.bold,
+    color: Colors.black,
+  },
+  bottomSheetClose: {
+    fontSize: wp * 0.04,
+    fontFamily: Fonts.regular,
+    color: Colors.primary,
+  },
+  payButton: {
+    width: '100%',
+    padding: hp * 0.02,
+    borderRadius: 10,
+    backgroundColor: Colors.primary,
+    alignItems: 'center',
+    marginTop: hp * 0.03,
+  },
+  payButtonText: {
     color: Colors.white,
     fontSize: wp * 0.045,
     fontFamily: Fonts.bold,
