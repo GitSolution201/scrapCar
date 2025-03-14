@@ -12,15 +12,13 @@ export default function App() {
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
         <GestureHandlerRootView style={{flex: 1}}>
-          <StripeProvider
-            publishableKey={
-              'pk_test_51GzlwoDnmorUxClnVwbcYYl2Rznbzs3lCgndN0UPNRH0pa2EvBXALWwN5IQPQrkHXeatoHd9HXPi7oqyjMWThwaw00mTrrQr55'
-            }
-            // merchantIdentifier="merchant.com.carscrape.rniap"
+          {/* <StripeProvider
+            publishableKey={publishedKey}
+            merchantIdentifier="merchant.com.carscrape.rnida"
             // urlScheme={urlScheme}
-          >
-            <AppNavigation style={{flex: 1, padding: 20}} />
-          </StripeProvider>
+            > */}
+          <AppNavigation style={{flex: 1, padding: 20}} />
+          {/* </StripeProvider> */}
         </GestureHandlerRootView>
       </PersistGate>
     </Provider>

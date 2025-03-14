@@ -26,30 +26,55 @@ import {
   useStripe,
 } from '@stripe/stripe-react-native';
 import {useSelector} from 'react-redux';
+import {publishedKey} from '../../Helper/keys';
 
 const {width: wp, height: hp} = Dimensions.get('window');
 
 // SalvageRoute Component
 const SalvageRoute = () => {
-  const {confirmPayment} = useStripe();
   const {initPaymentSheet, presentPaymentSheet} = useStripe();
   const [cardDetails, setCardDetails] = React.useState(null);
   const [showBottomSheet, setShowBottomSheet] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
   const [email, setEmail] = useState('');
+  const [publishableKey, setPublishedKey] = useState('');
+  const [merchantIdentifier, setMerchantIdentifier] = useState('');
+  const [urlScheme, setUrlScheme] = useState('');
 
-  const {
-    loading: userLoading,
-    userData,
-    error: userError,
-  } = useSelector((state: any) => state.user);
+  // const {
+  //   loading: userLoading,
+  //   userData,
+  //   error: userError,
+  // } = useSelector((state: any) => state.user);
+  // useEffect(() => {
+  //   if (userData) {
+  //     setEmail(userData.email);
+  //   }
+  // }, [userData]);
+  // console.log(userData);
+  const getPublishedKeys = async () => {
+    const response = await fetch(
+      `https://scrape4you.onrender.com/stripe/keys`,
+      {
+        method: 'GET',
+
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      },
+    );
+
+    const {publishedKey, merchantIdentifie, urlScheme} = await response.json();
+    console.log('--------------------------', publishedKey);
+    setPublishedKey(publishedKey);
+    setMerchantIdentifier(merchantIdentifie);
+    setUrlScheme(urlScheme);
+  };
+
   useEffect(() => {
-    if (userData) {
-      setEmail(userData.email);
-    }
-  }, [userData]);
-  console.log(userData);
-  React.useEffect(() => {
+    getPublishedKeys();
+  }, []);
+  useEffect(() => {
     initializePaymentSheet();
   }, []);
   const fetchPaymentSheetParams = async () => {
@@ -58,7 +83,7 @@ const SalvageRoute = () => {
       {
         method: 'POST',
         body: {
-          email: userData.email,
+          email: 'tayyab@gmail.com',
         },
 
         headers: {
@@ -66,6 +91,7 @@ const SalvageRoute = () => {
         },
       },
     );
+
     const {paymentIntent, ephemeralKey, customer} = await response.json();
 
     return {
@@ -86,12 +112,6 @@ const SalvageRoute = () => {
       // Set `allowsDelayedPaymentMethods` to true if your business can handle payment
       //methods that complete payment after a delay, like SEPA Debit and Sofort.
     });
-
-    if (!error) {
-      console.log('error----1', JSON.stringify(error, null, 4));
-
-      setLoading(true);
-    }
   };
   const openPaymentSheet = async () => {
     // see below
@@ -106,84 +126,89 @@ const SalvageRoute = () => {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.scrollContent}>
-      <View style={styles.tabContent}>
-        <Text style={styles.subHeader}>Salvage Monthly Subscription:</Text>
-        <Text style={styles.description}>
-          Find salvaged cars at competitive prices.{' '}
-        </Text>
-        <Text style={styles.description}>
-          Connect with sellers offload vehicles.
-        </Text>
-        <Text style={styles.description}>
-          Expand your inventory with unique opportunities.
-        </Text>
-        <View style={styles.tabContainer}>
-          <TouchableOpacity style={styles.optionSelected}>
-            <Image
-              source={require('../../assets/loyalty.png')}
-              style={styles.optionImage}
-              resizeMode="contain"
-            />
-            <Text style={styles.optionText}>1 Month</Text>
-            <Text style={styles.sharingText}>Family sharing included</Text>
-            <Text style={styles.optionSubText}>4.99$</Text>
-          </TouchableOpacity>
-        </View>
-        {/* <Button
+    <StripeProvider
+      publishableKey={publishableKey}
+      merchantIdentifier={merchantIdentifier}
+      urlScheme={urlScheme}>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <View style={styles.tabContent}>
+          <Text style={styles.subHeader}>Salvage Monthly Subscription:</Text>
+          <Text style={styles.description}>
+            Find salvaged cars at competitive prices.{' '}
+          </Text>
+          <Text style={styles.description}>
+            Connect with sellers offload vehicles.
+          </Text>
+          <Text style={styles.description}>
+            Expand your inventory with unique opportunities.
+          </Text>
+          <View style={styles.tabContainer}>
+            <TouchableOpacity style={styles.optionSelected}>
+              <Image
+                source={require('../../assets/loyalty.png')}
+                style={styles.optionImage}
+                resizeMode="contain"
+              />
+              <Text style={styles.optionText}>1 Month</Text>
+              <Text style={styles.sharingText}>Family sharing included</Text>
+              <Text style={styles.optionSubText}>4.99$</Text>
+            </TouchableOpacity>
+          </View>
+          {/* <Button
           variant="primary"
           disabled={!loading}
           title="Checkout"
           onPress={openPaymentSheet}
         /> */}
-        <TouchableOpacity
-          style={styles.continueButton}
-          onPress={() => openPaymentSheet()}>
-          <Text style={styles.continueText}>Continue</Text>
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity
+            style={styles.continueButton}
+            onPress={() => openPaymentSheet()}>
+            <Text style={styles.continueText}>Continue</Text>
+          </TouchableOpacity>
+        </View>
 
-      {/* Custom Bottom Sheet */}
-      <Modal
-        visible={showBottomSheet}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setShowBottomSheet(false)}>
-        <View style={styles.bottomSheetOverlay}>
-          <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            style={styles.bottomSheetContainer}>
-            <View style={styles.bottomSheetHeader}>
-              <Text style={styles.bottomSheetTitle}>Enter Card Details</Text>
-              <TouchableOpacity onPress={() => setShowBottomSheet(false)}>
-                <Text style={styles.bottomSheetClose}>Close</Text>
-              </TouchableOpacity>
-            </View>
-            <CardField
-              postalCodeEnabled={true}
-              placeholders={{
-                number: '4242 4242 4242 4242',
-              }}
-              cardStyle={{
-                backgroundColor: '#E9E9E9',
-                textColor: '#000000',
-              }}
-              style={{
-                width: '100%',
-                height: 50,
-                marginVertical: 20,
-              }}
-              onCardChange={cardDetails => {
-                setCardDetails(cardDetails);
-              }}
-            />
-            {/* <TouchableOpacity style={styles.payButton} onPress={handlePayment}>
+        {/* Custom Bottom Sheet */}
+        <Modal
+          visible={showBottomSheet}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={() => setShowBottomSheet(false)}>
+          <View style={styles.bottomSheetOverlay}>
+            <KeyboardAvoidingView
+              behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+              style={styles.bottomSheetContainer}>
+              <View style={styles.bottomSheetHeader}>
+                <Text style={styles.bottomSheetTitle}>Enter Card Details</Text>
+                <TouchableOpacity onPress={() => setShowBottomSheet(false)}>
+                  <Text style={styles.bottomSheetClose}>Close</Text>
+                </TouchableOpacity>
+              </View>
+              <CardField
+                postalCodeEnabled={true}
+                placeholders={{
+                  number: '4242 4242 4242 4242',
+                }}
+                cardStyle={{
+                  backgroundColor: '#E9E9E9',
+                  textColor: '#000000',
+                }}
+                style={{
+                  width: '100%',
+                  height: 50,
+                  marginVertical: 20,
+                }}
+                onCardChange={cardDetails => {
+                  setCardDetails(cardDetails);
+                }}
+              />
+              {/* <TouchableOpacity style={styles.payButton} onPress={handlePayment}>
               <Text style={styles.payButtonText}>Pay Now</Text>
             </TouchableOpacity> */}
-          </KeyboardAvoidingView>
-        </View>
-      </Modal>
-    </ScrollView>
+            </KeyboardAvoidingView>
+          </View>
+        </Modal>
+      </ScrollView>
+    </StripeProvider>
   );
 };
 
