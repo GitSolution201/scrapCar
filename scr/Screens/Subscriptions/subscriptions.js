@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -14,6 +14,7 @@ import {
   KeyboardAvoidingView,
   ScrollView,
 } from 'react-native';
+
 import {TabView, SceneMap, TabBar} from 'react-native-tab-view';
 import Colors from '../../Helper/Colors';
 import {useNavigation} from '@react-navigation/native';
@@ -24,6 +25,7 @@ import {
   CardField,
   useStripe,
 } from '@stripe/stripe-react-native';
+import {useSelector} from 'react-redux';
 
 const {width: wp, height: hp} = Dimensions.get('window');
 
@@ -34,59 +36,30 @@ const SalvageRoute = () => {
   const [cardDetails, setCardDetails] = React.useState(null);
   const [showBottomSheet, setShowBottomSheet] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
+  const [email, setEmail] = useState('');
 
+  const {
+    loading: userLoading,
+    userData,
+    error: userError,
+  } = useSelector((state: any) => state.user);
+  useEffect(() => {
+    if (userData) {
+      setEmail(userData.email);
+    }
+  }, [userData]);
+  console.log(userData);
   React.useEffect(() => {
     initializePaymentSheet();
   }, []);
-
-  // const handlePayment = async () => {
-  //   if (!cardDetails?.complete) {
-  //     alert('Please enter complete card details');
-  //     return;
-  //   }
-
-  //   try {
-  //     // Step 1: Create Payment Intent on Backend
-  //     const response = await fetch(
-  //       'https://your-backend-url.com/create-payment-intent',
-  //       {
-  //         method: 'POST',
-  //         headers: {
-  //           'Content-Type': 'application/json',
-  //         },
-  //         body: JSON.stringify({
-  //           amount: 499, // Amount in cents (4.99$)
-  //           currency: 'usd',
-  //         }),
-  //       },
-  //     );
-
-  //     const {clientSecret} = await response.json();
-
-  //     // Step 2: Confirm Payment on Frontend
-  //     const {error, paymentIntent} = await confirmPayment(clientSecret, {
-  //       paymentMethodType: 'Card',
-  //     });
-
-  //     if (error) {
-  //       alert(`Payment failed: ${error.message}`);
-  //     } else if (paymentIntent) {
-  //       alert('Payment Successful!');
-  //       setShowBottomSheet(false); // Close bottom sheet after successful payment
-  //     }
-  //   } catch (error) {
-  //     console.log('Error during payment:', error);
-  //     alert('Payment Failed! Try Again');
-  //   }
-  // };
   const fetchPaymentSheetParams = async () => {
     const response = await fetch(
       `https://scrape4you.onrender.com/stripe/payment/sheet`,
       {
         method: 'POST',
-        body: JSON.stringify({
-          email: 'tayabjamil777@gmail.com',
-        }),
+        body: {
+          email: userData.email,
+        },
 
         headers: {
           'Content-Type': 'application/json',
@@ -94,7 +67,6 @@ const SalvageRoute = () => {
       },
     );
     const {paymentIntent, ephemeralKey, customer} = await response.json();
-    console.log('payment------', paymentIntent, ephemeralKey, customer);
 
     return {
       paymentIntent,
@@ -105,7 +77,6 @@ const SalvageRoute = () => {
   const initializePaymentSheet = async () => {
     const {paymentIntent, ephemeralKey, customer} =
       await fetchPaymentSheetParams();
-    console.log('payment------2', customer);
 
     const {error} = await initPaymentSheet({
       merchantDisplayName: 'Example, Inc.',
@@ -114,17 +85,10 @@ const SalvageRoute = () => {
       paymentIntentClientSecret: paymentIntent,
       // Set `allowsDelayedPaymentMethods` to true if your business can handle payment
       //methods that complete payment after a delay, like SEPA Debit and Sofort.
-      allowsDelayedPaymentMethods: true,
-      returnURL: 'your-app://stripe-redirect',
-      defaultBillingDetails: {
-        name: 'Jane Doe',
-      },
     });
 
-    console.log('error----2', error);
-
     if (!error) {
-      console.log('error----1', error);
+      console.log('error----1', JSON.stringify(error, null, 4));
 
       setLoading(true);
     }
@@ -132,7 +96,7 @@ const SalvageRoute = () => {
   const openPaymentSheet = async () => {
     // see below
     const {error} = await presentPaymentSheet();
-    console.log(error);
+    console.log(JSON.stringify(error, null, 4));
 
     if (error) {
       Alert.alert(`Error code: ${error.code}`, error.message);

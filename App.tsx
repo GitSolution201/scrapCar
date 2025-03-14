@@ -16,8 +16,9 @@ export default function App() {
             publishableKey={
               'pk_test_51GzlwoDnmorUxClnVwbcYYl2Rznbzs3lCgndN0UPNRH0pa2EvBXALWwN5IQPQrkHXeatoHd9HXPi7oqyjMWThwaw00mTrrQr55'
             }
-            // merchantIdentifier="merchant.com.your-app-name"
-            urlScheme={urlScheme}>
+            // merchantIdentifier="merchant.com.carscrape.rniap"
+            // urlScheme={urlScheme}
+          >
             <AppNavigation style={{flex: 1, padding: 20}} />
           </StripeProvider>
         </GestureHandlerRootView>
