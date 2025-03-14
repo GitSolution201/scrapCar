@@ -167,7 +167,7 @@ const MapListings = () => {
                 }}
                 title={`${car.make} ${car.model}`}
                 description={
-                  car.problem ? `Issue: ${car.problem}` : 'No issues reported'
+                  car.fuelType ? `Fuel Type: ${car.fuelType}` : 'No fuel type'
                 }
                 onPress={() => setSelectedCar(car)}
               />
