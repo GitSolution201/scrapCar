@@ -8,7 +8,11 @@
  	<string>For user locations</string>
  	<key>NSLocationWhenInUseUsageDescription</key>
   	<string>For locations</string>
-  
+ 	<key>Stripe</key>
+	<dict>
+    <key>MerchantIdentifier</key>
+    <string>merchant.com.carscrap</string>
+    </dict>
 	<key>CFBundleIconName</key>
 	<string>AppIcon</string>
 	<key>CFBundleDevelopmentRegion</key>
