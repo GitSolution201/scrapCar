@@ -18,6 +18,7 @@ import {
 import Toast from 'react-native-simple-toast';
 import {axiosHeader} from '../../Services/apiHeader';
 import {Fonts} from '../../Helper/Fonts';
+import DeviceInfo from 'react-native-device-info';
 
 const Login = ({navigation}: {navigation: any}) => {
   const dispatch = useDispatch();
@@ -39,9 +40,12 @@ const Login = ({navigation}: {navigation: any}) => {
     if (loginResponse) {
       setApiError('');
       if (loginResponse.success) {
-        axiosHeader(token);
-        Toast.show(loginResponse?.message, Toast.LONG); // Display the message for a long duration
-        navigation.repalce('MainTabs');
+        const setupHeaders = async () => {
+          await axiosHeader(token);
+          Toast.show(loginResponse?.message, Toast.LONG);
+          navigation.replace('MainTabs');
+        };
+        setupHeaders();
       } else if (loginResponse?.error) {
         setApiError(loginResponse?.error);
       }
@@ -67,10 +71,17 @@ const Login = ({navigation}: {navigation: any}) => {
     return Object.keys(errors).length === 0;
   };
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (validateForm()) {
       setApiError('');
-      dispatch(loginRequest({email, password}));
+      const deviceId = await DeviceInfo.getUniqueId();
+      dispatch(
+        loginRequest({
+          email,
+          password,
+          deviceId, // Add deviceId to the payload
+        }),
+      );
     }
   };
 

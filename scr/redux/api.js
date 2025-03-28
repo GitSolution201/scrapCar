@@ -1,4 +1,6 @@
 import axios from 'axios';
+import { getCallingCode } from 'react-native-country-picker-modal';
+import DeviceInfo from 'react-native-device-info';
 // https://scrape4you.onrender.com/auth/register
 // Set up the base Axios instance
 const api = axios.create({
@@ -12,9 +14,13 @@ const api = axios.create({
 // Login API
 export const login = async userData => {
   try {
-    const response = await api.post('/auth/login', JSON.stringify(userData));
+    const response = await api.post('/auth/login', JSON.stringify({
+      email: userData.email,
+      password: userData.password,
+      deviceId: userData.deviceId // Include deviceId in the request
+    }));
     if (response.data?.message === 'Login successful') {
-      return response.data; // Return success response
+      return response.data;
     } else {
       throw new Error(response.data?.message || 'Login failed');
     }
@@ -40,10 +46,12 @@ export const register = async userData => {
 // get All Car Listing
 // Get All Car Listing
 export const getUser = async token => {
+  const deviceId = await DeviceInfo.getUniqueId();
   try {
     const response = await api.get('/car/get-all-listing', {
       headers: {
         Authorization: `Bearer ${token}`,
+        'device-id': deviceId,
         'Content-Type': 'application/json',
       },
     });
@@ -58,10 +66,12 @@ export const getUser = async token => {
 };
 //Get Fav Listings
 export const getFavListings = async token => {
+  const deviceId = await DeviceInfo.getUniqueId();
   try {
     const response = await api.get('/auth/list-all-saved', {
       headers: {
         Authorization: `Bearer ${token}`,
+        'device-id': deviceId,
         'Content-Type': 'application/json',
       },
     });
@@ -75,10 +85,12 @@ export const getFavListings = async token => {
 };
 // Get User Details
 export const fetchUserDetails = async token => {
+  const deviceId = await DeviceInfo.getUniqueId();
   try {
     const response = await api.get('/auth/get-user-details', {
       headers: {
         Authorization: `Bearer ${token}`,
+        'device-id': deviceId,
       },
     });
     return response.data; // Return the data
@@ -95,10 +107,12 @@ export const fetchUserDetails = async token => {
 
 //User Profile Update
 export const updateUserProfile = async (token, updatedData) => {
+  const deviceId = await DeviceInfo.getUniqueId();
   try {
     const response = await api.put('/auth/update-user-profile', updatedData, {
       headers: {
         Authorization: `Bearer ${token}`,
+        'device-id': deviceId,
       },
     });
     return response.data; // Return the data
@@ -114,6 +128,7 @@ export const updateUserProfile = async (token, updatedData) => {
 };
 //Add to favourite
 export const addToSaved = async (carId, token) => {
+  const deviceId = await DeviceInfo.getUniqueId();
   try {
     const response = await api.post(
       `/auth/add-to-saved/${carId}`,
@@ -121,6 +136,7 @@ export const addToSaved = async (carId, token) => {
       {
         headers: {
           Authorization: `Bearer ${token}`,
+          'device-id': deviceId,
         },
       },
     );
@@ -134,12 +150,14 @@ export const addToSaved = async (carId, token) => {
 };
 //Update View count
 export const updateViewCount = async (carId, token) => {
+  const deviceId = await DeviceInfo.getUniqueId();
   try {
     const response = await api.post(
       `/car/${carId}/view`,{},
       {
         headers: {
           Authorization: `Bearer ${token}`,
+          'device-id': deviceId,
         },
       },
     );
