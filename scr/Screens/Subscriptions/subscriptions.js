@@ -26,15 +26,10 @@ import {
   CardField,
   useStripe,
   ApplePayButton,
-  usePlatformPay,
-  GooglePayButton,
   PlatformPayButton,
   isPlatformPaySupported,
   PlatformPay,
-  presentApplePay,
-  isGooglePaySupported,
   confirmPlatformPayPayment,
-  confirmPaymentSheetPayment,
 } from '@stripe/stripe-react-native';
 
 import {useSelector} from 'react-redux';
@@ -55,7 +50,7 @@ const SubscriptionScreen = () => {
   const [email, setEmail] = useState('tayyabjamil999@gmail.com');
   const [publishableKey, setPublishedKey] = useState('');
   const [urlScheme, setUrlScheme] = useState('');
-  const [isApplePaySupported, setIsApplePaySupported] = useState(false);
+  const [isPlatformPayAvailable, setIsPlatformPayAvailable] = useState(false);
   const [clientSecret, setClientSecret] = useState('');
   const [subscriptionSelected, setSubscriptionSelected] = useState('');
 
@@ -99,101 +94,79 @@ const SubscriptionScreen = () => {
     }
   }, [userData]);
 
-  const initGooglePay = async () => {
-    const {error} = await initGooglePay({
-      testEnv: true, // Set to false for production
-      merchantName: 'Your Merchant Name',
-      countryCode: 'US', // Replace with your country code
-    });
-  };
-  const handleGooglePay = async () => {
-    const {error} = await presentGooglePay({
-      amount: 499, // Amount in cents (4.99$)
-      currencyCode: 'USD', // Replace with your currency
-    });
-
-    if (error) {
-      console.error(error);
-    } else {
-      console.log('Google Pay successful');
-    }
-  };
-
   useEffect(() => {
-    (async function () {
-      if (!(await isPlatformPaySupported({googlePay: {testEnv: true}}))) {
-        Alert.alert('Google Pay is not supported.');
+    const checkPlatformPaySupport = async () => {
+      try {
+        if (Platform.OS === 'android') {
+          const isSupported = await isPlatformPaySupported({
+            provider: 'google_pay',
+            googlePay: {
+              environment: 'test',
+              merchantCountryCode: 'GB'
+            }
+          });
+          console.log('Google Pay support:', isSupported);
+          setIsPlatformPayAvailable(isSupported);
+        }
+      } catch (error) {
+        console.log('Platform pay support check error:', error);
+        setIsPlatformPayAvailable(false);
+      }
+    };
+    checkPlatformPaySupport();
+  }, []);
+
+  const handlePlatformPay = async () => {
+    try {
+      if (!subscriptionSelected) {
+        Alert.alert('Error', 'Please select a subscription plan first');
         return;
       }
-    })();
-  }, []);
-  useEffect(() => {
-    initializePaymentMethods();
-  }, []);
 
-  const initializePaymentMethods = async () => {
-    if (isApplePaySupported) {
-      await initApplePay();
-    }
-    if (isGooglePaySupported) {
-      await initGooglePay();
-    }
-  };
-  useEffect(() => {
-    (async function () {
-      setIsApplePaySupported(await isPlatformPaySupported());
-    })();
-  }, [isPlatformPaySupported]);
+      const amount = products.find(p => p.id === subscriptionSelected)?.price || 0;
+      console.log('@SUBSCRIPTION', subscriptionSelected);
 
-  const handleApplePay = async () => {
-    try {
       const response = await axios.post(
         'https://scrape4you.onrender.com/stripe/create-customer-and-subscription',
         {
-          email: email, // user's email
-          priceId: subscriptionSelected, // selected price ID from state
+          email: email,
+          priceId: subscriptionSelected,
         },
       );
-      // Successful response (status 2xx)
-      const {error, paymentIntent} = await confirmPlatformPayPayment(
-        response.data.clientSecret,
-        {
-          applePay: {
-            cartItems: [
-              {
-                label: 'Total',
-                amount: '170', // Pence for GBP
-                paymentType: PlatformPay.PaymentType.Immediate,
-              },
-            ],
+
+      if (response.data?.clientSecret) {
+        const paymentMethod = {
+          provider: 'google_pay',
+          googlePay: {
+           testEnv:true,
+            amount: amount * 100,
             currencyCode: 'GBP',
-            merchantCountryCode: 'US',
-          },
-        },
-      );
-      return response.data;
-    } catch (error) {
-      // Axios error handling
-      if (error.response) {
-        // Server responded with error status (4xx/5xx)
-        console.error(
-          'Server error:',
-          error.response.status,
-          error.response.data,
+            merchantCountryCode: 'GB',
+            merchantName: 'Car Scrap',
+            billingAddressRequired: true,
+            emailRequired: true
+          }
+        };
+
+        console.log('Attempting payment with:', paymentMethod);
+
+        const {error} = await confirmPlatformPayPayment(
+          response.data.clientSecret,
+          paymentMethod
         );
-        throw new Error(error.response.data.message || 'Subscription failed');
-      } else if (error.request) {
-        // Request was made but no response received
-        console.error('Network error:', error.request);
-        throw new Error('Network error - no server response');
-      } else {
-        // Setup error
-        console.error('Request setup error:', error.message);
-        throw new Error('Failed to create subscription request');
+
+        if (error) {
+          console.log('Payment error:', error);
+          Alert.alert('Error', 'Payment failed. Please try again.');
+        } else {
+          Alert.alert('Success', 'Subscription activated successfully!');
+        }
       }
+    } catch (error) {
+      console.log('Payment error:', error);
+      Alert.alert('Error', 'Payment failed. Please try again.');
     }
   };
-  // };
 
   const getPublishedKeys = async () => {
     const response = await fetch(
@@ -320,8 +293,8 @@ const SubscriptionScreen = () => {
   };
   const renderScene = ({route}) => {
     const sharedProps = {
-      products: products, // Pass the products state
-      sharedData: 'Data available in all tabs',
+      products: products,
+      selectedSubscription: subscriptionSelected,
       onSelectSubscription: subscription => {
         setSubscriptionSelected(subscription);
       },
@@ -334,12 +307,39 @@ const SubscriptionScreen = () => {
       default:
         return null;
     }
-  }; // Stylesheet
+  };
+
+  const renderPaymentButton = () => {
+    if (!isPlatformPayAvailable) return null;
+
+    if (Platform.OS === 'android') {
+      return (
+        <TouchableOpacity
+          style={[
+            styles.googlePayButton,
+            !subscriptionSelected && {opacity: 0.7},
+          ]}
+          onPress={handlePlatformPay}>
+          <Text style={styles.googlePayText}>Pay with Google Pay</Text>
+        </TouchableOpacity>
+      );
+    }
+
+    return (
+      <PlatformPayButton
+        onPress={handlePlatformPay}
+        type={PlatformPay.ButtonType.Pay}
+        appearance={PlatformPay.ButtonStyle.Black}
+        borderRadius={25}
+        style={styles.paymentButton}
+      />
+    );
+  };
+
   return (
     <StripeProvider
       publishableKey={publishableKey}
-      merchantIdentifier={'merchant.com.carscrap'}
-      urlScheme={urlScheme}>
+      merchantIdentifier="merchant.com.carscrap">
       <SafeAreaView style={styles.container}>
         <SubcriptionsHeader
           navigation={navigation}
@@ -362,38 +362,11 @@ const SubscriptionScreen = () => {
             />
           )}
         />
-        <View
-          style={{
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            margin: 30,
-          }}>
-          {isApplePaySupported && (
-            <PlatformPayButton
-              onPress={handleApplePay}
-              type={PlatformPay.ButtonType.Order}
-              appearance={PlatformPay.ButtonStyle.Black}
-              borderRadius={25}
-              style={{
-                width: '100%',
-                height: 50,
-              }}
-            />
-          )}
-
-          {/* Google Pay Button */}
-          {isGooglePaySupported && (
-            <GooglePayButton
-              onPress={handleGooglePay}
-              type="plain"
-              borderRadius={4}
-              style={styles.googlePayButton}
-            />
-          )}
+        <View style={styles.paymentButtonsContainer}>
+          {renderPaymentButton()}
           <TouchableOpacity
             style={styles.continueButton}
-            onPress={() => openPaymentSheet()}>
+            onPress={openPaymentSheet}>
             <Text style={styles.continueText}>Pay By Card</Text>
           </TouchableOpacity>
         </View>
@@ -402,7 +375,11 @@ const SubscriptionScreen = () => {
   );
 };
 
-const SalvageRoute = ({products, onSelectSubscription}) => {
+const SalvageRoute = ({
+  products,
+  onSelectSubscription,
+  selectedSubscription,
+}) => {
   return (
     <ScrollView contentContainerStyle={styles.scrollContent}>
       <View style={styles.tabContent}>
@@ -421,7 +398,11 @@ const SalvageRoute = ({products, onSelectSubscription}) => {
             onPress={() =>
               onSelectSubscription('price_1R15A1DnmorUxCln7W0DslGy')
             }
-            style={styles.optionSelected}>
+            style={[
+              styles.optionSelected,
+              selectedSubscription === 'price_1R15A1DnmorUxCln7W0DslGy' &&
+                styles.optionFocused,
+            ]}>
             <Image
               source={require('../../assets/loyalty.png')}
               style={styles.optionImage}
@@ -432,10 +413,14 @@ const SalvageRoute = ({products, onSelectSubscription}) => {
             <Text style={styles.optionSubText}>170 GBP</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={styles.optionSelected}
             onPress={() =>
               onSelectSubscription('price_1R57DZDnmorUxClnRG48rfKZ')
-            }>
+            }
+            style={[
+              styles.optionSelected,
+              selectedSubscription === 'price_1R57DZDnmorUxClnRG48rfKZ' &&
+                styles.optionFocused,
+            ]}>
             <Image
               source={require('../../assets/loyalty.png')}
               style={styles.optionImage}
@@ -452,7 +437,7 @@ const SalvageRoute = ({products, onSelectSubscription}) => {
 };
 
 // ScrapRoute Component
-const ScrapRoute = ({products, onSelectSubscription}) => {
+const ScrapRoute = ({products, onSelectSubscription, selectedSubscription}) => {
   const [showBottomSheet, setShowBottomSheet] = React.useState(false);
 
   return (
@@ -474,7 +459,11 @@ const ScrapRoute = ({products, onSelectSubscription}) => {
             onPress={() =>
               onSelectSubscription('price_1R573DDnmorUxClnp4X4Imki')
             }
-            style={styles.optionSelected}>
+            style={[
+              styles.optionSelected,
+              selectedSubscription === 'price_1R573DDnmorUxClnp4X4Imki' &&
+                styles.optionFocused,
+            ]}>
             <Image
               source={require('../../assets/loyalty.png')}
               style={styles.optionImage}
@@ -488,7 +477,11 @@ const ScrapRoute = ({products, onSelectSubscription}) => {
             onPress={() =>
               onSelectSubscription('price_1R57CnDnmorUxClnS97UhVMT')
             }
-            style={styles.optionSelected}>
+            style={[
+              styles.optionSelected,
+              selectedSubscription === 'price_1R57CnDnmorUxClnS97UhVMT' &&
+                styles.optionFocused,
+            ]}>
             <Image
               source={require('../../assets/loyalty.png')}
               style={styles.optionImage}
@@ -592,6 +585,11 @@ const styles = StyleSheet.create({
     marginBottom: wp * 0.05,
     height: hp / 4,
   },
+  optionFocused: {
+    backgroundColor: Colors.primary + '20',
+    borderWidth: 2,
+    borderColor: Colors.primary,
+  },
   optionImage: {
     width: '20%',
     height: '20%',
@@ -632,13 +630,12 @@ const styles = StyleSheet.create({
   continueButton: {
     width: '100%',
     padding: 13,
-    borderRadius: 10,
     backgroundColor: Colors.white,
     borderWidth: 2,
     borderColor: Colors.lightGray,
     alignItems: 'center',
     borderRadius: 25,
-    marginTop: hp * 0.03,
+    marginTop: 10,
   },
   continueText: {
     color: Colors.black,
@@ -683,6 +680,29 @@ const styles = StyleSheet.create({
   },
   payButtonText: {
     color: Colors.white,
+    fontSize: wp * 0.045,
+    fontFamily: Fonts.bold,
+  },
+  paymentButtonsContainer: {
+    padding: 20,
+    width: '100%',
+  },
+  paymentButton: {
+    width: '100%',
+    height: 50,
+    marginBottom: 10,
+  },
+  googlePayButton: {
+    width: '100%',
+    height: 50,
+    backgroundColor: '#000000',
+    borderRadius: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  googlePayText: {
+    color: '#FFFFFF',
     fontSize: wp * 0.045,
     fontFamily: Fonts.bold,
   },
