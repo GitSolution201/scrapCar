@@ -10,23 +10,76 @@ import {
   SafeAreaView,
   Platform,
   TouchableWithoutFeedback,
+  Alert,
 } from 'react-native';
 import {hp, wp} from '../../Helper/Responsive';
 import Colors from '../../Helper/Colors';
 import Header from '../../Components/Header';
 import Banner from '../../Components/Banner';
 import {Fonts} from '../../Helper/Fonts';
+import {useSelector} from 'react-redux';
 
 const defaultCarImage = require('../../assets/car2.png');
 
 const Details = ({route, navigation}: {route: any; navigation: any}) => {
   const {car} = route.params;
-  const handleCall = (phoneNumber: any) =>
+  const {hasSubscription} = useSelector(
+    state => state?.subscription?.subscriptionData,
+  );
+
+  const handleCall = (phoneNumber: any) => {
+    if (!hasSubscription) {
+      showSubscriptionAlert();
+      return;
+    }
     Linking.openURL(`tel:${phoneNumber}`);
-  const handleTextMessage = (phoneNumber: any) =>
+  };
+
+  const handleTextMessage = (phoneNumber: any) => {
+    if (!hasSubscription) {
+      showSubscriptionAlert();
+      return;
+    }
     Linking.openURL(`sms:${phoneNumber}`);
-  const handleWhatsApp = (phoneNumber: any) =>
+  };
+
+  const handleWhatsApp = (phoneNumber: any) => {
+    if (!hasSubscription) {
+      showSubscriptionAlert();
+      return;
+    }
     Linking.openURL(`https://wa.me/${phoneNumber}`);
+  };
+
+  const handleMotHistory = () => {
+    if (!hasSubscription) {
+      showSubscriptionAlert();
+      return;
+    }
+    Linking.openURL(
+      `https://www.check-mot.service.gov.uk/results?registration=${car?.registrationNumber}`,
+    );
+  };
+
+  const showSubscriptionAlert = () => {
+    Alert.alert(
+      'Premium Feature 🔒',
+      'To access MOT history and contact details, please upgrade to our premium subscription. Enjoy unlimited access to all features!',
+      [
+        {
+          text: 'Maybe Later',
+          style: 'cancel',
+        },
+        {
+          text: 'Subscribe Now',
+          onPress: () => navigation.navigate('Subscriptions'), 
+          style: 'default',
+        },
+      ],
+      {cancelable: true},
+    );
+  };
+
   const formatDate = dateString => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-GB', {
@@ -85,11 +138,7 @@ const Details = ({route, navigation}: {route: any; navigation: any}) => {
                 <Text style={styles.title}>MOT Status: {car?.motStatus}</Text>
                 <TouchableOpacity
                   style={styles.motHistoryButton}
-                  onPress={() =>
-                    Linking.openURL(
-                      `https://www.check-mot.service.gov.uk/results?registration=${car?.registrationNumber}`,
-                    )
-                  }>
+                  onPress={() => handleMotHistory()}>
                   <Text style={styles.motHistoryText}>MOT history</Text>
                 </TouchableOpacity>
               </View>

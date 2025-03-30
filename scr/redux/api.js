@@ -169,4 +169,25 @@ export const updateViewCount = async (carId, token) => {
     );
   }
 };
+
+
+export const checkSubscription = async (email) => {
+  try {
+    const response = await api.post('/stripe/check-subscription', {
+      email: email
+    });
+    
+    if (response.data) {
+      return response.data;
+    } else {
+      throw new Error(response.data?.message || 'Subscription check failed');
+    }
+  } catch (error) {
+    console.log('Check Subscription Error:', error.response?.data || error.message);
+    throw new Error(
+      error.response?.data?.message || 'Failed to check subscription status'
+    );
+  }
+};
+
 export default api;

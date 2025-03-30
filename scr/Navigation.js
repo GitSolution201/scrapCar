@@ -12,9 +12,11 @@ import CarListings from './Screens/carListings/carListings';
 import CarDeatils from './Screens/CarDetails/carDeatils';
 import Dashboard from './Screens/Dashboard/dashboard';
 import SubscriptionScreen from './Screens/Subscriptions/subscriptions';
-import {useSelector} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import Savage from './Screens/Savage/Savage';
 import {axiosHeader} from './Services/apiHeader';
+import {fetchUserRequest} from './redux/slices/userDetail';
+import {checkSubscriptionRequest} from './redux/slices/subcriptionsSlice';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -77,10 +79,19 @@ const MainStack = () => (
 
 /* App Navigation */
 const AppNavigation = () => {
-  const token = useSelector(state => state.auth.token); // ✅ Directly Checking Token
+  const token = useSelector(state => state.auth.token); 
+  const dispatch = useDispatch();
+  const {userData} = useSelector(state => state?.user);
   useEffect(() => {
     axiosHeader(token);
+    dispatch(fetchUserRequest(token));
+    if (userData?.email) {
+      dispatch(checkSubscriptionRequest({email: userData.email}));
+    }
   }, [token]);
+  const {hasSubscription} = useSelector(
+    state => state?.subscription?.subscriptionData,
+  );
   return (
     <NavigationContainer>
       {token ? <MainStack /> : <AuthStack />}

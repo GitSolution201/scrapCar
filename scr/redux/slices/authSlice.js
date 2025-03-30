@@ -22,9 +22,8 @@ const authSlice = createSlice({
     },
     loginSuccess: (state, action) => {
       state.loading = false;
-      state.token = action.payload.access_token; // Save token
-      state.user = action.payload.user; // Save user data
-      state.deviceId = action.payload.deviceId; // Store deviceId if returned from API
+      state.token = action.payload.access_token; 
+      state.deviceId = action.payload.active_devices; 
       state.loginResponse = {
         success: true,
         message: action.payload.message,

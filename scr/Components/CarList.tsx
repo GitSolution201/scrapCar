@@ -5,11 +5,8 @@ import Colors from '../Helper/Colors';
 import {hp, wp} from '../Helper/Responsive';
 import {Fonts} from '../Helper/Fonts';
 import {useDispatch, useSelector} from 'react-redux';
-import {toggleFavoriteRequest} from '../redux/slices/favouriteSlice';
 import {RequestLocationPermission} from '../Helper/Permisions';
 import Geolocation from 'react-native-geolocation-service';
-import Toast from 'react-native-simple-toast';
-import {getFavListingsRequest} from '../redux/slices/favouriteListingSlice';
 
 const localImages = {
   car1: require('../assets/car.png'),
@@ -18,7 +15,6 @@ const localImages = {
 
 export default function CarList({
   item,
-  itemIndex,
   onPress,
 }: {
   item: any;
@@ -26,9 +22,7 @@ export default function CarList({
   onPress;
 }) {
   const navigation = useNavigation();
-  const dispatch = useDispatch();
   const {favoriteItems} = useSelector((state: any) => state?.favourite);
-  const token = useSelector((state: any) => state.auth?.token);
   const isFavorite = favoriteItems.includes(item._id);
   const [currentLocation, setCurrentLocation] = useState({
     latitude: null,
@@ -53,10 +47,7 @@ export default function CarList({
     }
   };
 
-  const getLocalImage = (index: any) => {
-    const imageKeys = Object.keys(localImages);
-    return localImages[imageKeys[index % imageKeys.length]];
-  };
+
   const getTimeAgo = dateString => {
     const dateAdded = new Date(dateString);
     const now = new Date();
@@ -108,7 +99,6 @@ export default function CarList({
               : require('../assets/simpleHeart.png')
           }
           style={styles.heartIcon}
-          tintColor={Colors?.black}
         />
       </TouchableOpacity>
       {/* Car Image */}

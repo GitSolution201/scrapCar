@@ -9,6 +9,8 @@ import carListingsReducer from './slices/carListingsSlice';
 import userProfileUpdateReducer from './slices/userProfileUpdateSlice';
 import favoritesReducer from './slices/favouriteSlice';
 import favListingsReducer from './slices/favouriteListingSlice';
+import subscriptionReducer from './slices/subcriptionsSlice';
+
 import viewCountReducer from './slices/viewCount'; // Import the new slice
 import authSaga from './sagas/authSaga';
 import userSaga from './sagas/carListingsSaga';
@@ -17,13 +19,13 @@ import userProfileUpdateSage from './sagas/userProfileUpdateSage';
 import favouriteSaga from './sagas/favouriteSaga';
 import favListingsSaga from './sagas/favListingsSaga';
 import viewCountSaga from './sagas/viewCountSaga'; // Import the new saga
-
+import subscriptionSaga from './sagas/subcriptionsSaga';
 const sagaMiddleware = createSagaMiddleware();
 
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
-  whitelist: ['auth', 'carListings', 'user', 'profileUpdate', 'favourite', 'favListings', 'viewCount'], // Add the new slice to the whitelist
+  whitelist: ['auth', 'carListings', 'user', 'profileUpdate', 'favourite', 'favListings', 'viewCount','subscription'], // Add the new slice to the whitelist
 };
 
 const rootReducer = combineReducers({
@@ -34,6 +36,8 @@ const rootReducer = combineReducers({
   favourite: favoritesReducer,
   favListings: favListingsReducer,
   viewCount: viewCountReducer, // Add the new slice
+  subscription: subscriptionReducer, // Add the new reducer
+
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -56,5 +60,6 @@ sagaMiddleware.run(userProfileUpdateSage);
 sagaMiddleware.run(favouriteSaga);
 sagaMiddleware.run(favListingsSaga);
 sagaMiddleware.run(viewCountSaga); // Run the new saga
+sagaMiddleware.run(subscriptionSaga); // Run the new saga
 
 export { store, persistor };
