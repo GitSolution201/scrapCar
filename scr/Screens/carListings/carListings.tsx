@@ -12,6 +12,7 @@ import {
   SafeAreaView,
   Platform,
   TouchableWithoutFeedback,
+  Alert,
 } from 'react-native';
 import Colors from '../../Helper/Colors';
 import {useDispatch, useSelector} from 'react-redux';
@@ -45,6 +46,9 @@ const Listings = () => {
   const dispatch = useDispatch();
   const isFocused = useIsFocused();
   const token = useSelector((state: any) => state.auth?.token);
+  const subscriptionData = useSelector(
+    state => state?.subscription?.subscriptionData
+  );
   // const {loading, error, carListings} = useSelector((state: any) => state.carListings);
   const [loading, setLoading] = useState(false); // Loading state
   const [error, setError] = useState(null); // Error state
@@ -310,10 +314,42 @@ const Listings = () => {
       Toast.show(`${item.make} added to Favorites`);
     }
   };
-  const handleCarDetailsNavigation = car => {
-    dispatch(updateViewCountRequest({carId: car._id, token}));
-    navigation.navigate('CarDeatils', {car});
-  };
+  const handleCarDetailsNavigation = (car) => {
+    const viewCount = car?.views?.length || 0;
+    const subscriptions = subscriptionData?.subscriptions || [];
+    // Check subscription access based on plan name
+    const hasValidSubscription = subscriptions.some(sub => {
+      if (sub.status != 'active') return false;
+      
+      const planName = sub.plan?.name?.toLowerCase() || '';
+      return (
+          (car.tag == 'salvage' && planName.includes('salvage')) ||
+          (car.tag == 'scrap' && planName.includes('scrap'))
+      );
+  });
+    // BLOCK navigation if views > 5 AND no subscription
+    if (viewCount > 5 && !hasValidSubscription) {
+         // ALLOW navigation
+  dispatch(updateViewCountRequest({ carId: car._id, token }));
+  navigation.navigate('CarDeatils', { car });
+    }else  {
+
+  Alert.alert(
+    'Premium Content Locked',
+    `You've viewed too many ${car.tag} vehicles. Subscribe to continue.`,
+    [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+            text: 'Subscribe', 
+            onPress: () => navigation.navigate('Subscriptions') 
+        }
+    ]
+);
+return;
+    }
+
+  
+};
   const renderItem = ({item, index}) => {
     const isFavorite = favoriteItems?.includes(item._id);
 

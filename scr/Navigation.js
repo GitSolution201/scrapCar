@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import {Image} from 'react-native';
+import {Image, Platform} from 'react-native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {NavigationContainer} from '@react-navigation/native';
@@ -17,6 +17,8 @@ import Savage from './Screens/Savage/Savage';
 import {axiosHeader} from './Services/apiHeader';
 import {fetchUserRequest} from './redux/slices/userDetail';
 import {checkSubscriptionRequest} from './redux/slices/subcriptionsSlice';
+import DeviceInfo from 'react-native-device-info';
+import {logout} from './redux/slices/authSlice';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -82,16 +84,51 @@ const AppNavigation = () => {
   const token = useSelector(state => state.auth.token); 
   const dispatch = useDispatch();
   const {userData} = useSelector(state => state?.user);
+
+  // Check device ID and active devices
   useEffect(() => {
-    axiosHeader(token);
-    dispatch(fetchUserRequest(token));
-    if (userData?.email) {
-      dispatch(checkSubscriptionRequest({email: userData.email}));
+    const checkActiveDevice = async () => {
+      try {
+
+        // Get current device ID based on platform
+        const currentDeviceId = Platform.OS === 'android' 
+          ? await DeviceInfo.getAndroidId()
+          : await DeviceInfo.getUniqueId();
+
+        if (userData?.active_devices && currentDeviceId) {
+          // Check if current device ID exists in active devices
+          const isDeviceActive = userData.active_devices.includes(currentDeviceId);
+          
+
+          // If device is not in active devices, logout user
+          if (!isDeviceActive) {
+            console.log('Device not authorized, logging out...');
+            dispatch(logout());
+          }
+        }
+      } catch (error) {
+        console.error('Device check error:', error);
+      }
+    };
+
+    if (userData && token) {
+      checkActiveDevice();
+    }
+  }, [userData, token]);
+
+  // Existing useEffect for subscription check
+  useEffect(() => {
+    if (token) {
+      axiosHeader(token);
+      dispatch(fetchUserRequest(token));
+      if (userData?.email) {
+        dispatch(checkSubscriptionRequest({email: userData.email}));
+      }
     }
   }, [token]);
-  const {hasSubscription} = useSelector(
-    state => state?.subscription?.subscriptionData,
-  );
+
+ 
+
   return (
     <NavigationContainer>
       {token ? <MainStack /> : <AuthStack />}
