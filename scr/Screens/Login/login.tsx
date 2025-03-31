@@ -19,6 +19,7 @@ import Toast from 'react-native-simple-toast';
 import {axiosHeader} from '../../Services/apiHeader';
 import {Fonts} from '../../Helper/Fonts';
 import DeviceInfo from 'react-native-device-info';
+import {checkSubscription} from '../../redux/api';
 
 const Login = ({navigation}: {navigation: any}) => {
   const dispatch = useDispatch();
@@ -75,6 +76,7 @@ const Login = ({navigation}: {navigation: any}) => {
     if (validateForm()) {
       setApiError('');
       const deviceId = await DeviceInfo.getUniqueId();
+
       dispatch(
         loginRequest({
           email,
@@ -82,6 +84,7 @@ const Login = ({navigation}: {navigation: any}) => {
           deviceId, // Add deviceId to the payload
         }),
       );
+      dispatch(checkSubscription({email: email}));
     }
   };
 

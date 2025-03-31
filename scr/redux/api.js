@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { getCallingCode } from 'react-native-country-picker-modal';
+import {getCallingCode} from 'react-native-country-picker-modal';
 import DeviceInfo from 'react-native-device-info';
 // https://scrape4you.onrender.com/auth/register
 // Set up the base Axios instance
@@ -14,11 +14,14 @@ const api = axios.create({
 // Login API
 export const login = async userData => {
   try {
-    const response = await api.post('/auth/login', JSON.stringify({
-      email: userData.email,
-      password: userData.password,
-      deviceId: userData.deviceId // Include deviceId in the request
-    }));
+    const response = await api.post(
+      '/auth/login',
+      JSON.stringify({
+        email: userData.email,
+        password: userData.password,
+        deviceId: userData.deviceId, // Include deviceId in the request
+      }),
+    );
     if (response.data?.message === 'Login successful') {
       return response.data;
     } else {
@@ -55,7 +58,7 @@ export const getUser = async token => {
         'Content-Type': 'application/json',
       },
     });
-    
+
     return response.data; // Return the data
   } catch (error) {
     console.log('Get User Error:', error.response?.data || error.message); // Log the error
@@ -153,7 +156,8 @@ export const updateViewCount = async (carId, token) => {
   const deviceId = await DeviceInfo.getUniqueId();
   try {
     const response = await api.post(
-      `/car/${carId}/view`,{},
+      `/car/${carId}/view`,
+      {},
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -170,23 +174,28 @@ export const updateViewCount = async (carId, token) => {
   }
 };
 
-
-export const checkSubscription = async (email) => {
+export const checkSubscription = async email => {
   try {
     const response = await api.post('/stripe/check-subscription', {
-      email: email
+      email: email,
     });
-    
+    console.log('====================================latest');
+    console.log(response.data);
+    console.log('====================================');
     if (response.data) {
       return response.data;
-    } else {
-      throw new Error(response.data?.message || 'Subscription check failed');
     }
+    return;
+    // throw new Error(response.data?.message || 'Subscription check failed');
   } catch (error) {
-    console.log('Check Subscription Error:', error.response?.data || error.message);
-    throw new Error(
-      error.response?.data?.message || 'Failed to check subscription status'
+    console.log(
+      'Check Subscription Error:',
+      error.response?.data || error.message,
     );
+    // throw new Error(
+    //   error.response?.data?.message || 'Failed to check subscription status',
+    // );
+    return;
   }
 };
 

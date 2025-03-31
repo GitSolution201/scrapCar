@@ -1,5 +1,5 @@
 // Create a new file subscriptionSlice.js
-import { createSlice } from '@reduxjs/toolkit';
+import {createSlice} from '@reduxjs/toolkit';
 
 const initialState = {
   loading: false,
@@ -12,7 +12,7 @@ const subscriptionSlice = createSlice({
   name: 'subscription',
   initialState,
   reducers: {
-    checkSubscriptionRequest: (state) => {
+    checkSubscriptionRequest: state => {
       state.loading = true;
       state.response = null;
       state.error = null;
@@ -28,12 +28,12 @@ const subscriptionSlice = createSlice({
     checkSubscriptionFailure: (state, action) => {
       state.loading = false;
       state.error = action.payload;
-      state.response = { 
-        success: false, 
-        error: action.payload 
+      state.response = {
+        success: false,
+        error: action.payload,
       };
     },
-    resetSubscriptionResponse: (state) => {
+    resetSubscriptionResponse: state => {
       state.response = null;
     },
   },

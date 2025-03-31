@@ -8,14 +8,19 @@ import {
   registerSuccess,
   registerFailure,
 } from '../slices/authSlice'; // Import actions from authSlice
+import {checkSubscriptionRequest} from '../slices/subcriptionsSlice';
 
 // Worker saga for login
 function* handleLogin(action) {
   try {
     const response = yield call(login, action.payload); // Call the login API
     yield put(loginSuccess(response)); // Dispatch success action with API response
+    console.log('====================================');
+    console.log(response);
+    console.log('====================================');
+    yield put(checkSubscriptionRequest({email: response.email}));
   } catch (error) {
-    console.log('@error in saga',error)
+    console.log('@error in saga', error);
     yield put(loginFailure(error.message || 'Login failed')); // Dispatch failure action
   }
 }
@@ -26,7 +31,7 @@ function* handleRegister(action) {
     const response = yield call(register, action.payload);
     yield put(registerSuccess(response));
   } catch (error) {
-    console.log('@EERRR',error)
+    console.log('@EERRR', error);
     yield put(registerFailure(error.message || 'Registration failed'));
   }
 }

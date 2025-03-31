@@ -72,7 +72,7 @@ const Details = ({route, navigation}: {route: any; navigation: any}) => {
         },
         {
           text: 'Subscribe Now',
-          onPress: () => navigation.navigate('Subscriptions'), 
+          onPress: () => navigation.navigate('Subscriptions'),
           style: 'default',
         },
       ],

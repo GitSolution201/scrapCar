@@ -47,7 +47,7 @@ const Listings = () => {
   const isFocused = useIsFocused();
   const token = useSelector((state: any) => state.auth?.token);
   const subscriptionData = useSelector(
-    state => state?.subscription?.subscriptionData
+    state => state?.subscription?.subscriptionData,
   );
   // const {loading, error, carListings} = useSelector((state: any) => state.carListings);
   const [loading, setLoading] = useState(false); // Loading state
@@ -90,14 +90,14 @@ const Listings = () => {
   const fetchCarListings = async () => {
     setLoading(true);
     setError(null);
-  
+
     try {
       if (!token) {
         throw new Error('Token not found');
       }
-  
+
       console.log('Token:', token);
-  
+
       const response = await api.get('/car/get-all-listing', {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -115,7 +115,9 @@ const Listings = () => {
       } else if (err.request) {
         // No response from server (Network error)
         console.log('API Request Error:', err.request);
-        setError('No response from server. Please check your internet connection.');
+        setError(
+          'No response from server. Please check your internet connection.',
+        );
       } else {
         // Other errors
         console.log('API Unexpected Error:', err.message);
@@ -125,30 +127,30 @@ const Listings = () => {
       setLoading(false);
     }
   };
-  
-//   const fetchCarListings = async () => {
-//     setLoading(true); // Set loading to true
-//     setError(null); // Reset error state
 
-//     try {
-//       if (!token) {
-//         throw new Error('Token not found');
-//       }
-// console.log(token)
-//       const response = await api.get('/car/get-all-listing', {
-//         headers: {
-//           Authorization: `Bearer ${token}`,
-//           'Content-Type': 'application/json',
-//         },
-//       });
-//       setCarListings(response.data); // Store carListings in state
-//     } catch (err) {
-//       console.log('API Error:', err);
-//       setError(err.message || 'Failed to fetch car listings'); // Set error message
-//     } finally {
-//       setLoading(false); // Set loading to false
-//     }
-//   };
+  //   const fetchCarListings = async () => {
+  //     setLoading(true); // Set loading to true
+  //     setError(null); // Reset error state
+
+  //     try {
+  //       if (!token) {
+  //         throw new Error('Token not found');
+  //       }
+  // console.log(token)
+  //       const response = await api.get('/car/get-all-listing', {
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //           'Content-Type': 'application/json',
+  //         },
+  //       });
+  //       setCarListings(response.data); // Store carListings in state
+  //     } catch (err) {
+  //       console.log('API Error:', err);
+  //       setError(err.message || 'Failed to fetch car listings'); // Set error message
+  //     } finally {
+  //       setLoading(false); // Set loading to false
+  //     }
+  //   };
   const getLocation = async () => {
     const hasLocationPermission = await RequestLocationPermission();
     if (hasLocationPermission === 'granted') {
@@ -314,42 +316,39 @@ const Listings = () => {
       Toast.show(`${item.make} added to Favorites`);
     }
   };
-  const handleCarDetailsNavigation = (car) => {
+  const handleCarDetailsNavigation = car => {
     const viewCount = car?.views?.length || 0;
     const subscriptions = subscriptionData?.subscriptions || [];
     // Check subscription access based on plan name
     const hasValidSubscription = subscriptions.some(sub => {
       if (sub.status != 'active') return false;
-      
+
       const planName = sub.plan?.name?.toLowerCase() || '';
       return (
-          (car.tag == 'salvage' && planName.includes('salvage')) ||
-          (car.tag == 'scrap' && planName.includes('scrap'))
+        (car.tag == 'salvage' && planName.includes('salvage')) ||
+        (car.tag == 'scrap' && planName.includes('scrap'))
       );
-  });
+    });
     // BLOCK navigation if views > 5 AND no subscription
-    if (viewCount > 5 && !hasValidSubscription) {
-         // ALLOW navigation
-  dispatch(updateViewCountRequest({ carId: car._id, token }));
-  navigation.navigate('CarDeatils', { car });
-    }else  {
-
-  Alert.alert(
-    'Premium Content Locked',
-    `You've viewed too many ${car.tag} vehicles. Subscribe to continue.`,
-    [
-        { text: 'Cancel', style: 'cancel' },
-        { 
-            text: 'Subscribe', 
-            onPress: () => navigation.navigate('Subscriptions') 
-        }
-    ]
-);
-return;
+    if (viewCount < 5) {
+      // ALLOW navigation
+      dispatch(updateViewCountRequest({carId: car._id, token}));
+      navigation.navigate('CarDeatils', {car});
+    } else {
+      Alert.alert(
+        'Premium Content Locked',
+        `You've viewed too many ${car.tag} vehicles. Subscribe to a corporate subscription to have unlimited views.`,
+        [
+          {text: 'Cancel', style: 'cancel'},
+          {
+            text: 'Subscribe',
+            onPress: () => navigation.navigate('Subscriptions'),
+          },
+        ],
+      );
+      return;
     }
-
-  
-};
+  };
   const renderItem = ({item, index}) => {
     const isFavorite = favoriteItems?.includes(item._id);
 
@@ -393,7 +392,7 @@ return;
 
         <Image
           // source={getLocalImage(index)}
-          source={{uri:item?.displayImage}}
+          source={{uri: item?.displayImage}}
           style={styles.carImage}
           resizeMode="contain"
         />
@@ -465,7 +464,6 @@ return;
       </View>
     );
   }
-
   return (
     <SafeAreaView style={styles.container}>
       <Banner navigation={navigation} />

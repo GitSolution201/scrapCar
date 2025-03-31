@@ -1,34 +1,53 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { useSelector } from 'react-redux';
+import React, {useEffect, useState} from 'react';
+import {View, Text, TouchableOpacity, StyleSheet, Alert} from 'react-native';
+import {useDispatch, useSelector} from 'react-redux';
 import Colors from '../Helper/Colors';
-import { hp, wp } from '../Helper/Responsive';
-import { Fonts } from '../Helper/Fonts';
+import {hp, wp} from '../Helper/Responsive';
+import {Fonts} from '../Helper/Fonts';
+import {checkSubscriptionRequest} from '../redux/slices/subcriptionsSlice';
 
-const Banner = ({ navigation }: { navigation: any }) => {
-  const { hasSubscription } = useSelector(
-    (state: any) => state?.subscription?.subscriptionData || {}
+const Banner = ({navigation}: {navigation: any}) => {
+  const {hasSubscription} = useSelector(
+    (state: any) => state?.subscription?.subscriptionData || {},
   );
+  const {
+    loading: userLoading,
+    userData,
+    error: userError,
+  } = useSelector((state: any) => state.user);
+
+  const [subscription, setSubscription] = useState(false);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(checkSubscriptionRequest({email: userData.email}));
+    setSubscription(hasSubscription);
+  }, [hasSubscription]);
 
   return (
     <View style={styles.bannerContainer}>
       {/* Left Section: Text and Price */}
       <View style={styles.leftSection}>
         <View style={styles.priceContainer}>
-          <Text style={styles.discountedPrice}>{hasSubscription ? 'Premium Member' : '$4.99/mo'}</Text>
-          {!hasSubscription && <Text style={styles.originalPrice}>$8.00/mo</Text>}
+          <Text style={styles.discountedPrice}>
+            {subscription ? 'Subscribed' : '£50/week'}
+          </Text>
+          {!subscription && <Text style={styles.originalPrice}>£50/week</Text>}
         </View>
         <Text style={styles.additionalText}>
-          {hasSubscription ? 'Enjoy your premium benefits!' : 'Subscribe to Contact Customers'}
+          {subscription
+            ? 'Enjoy your benefits!'
+            : 'Subscribe to Contact Customers'}
         </Text>
       </View>
 
-    
-        <TouchableOpacity
-          style={styles.getNowButton}
-          onPress={() => navigation.navigate('Subscriptions')}>
-          <Text style={styles.getNowText}>{hasSubscription ? 'Manage':'Get Now'}</Text>
-        </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.getNowButton}
+        onPress={() => navigation.navigate('Subscriptions')}>
+        <Text style={styles.getNowText}>
+          {subscription ? 'Upgrade' : 'Get Now'}
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -46,7 +65,7 @@ const styles = StyleSheet.create({
     shadowColor: Colors.black,
     shadowOpacity: 0.2,
     shadowRadius: wp(1),
-    shadowOffset: { width: 0, height: hp(0.5) },
+    shadowOffset: {width: 0, height: hp(0.5)},
     elevation: 3,
     width: '100%',
   },
