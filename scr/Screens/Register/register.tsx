@@ -96,6 +96,11 @@ const Register = ({navigation}: {navigation: any}) => {
         ...prev,
         passwordError: 'Please enter your password',
       }));
+    }else if (password.length < 6) {
+      setErrorMessages((prev: any) => ({
+        ...prev,
+        passwordError: 'Password must be at least 6 characters',
+      }));
     } else {
       apiCall();
     }

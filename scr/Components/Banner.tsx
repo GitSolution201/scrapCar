@@ -18,9 +18,8 @@ const Banner = ({navigation}: {navigation: any}) => {
 
   const [subscription, setSubscription] = useState(false);
   const dispatch = useDispatch();
-
   useEffect(() => {
-    dispatch(checkSubscriptionRequest({email: userData.email}));
+    dispatch(checkSubscriptionRequest({email: userData?.email}));
     setSubscription(hasSubscription);
   }, [hasSubscription]);
 

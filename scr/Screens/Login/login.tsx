@@ -23,7 +23,7 @@ import {checkSubscription} from '../../redux/api';
 
 const Login = ({navigation}: {navigation: any}) => {
   const dispatch = useDispatch();
-  const {loading, loginResponse, token} = useSelector(
+  const {loading, loginResponse, token,loginSuccess} = useSelector(
     (state: any) => state.auth,
   );
   const [email, setEmail] = useState('');
@@ -52,6 +52,18 @@ const Login = ({navigation}: {navigation: any}) => {
       }
     }
   }, [loginResponse]);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      setFormErrors({
+        email: '',
+        password: '',
+      });
+      setApiError('');
+    });
+
+    return unsubscribe;
+  }, [navigation]);
   const validateForm = () => {
     let errors = {};
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -71,7 +83,6 @@ const Login = ({navigation}: {navigation: any}) => {
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
-
   const handleLogin = async () => {
     if (validateForm()) {
       setApiError('');
