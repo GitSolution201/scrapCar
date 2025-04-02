@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text, TouchableOpacity, StyleSheet, Alert} from 'react-native';
+import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import Colors from '../Helper/Colors';
 import {hp, wp} from '../Helper/Responsive';
@@ -7,21 +7,25 @@ import {Fonts} from '../Helper/Fonts';
 import {checkSubscriptionRequest} from '../redux/slices/subcriptionsSlice';
 
 const Banner = ({navigation}: {navigation: any}) => {
-  const {hasSubscription} = useSelector(
-    (state: any) => state?.subscription?.subscriptionData || {},
+  const {hasSubscription, subscriptions = []} = useSelector(
+    (state: any) => state?.subscription?.subscriptionData || {}
   );
-  const {
-    loading: userLoading,
-    userData,
-    error: userError,
-  } = useSelector((state: any) => state.user);
+  
+  const {userData} = useSelector((state: any) => state.user);
 
   const [subscription, setSubscription] = useState(false);
   const dispatch = useDispatch();
+  
   useEffect(() => {
     dispatch(checkSubscriptionRequest({email: userData?.email}));
     setSubscription(hasSubscription);
   }, [hasSubscription]);
+
+  // Get active subscription details
+  const activeSubscription = subscriptions.find(sub => sub.status === 'active');
+  const subscriptionName = activeSubscription?.plan?.name || 'Premium Plan';
+  const subscriptionPrice = activeSubscription?.plan?.price || 50;
+  const subscriptionInterval = activeSubscription?.plan?.interval || 'week';
 
   return (
     <View style={styles.bannerContainer}>
@@ -29,13 +33,15 @@ const Banner = ({navigation}: {navigation: any}) => {
       <View style={styles.leftSection}>
         <View style={styles.priceContainer}>
           <Text style={styles.discountedPrice}>
-            {subscription ? 'Subscribed' : '£50/week'}
+            {subscription 
+              ? `Subscribed: ${subscriptionName} (£${subscriptionPrice}/${subscriptionInterval})`
+              : '£50/week'}
           </Text>
           {!subscription && <Text style={styles.originalPrice}>£50/week</Text>}
         </View>
         <Text style={styles.additionalText}>
           {subscription
-            ? 'Enjoy your benefits!'
+            ? `Renews on ${new Date(activeSubscription?.currentPeriodEnd).toLocaleDateString()}`
             : 'Subscribe to Contact Customers'}
         </Text>
       </View>
@@ -44,7 +50,7 @@ const Banner = ({navigation}: {navigation: any}) => {
         style={styles.getNowButton}
         onPress={() => navigation.navigate('Subscriptions')}>
         <Text style={styles.getNowText}>
-          {subscription ? 'Upgrade' : 'Get Now'}
+          {subscription ? 'Manage' : 'Get Now'}
         </Text>
       </TouchableOpacity>
     </View>
