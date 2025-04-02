@@ -110,13 +110,29 @@ const SubscriptionScreen = () => {
     }
   };
   useEffect(() => {
-    (async function () {
-      setIsApplePaySupported(await isPlatformPaySupported());
-    })();
+    const initializeApplePay = async () => {
+      if (Platform.OS === 'ios') {
+        try {
+          const supported = await isPlatformPaySupported();
+          setIsApplePaySupported(supported);
+        } catch (error) {
+          console.log('Apple Pay support check error:', error);
+          setIsApplePaySupported(false);
+        }
+      }
+    };
+
+    initializeApplePay();
   }, [isPlatformPaySupported]);
 
   useEffect(() => {
     const checkPlatformPaySupport = async () => {
+      // Add a small delay for Android
+      if (Platform.OS === 'android') {
+        // Wait for component to mount properly
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+
       try {
         if (Platform.OS === 'android') {
           const isSupported = await isPlatformPaySupported({
@@ -134,7 +150,16 @@ const SubscriptionScreen = () => {
         setIsPlatformPayAvailable(false);
       }
     };
-    checkPlatformPaySupport();
+
+    // For Android, we'll run this after a short delay
+    if (Platform.OS === 'android') {
+      const timer = setTimeout(() => {
+        checkPlatformPaySupport();
+      }, 1000);
+      return () => clearTimeout(timer);
+    } else {
+      checkPlatformPaySupport();
+    }
   }, []);
 
   const handlePlatformPay = async () => {
