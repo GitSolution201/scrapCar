@@ -304,10 +304,7 @@ const Listings = () => {
     const dateB = new Date(b.date_added);
     return dateB - dateA;
   });
-  const getLocalImage = (index: any) => {
-    const imageKeys = Object.keys(localImages);
-    return localImages[imageKeys[index % imageKeys.length]];
-  };
+
   const handleToggleFavorite = (item: any, isFavorite: boolean) => {
     dispatch(toggleFavoriteRequest({carId: item?._id, token}));
     if (isFavorite) {
@@ -317,37 +314,8 @@ const Listings = () => {
     }
   };
   const handleCarDetailsNavigation = car => {
-    const viewCount = car?.views?.length || 0;
-    const subscriptions = subscriptionData?.subscriptions || [];
-    // Check subscription access based on plan name
-    const hasValidSubscription = subscriptions.some(sub => {
-      if (sub.status != 'active') return false;
-
-      const planName = sub.plan?.name?.toLowerCase() || '';
-      return (
-        (car.tag == 'salvage' && planName.includes('salvage')) ||
-        (car.tag == 'scrap' && planName.includes('scrap'))
-      );
-    });
-    // BLOCK navigation if views > 5 AND no subscription
-    if (viewCount < 5) {
-      // ALLOW navigation
-      dispatch(updateViewCountRequest({carId: car._id, token}));
-      navigation.navigate('CarDeatils', {car});
-    } else {
-      Alert.alert(
-        'Premium Content Locked',
-        `You've viewed too many ${car.tag} vehicles. Subscribe to a corporate subscription to have unlimited views.`,
-        [
-          {text: 'Cancel', style: 'cancel'},
-          {
-            text: 'Subscribe',
-            onPress: () => navigation.navigate('Subscriptions'),
-          },
-        ],
-      );
-      return;
-    }
+    dispatch(updateViewCountRequest({carId: car._id, token}));
+    navigation.navigate('CarDeatils', {car});
   };
   const renderItem = ({item, index}) => {
     const isFavorite = favoriteItems?.includes(item._id);

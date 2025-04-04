@@ -46,8 +46,8 @@ const SubscriptionScreen = () => {
   const [index, setIndex] = React.useState(0);
 
   const routes = [
-    {key: 'salvage', title: 'Salvage'},
     {key: 'scrap', title: 'Scrap'},
+    {key: 'salvage', title: 'Salvage'},
   ];
   const {initPaymentSheet, presentPaymentSheet, confirmPayment} = useStripe();
   const [email, setEmail] = useState('tayyabjamil999@gmail.com');
@@ -62,7 +62,7 @@ const SubscriptionScreen = () => {
     {
       id: 'price_1R15A1DnmorUxCln7W0DslGy',
       name: 'Salvage Monthly',
-      price: 170,
+      price: 180,
       type: 'salvage',
     },
     {
@@ -74,7 +74,7 @@ const SubscriptionScreen = () => {
     {
       id: 'price_1R573DDnmorUxClnp4X4Imki',
       name: 'Scrap Monthly',
-      price: 170,
+      price: 180,
       type: 'scrap',
     },
     {
@@ -82,6 +82,18 @@ const SubscriptionScreen = () => {
       name: 'Scrap Weekly',
       price: 50,
       type: 'scrap',
+    },
+    {
+      id: 'price_1R9a2eDnmorUxCln8q94c9Xg',
+      name: 'Corporate Monthly Scrap',
+      price: 300,
+      type: 'corporate',
+    },
+    {
+      id: 'price_1R9a3xDnmorUxClnuwyFYx1B',
+      name: 'Corporate Monthly Salvage',
+      price: 300,
+      type: 'corporate',
     },
   ]);
   const [loading, setLoading] = useState(false);
@@ -171,7 +183,6 @@ const SubscriptionScreen = () => {
 
       const amount =
         products.find(p => p.id === subscriptionSelected)?.price || 0;
-      console.log('@SUBSCRIPTION', subscriptionSelected);
 
       const response = await axios.post(
         'https://scrape4you.onrender.com/stripe/create-customer-and-subscription',
@@ -206,7 +217,17 @@ const SubscriptionScreen = () => {
           console.log('Payment error:', error);
           Alert.alert('Error', 'Payment failed. Please try again.');
         } else {
-          Alert.alert('Success', 'Subscription activated successfully!');
+          Alert.alert(
+            'Congratulations! 🎉',
+            'Your subscription has been successfully activated. Welcome to our premium services. You now have access to all features.',
+            [
+              {
+                text: 'Continue',
+                onPress: () => navigation.goBack(),
+              },
+            ],
+            { cancelable: false }
+          );
         }
       }
     } catch (error) {
@@ -321,13 +342,23 @@ const SubscriptionScreen = () => {
             console.log('====================================');
             console.log(res);
             console.log('====================================');
+            Alert.alert(
+              'Congratulations! 🎉',
+              'Your subscription has been successfully activated. Welcome to our premium services. You now have access to all features.',
+              [
+                {
+                  text: 'Continue',
+                  onPress: () => navigation.goBack(),
+                },
+              ],
+              { cancelable: false }
+            );
           })
           .catch(err => {
             console.log('err====================================');
             console.log(err);
             console.log('====================================');
           });
-        navigation.goBack();
       }
       return response.data;
     } catch (error) {
@@ -360,10 +391,10 @@ const SubscriptionScreen = () => {
       },
     };
     switch (route.key) {
-      case 'salvage':
-        return <SalvageRoute {...sharedProps} />;
       case 'scrap':
         return <ScrapRoute {...sharedProps} />;
+      case 'salvage':
+        return <SalvageRoute {...sharedProps} />;
       default:
         return null;
     }
@@ -386,7 +417,7 @@ const SubscriptionScreen = () => {
             cartItems: [
               {
                 label: 'Total',
-                amount: '170', // Pence for GBP
+                amount: '180', // Pence for GBP
                 paymentType: PlatformPay.PaymentType.Immediate,
               },
             ],
@@ -543,24 +574,7 @@ const SalvageRoute = ({
           Expand your inventory with unique opportunities.
         </Text>
         <View style={styles.tabContainer}>
-          <TouchableOpacity
-            onPress={() =>
-              onSelectSubscription('price_1R15A1DnmorUxCln7W0DslGy')
-            }
-            style={[
-              styles.optionSelected,
-              selectedSubscription === 'price_1R15A1DnmorUxCln7W0DslGy' &&
-                styles.optionFocused,
-            ]}>
-            <Image
-              source={require('../../assets/loyalty.png')}
-              style={styles.optionImage}
-              resizeMode="contain"
-            />
-            <Text style={styles.optionText}>Monthly</Text>
-            <Text style={styles.sharingText}>Individual Subscription</Text>
-            <Text style={styles.optionSubText}>170 GBP</Text>
-          </TouchableOpacity>
+        
           <TouchableOpacity
             onPress={() =>
               onSelectSubscription('price_1R57DZDnmorUxClnRG48rfKZ')
@@ -579,6 +593,49 @@ const SalvageRoute = ({
             <Text style={styles.sharingText}>Individual Subscription</Text>
             <Text style={styles.optionSubText}>50 GBP</Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() =>
+              onSelectSubscription('price_1R15A1DnmorUxCln7W0DslGy')
+            }
+            style={[
+              styles.optionSelected,
+              selectedSubscription === 'price_1R15A1DnmorUxCln7W0DslGy' &&
+                styles.optionFocused,
+            ]}>
+            <Image
+              source={require('../../assets/loyalty.png')}
+              style={styles.optionImage}
+              resizeMode="contain"
+            />
+            <Text style={styles.optionText}>Monthly</Text>
+            <Text style={styles.sharingText}>Individual Subscription</Text>
+            <Text style={styles.optionSubText}>180 GBP</Text>
+          </TouchableOpacity>
+        </View>
+        
+        {/* Add Corporate Box */}
+        <View style={[styles.tabContainer, { 
+          justifyContent: 'center',
+          marginHorizontal: wp * 0.05
+        }]}>
+          <TouchableOpacity
+            onPress={() =>
+              onSelectSubscription('price_1R9a3xDnmorUxClnuwyFYx1B')
+            }
+            style={[
+              styles.corporateBox,
+              selectedSubscription === 'price_1R9a3xDnmorUxClnuwyFYx1B' &&
+                styles.optionFocused,
+            ]}>
+            <Image
+              source={require('../../assets/loyalty.png')}
+              style={styles.optionImage}
+              resizeMode="contain"
+            />
+            <Text style={styles.optionText}>Corporate Monthly</Text>
+            <Text style={styles.sharingText}>Business Subscription</Text>
+            <Text style={styles.optionSubText}>300 GBP</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </ScrollView>
@@ -587,7 +644,6 @@ const SalvageRoute = ({
 
 // ScrapRoute Component
 const ScrapRoute = ({products, onSelectSubscription, selectedSubscription}) => {
-  const [showBottomSheet, setShowBottomSheet] = React.useState(false);
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -606,24 +662,6 @@ const ScrapRoute = ({products, onSelectSubscription, selectedSubscription}) => {
         <View style={styles.tabContainer}>
           <TouchableOpacity
             onPress={() =>
-              onSelectSubscription('price_1R573DDnmorUxClnp4X4Imki')
-            }
-            style={[
-              styles.optionSelected,
-              selectedSubscription === 'price_1R573DDnmorUxClnp4X4Imki' &&
-                styles.optionFocused,
-            ]}>
-            <Image
-              source={require('../../assets/loyalty.png')}
-              style={styles.optionImage}
-              resizeMode="contain"
-            />
-            <Text style={styles.optionText}>Monthly</Text>
-            <Text style={styles.sharingText}>Individual Subscription</Text>
-            <Text style={styles.optionSubText}>170 GBP</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() =>
               onSelectSubscription('price_1R57CnDnmorUxClnS97UhVMT')
             }
             style={[
@@ -640,52 +678,55 @@ const ScrapRoute = ({products, onSelectSubscription, selectedSubscription}) => {
             <Text style={styles.sharingText}>Individual Subscription</Text>
             <Text style={styles.optionSubText}>50 GBP</Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() =>
+              onSelectSubscription('price_1R573DDnmorUxClnp4X4Imki')
+            }
+            style={[
+              styles.optionSelected,
+              selectedSubscription === 'price_1R573DDnmorUxClnp4X4Imki' &&
+                styles.optionFocused,
+            ]}>
+            <Image
+              source={require('../../assets/loyalty.png')}
+              style={styles.optionImage}
+              resizeMode="contain"
+            />
+            <Text style={styles.optionText}>Monthly</Text>
+            <Text style={styles.sharingText}>Individual Subscription</Text>
+            <Text style={styles.optionSubText}>180 GBP</Text>
+          </TouchableOpacity>
+        </View>
+        
+        {/* Add Corporate Box */}
+        <View style={[styles.tabContainer, { 
+          justifyContent: 'center',
+          marginHorizontal: wp * 0.05
+        }]}>
+          <TouchableOpacity
+            onPress={() =>
+              onSelectSubscription('price_1R9a2eDnmorUxCln8q94c9Xg')
+            }
+            style={[
+              styles.corporateBox,
+              selectedSubscription === 'price_1R9a2eDnmorUxCln8q94c9Xg' &&
+                styles.optionFocused,
+            ]}>
+            <Image
+              source={require('../../assets/loyalty.png')}
+              style={styles.optionImage}
+              resizeMode="contain"
+            />
+            <Text style={styles.optionText}>Corporate Monthly</Text>
+            <Text style={styles.sharingText}>Business Subscription</Text>
+            <Text style={styles.optionSubText}>300 GBP</Text>
+          </TouchableOpacity>
         </View>
       </View>
-
-      {/* Custom Bottom Sheet */}
-      {/* <Modal
-        visible={showBottomSheet}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setShowBottomSheet(false)}>
-        <View style={styles.bottomSheetOverlay}>
-          <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            style={styles.bottomSheetContainer}>
-            <View style={styles.bottomSheetHeader}>
-              <Text style={styles.bottomSheetTitle}>Enter Card Details</Text>
-              <TouchableOpacity onPress={() => setShowBottomSheet(false)}>
-                <Text style={styles.bottomSheetClose}>Close</Text>
-              </TouchableOpacity>
-            </View>
-            <CardField
-              postalCodeEnabled={true}
-              placeholders={{
-                number: '4242 4242 4242 4242',
-              }}
-              cardStyle={{
-                backgroundColor: '#E9E9E9',
-                textColor: '#000000',
-              }}
-              style={{
-                width: '100%',
-                height: 50,
-                marginVertical: 20,
-              }}
-              onCardChange={cardDetails => {
-                setCardDetails(cardDetails);
-              }}
-            />
-            <TouchableOpacity style={styles.payButton}>
-              <Text style={styles.payButtonText}>Pay Now</Text>
-            </TouchableOpacity>
-          </KeyboardAvoidingView>
-        </View>
-      </Modal> */}
     </ScrollView>
   );
 };
+
 
 // Scene Map for TabView
 
@@ -731,8 +772,9 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: wp * 0.05,
-    height: hp / 4,
+    marginBottom: wp * 0.03,
+    height: hp / 4.5,
+    padding: 10,
   },
   optionFocused: {
     backgroundColor: Colors.primary + '20',
@@ -740,12 +782,12 @@ const styles = StyleSheet.create({
     borderColor: Colors.primary,
   },
   optionImage: {
-    width: '20%',
-    height: '20%',
+    width: '18%',
+    height: '18%',
   },
   optionText: {
-    marginTop: wp * 0.02,
-    fontSize: wp * 0.05,
+    marginTop: wp * 0.01,
+    fontSize: wp * 0.045,
     fontFamily: Fonts.bold,
     color: Colors.black,
   },
@@ -756,8 +798,8 @@ const styles = StyleSheet.create({
     color: Colors.footerGray,
   },
   optionSubText: {
-    marginTop: wp * 0.02,
-    fontSize: wp * 0.05,
+    marginTop: wp * 0.01,
+    fontSize: wp * 0.045,
     fontFamily: Fonts.bold,
     color: Colors.black,
   },
@@ -854,6 +896,18 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: wp * 0.045,
     fontFamily: Fonts.bold,
+  },
+  corporateBox: {
+    width: wp - (wp * 0.1), // Full width minus padding
+    height: hp / 4.5,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: Colors.primary,
+    backgroundColor: Colors.white,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: wp * 0.03,
+    padding: 10,
   },
 });
 

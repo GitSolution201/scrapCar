@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -11,6 +11,7 @@ import {
   Platform,
   TouchableWithoutFeedback,
   Alert,
+  Modal,
 } from 'react-native';
 import {hp, wp} from '../../Helper/Responsive';
 import Colors from '../../Helper/Colors';
@@ -18,6 +19,7 @@ import Header from '../../Components/Header';
 import Banner from '../../Components/Banner';
 import {Fonts} from '../../Helper/Fonts';
 import {useSelector} from 'react-redux';
+import WebView from 'react-native-webview';
 
 const defaultCarImage = require('../../assets/car2.png');
 
@@ -26,6 +28,8 @@ const Details = ({route, navigation}: {route: any; navigation: any}) => {
   const {hasSubscription} = useSelector(
     state => state?.subscription?.subscriptionData,
   );
+  const [showWebView, setShowWebView] = useState(false);
+  const [webViewUrl, setWebViewUrl] = useState('');
 
   const handleCall = (phoneNumber: any) => {
     if (!hasSubscription) {
@@ -56,9 +60,10 @@ const Details = ({route, navigation}: {route: any; navigation: any}) => {
       showSubscriptionAlert();
       return;
     }
-    Linking.openURL(
+    setWebViewUrl(
       `https://www.check-mot.service.gov.uk/results?registration=${car?.registrationNumber}`,
     );
+    setShowWebView(true);
   };
 
   const showSubscriptionAlert = () => {
@@ -176,6 +181,28 @@ const Details = ({route, navigation}: {route: any; navigation: any}) => {
             ))}
           </View>
         </View>
+        <Modal
+          visible={showWebView}
+          animationType="slide"
+          onRequestClose={() => setShowWebView(false)}>
+          <View style={styles.webViewContainer}>
+            <View style={styles.webViewHeader}>
+              <TouchableOpacity
+                onPress={() => setShowWebView(false)}
+                style={styles.closeButton}>
+                <Text style={styles.closeButtonText}>Close</Text>
+              </TouchableOpacity>
+            </View>
+            <WebView
+              source={{uri: webViewUrl}}
+              style={styles.webView}
+              startInLoadingState={true}
+              onError={(syntheticEvent) => {
+                console.error('WebView error:', syntheticEvent.nativeEvent);
+              }}
+            />
+          </View>
+        </Modal>
       </SafeAreaView>
     </ScrollView>
   );
@@ -331,6 +358,28 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontSize: wp(3),
     fontFamily: Fonts.semiBold,
+  },
+  webViewContainer: {
+    flex: 1,
+    backgroundColor: Colors.white,
+  },
+  webViewHeader: {
+    padding: wp(4),
+    backgroundColor: Colors.primary,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+  closeButton: {
+    paddingHorizontal: wp(4),
+    paddingVertical: wp(2),
+  },
+  closeButtonText: {
+    color: Colors.white,
+    fontSize: wp(4),
+    fontFamily: Fonts.semiBold,
+  },
+  webView: {
+    flex: 1,
   },
 });
 

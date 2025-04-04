@@ -8,40 +8,48 @@ import {checkSubscriptionRequest} from '../redux/slices/subcriptionsSlice';
 
 const Banner = ({navigation}: {navigation: any}) => {
   const {hasSubscription, subscriptions = []} = useSelector(
-    (state: any) => state?.subscription?.subscriptionData || {}
+    (state: any) => state?.subscription?.subscriptionData || {},
   );
-  
+
   const {userData} = useSelector((state: any) => state.user);
 
   const [subscription, setSubscription] = useState(false);
   const dispatch = useDispatch();
-  
+
   useEffect(() => {
     dispatch(checkSubscriptionRequest({email: userData?.email}));
     setSubscription(hasSubscription);
   }, [hasSubscription]);
-
   // Get active subscription details
   const activeSubscription = subscriptions.find(sub => sub.status === 'active');
-  const subscriptionName = activeSubscription?.plan?.name || 'Premium Plan';
-  const subscriptionPrice = activeSubscription?.plan?.price || 50;
-  const subscriptionInterval = activeSubscription?.plan?.interval || 'week';
-
+  const subscriptionName =
+    activeSubscription?.plan?.name === 'Unknown Plan'
+      ? 'Corporate Plan'
+      : activeSubscription?.plan?.name || 'Premium Plan';
+  const subscriptionPrice = activeSubscription?.plan?.price || 300;
+  const subscriptionInterval =
+    activeSubscription?.plan?.interval === 'N/A'
+      ? 'monthly'
+      : activeSubscription?.plan?.interval || 'week';
   return (
     <View style={styles.bannerContainer}>
       {/* Left Section: Text and Price */}
       <View style={styles.leftSection}>
         <View style={styles.priceContainer}>
           <Text style={styles.discountedPrice}>
-            {subscription 
+            {subscription
               ? `Subscribed: ${subscriptionName} (£${subscriptionPrice}/${subscriptionInterval})`
-              : '£50/week'}
+              : '£90/week'}
           </Text>
-          {!subscription && <Text style={styles.originalPrice}>£50/week</Text>}
+          {!subscription && (
+            <Text style={styles.originalPrice}>£180/Monthly</Text>
+          )}
         </View>
         <Text style={styles.additionalText}>
           {subscription
-            ? `Renews on ${new Date(activeSubscription?.currentPeriodEnd).toLocaleDateString()}`
+            ? `Renews on ${new Date(
+                activeSubscription?.currentPeriodEnd,
+              ).toLocaleDateString()}`
             : 'Subscribe to Contact Customers'}
         </Text>
       </View>
@@ -91,9 +99,8 @@ const styles = StyleSheet.create({
   },
   originalPrice: {
     fontSize: wp(3),
-    fontFamily: Fonts.regular,
+    fontFamily: Fonts.semiBold,
     color: Colors.black,
-    textDecorationLine: 'line-through',
   },
   additionalText: {
     fontFamily: Fonts.regular,
