@@ -185,11 +185,17 @@ const Details = ({route, navigation}: {route: any; navigation: any}) => {
           visible={showWebView}
           animationType="slide"
           onRequestClose={() => setShowWebView(false)}>
-          <View style={styles.webViewContainer}>
-            <View style={styles.webViewHeader}>
+          <SafeAreaView style={styles.webViewContainer}>
+            <View style={[
+              styles.webViewHeader,
+              Platform.OS === 'ios' && styles.webViewHeaderIOS
+            ]}>
               <TouchableOpacity
                 onPress={() => setShowWebView(false)}
-                style={styles.closeButton}>
+                style={[
+                  styles.closeButton,
+                  Platform.OS === 'ios' && styles.closeButtonIOS
+                ]}>
                 <Text style={styles.closeButtonText}>Close</Text>
               </TouchableOpacity>
             </View>
@@ -201,7 +207,7 @@ const Details = ({route, navigation}: {route: any; navigation: any}) => {
                 console.error('WebView error:', syntheticEvent.nativeEvent);
               }}
             />
-          </View>
+          </SafeAreaView>
         </Modal>
       </SafeAreaView>
     </ScrollView>
@@ -369,9 +375,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-end',
   },
+  webViewHeaderIOS: {
+    paddingTop: hp(2),
+  },
   closeButton: {
     paddingHorizontal: wp(4),
     paddingVertical: wp(2),
+  },
+  closeButtonIOS: {
+    paddingVertical: wp(3),
   },
   closeButtonText: {
     color: Colors.white,
