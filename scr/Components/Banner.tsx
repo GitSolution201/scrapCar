@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import {View, Text, TouchableOpacity, StyleSheet, ActivityIndicator} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import Colors from '../Helper/Colors';
 import {hp, wp} from '../Helper/Responsive';
@@ -10,16 +10,19 @@ const Banner = ({navigation}: {navigation: any}) => {
   const {hasSubscription, subscriptions = []} = useSelector(
     (state: any) => state?.subscription?.subscriptionData || {},
   );
-
+  const loading = useSelector((state: any) => state?.subscription?.loading);
   const {userData} = useSelector((state: any) => state.user);
 
   const [subscription, setSubscription] = useState(false);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(checkSubscriptionRequest({email: userData?.email}));
+    if (userData?.email) {
+      dispatch(checkSubscriptionRequest({email: userData?.email}));
+    }
     setSubscription(hasSubscription);
-  }, [hasSubscription]);
+  }, [userData?.email, hasSubscription]);
+
   // Get active subscription details
   const activeSubscription = subscriptions.find(sub => sub.status === 'active');
   const subscriptionName =
@@ -31,6 +34,16 @@ const Banner = ({navigation}: {navigation: any}) => {
     activeSubscription?.plan?.interval === 'N/A'
       ? 'monthly'
       : activeSubscription?.plan?.interval || 'week';
+
+  if (loading) {
+    return (
+      <View style={[styles.bannerContainer, styles.loaderContainer]}>
+        <ActivityIndicator size="large" color={Colors.primary} />
+        <Text style={styles.loadingText}>Loading subscription details...</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.bannerContainer}>
       {/* Left Section: Text and Price */}
@@ -120,6 +133,18 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.bold,
     color: Colors.primary,
     textAlign: 'center',
+  },
+  loaderContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    minHeight: hp(10),
+    padding: wp(4),
+  },
+  loadingText: {
+    marginTop: hp(1),
+    color: Colors.primary,
+    fontSize: wp(3.5),
+    fontFamily: Fonts.regular,
   },
 });
 

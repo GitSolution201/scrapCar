@@ -105,7 +105,7 @@ const SubscriptionScreen = () => {
     error: userError,
   } = useSelector((state: any) => state.user);
   const {hasSubscription, subscriptions = []} = useSelector(
-    (state) => state?.subscription?.subscriptionData || {},
+    state => state?.subscription?.subscriptionData || {},
   );
   const dispatch = useDispatch();
 
@@ -126,54 +126,72 @@ const SubscriptionScreen = () => {
 
   useEffect(() => {
     if (subscriptions && subscriptions.length > 0) {
-      const activeSubscription = subscriptions.find(sub => sub.status === 'active');
+      const activeSubscription = subscriptions.find(
+        sub => sub.status === 'active',
+      );
       if (activeSubscription && activeSubscription.plan) {
-        console.log("Active subscription found:", activeSubscription.plan);
-        
+        console.log('Active subscription found:', activeSubscription.plan);
+
         // First check the subscription name
         let planName = activeSubscription.plan.name;
         let planType = ''; // 'scrap', 'salvage', or 'corporate'
         let interval = activeSubscription.plan.interval; // 'month' or 'week'
-        
+
         // Determine the subscription type
         if (planName.toLowerCase().includes('scrap')) {
           planType = 'scrap';
         } else if (planName.toLowerCase().includes('salvage')) {
           planType = 'salvage';
-        } else if (planName.toLowerCase().includes('corporate') || planName === 'Unknown Plan') {
+        } else if (
+          planName.toLowerCase().includes('corporate') ||
+          planName === 'Unknown Plan'
+        ) {
           planType = 'corporate';
         }
-        
+
         // Find matching product by type and interval
         const matchingProduct = products.find(product => {
           // Match by type first
           const productMatchesType = product.type === planType;
           if (!productMatchesType) return false;
-          
+
           // Then match by interval
-          if (interval === 'month' && product.name.toLowerCase().includes('monthly')) {
+          if (
+            interval === 'month' &&
+            product.name.toLowerCase().includes('monthly')
+          ) {
             return true;
           }
-          if (interval === 'week' && product.name.toLowerCase().includes('weekly')) {
+          if (
+            interval === 'week' &&
+            product.name.toLowerCase().includes('weekly')
+          ) {
             return true;
           }
-          
+
           // If interval is not clear, just match by type
           if (!interval || interval === 'N/A') {
             // Default to monthly for Unknown Plans
-            if (planName === 'Unknown Plan' && product.name.toLowerCase().includes('monthly')) {
+            if (
+              planName === 'Unknown Plan' &&
+              product.name.toLowerCase().includes('monthly')
+            ) {
               return true;
             }
             return productMatchesType;
           }
-          
+
           return false;
         });
-        
+
         if (matchingProduct) {
-          console.log('Setting active subscription:', matchingProduct.name, matchingProduct.id);
+          console.log(
+            'Setting active subscription:',
+            matchingProduct.name,
+            matchingProduct.id,
+          );
           setSubscriptionSelected(matchingProduct.id);
-          
+
           // Set the tab index based on the subscription type
           if (planType === 'scrap') {
             setIndex(0); // Switch to Scrap tab
@@ -181,7 +199,12 @@ const SubscriptionScreen = () => {
             setIndex(1); // Switch to Salvage tab
           }
         } else {
-          console.log('No matching product found for:', planName, interval, planType);
+          console.log(
+            'No matching product found for:',
+            planName,
+            interval,
+            planType,
+          );
         }
       }
     }
@@ -254,8 +277,8 @@ const SubscriptionScreen = () => {
         Alert.alert('Error', 'Please select a subscription plan first');
         return;
       }
-      console.log('@subcription', subscriptionSelected?.price );
-      console.log('@prodcut', products );
+      console.log('@subcription', subscriptionSelected?.price);
+      console.log('@prodcut', products);
 
       const amount =
         products.find(p => p.id === subscriptionSelected)?.price || 0;
@@ -299,10 +322,13 @@ const SubscriptionScreen = () => {
             [
               {
                 text: 'Continue',
-                onPress: () => navigation.goBack(),
+                onPress: () => {
+                  dispatch(checkSubscriptionRequest({email: userData.email})),
+                    navigation.goBack();
+                },
               },
             ],
-            { cancelable: false }
+            {cancelable: false},
           );
         }
       }
@@ -424,10 +450,13 @@ const SubscriptionScreen = () => {
               [
                 {
                   text: 'Continue',
-                  onPress: () => navigation.goBack(),
+                  onPress: () => {
+                    dispatch(checkSubscriptionRequest({email: userData.email})),
+                      navigation.goBack();
+                  },
                 },
               ],
-              { cancelable: false }
+              {cancelable: false},
             );
           })
           .catch(err => {
@@ -588,96 +617,6 @@ const SubscriptionScreen = () => {
         />
         {subscriptionSelected !== '' ? (
           <>
-            <View style={styles.actionButtonsContainer}>
-            <TouchableOpacity
-  style={styles.updateButton}
-  onPress={() => {
-    const planName = getSelectedPlanName();
-    
-    if (!planName) {
-      Alert.alert('Error', 'Please select a subscription plan first');
-      return;
-    }
-    
-    Alert.alert(
-      'Update Subscription',
-      `Are you sure you want to update to ${planName}?`,
-      [
-        {
-          text: 'Cancel',
-          style: 'cancel',
-        },
-        {
-          text: 'Update',
-          onPress: async () => {
-            try {
-              setLoading(true);
-              
-              const response = await axios.put(
-                'https://scrape4you.onrender.com/stripe/update-subscription',
-                {
-                  // email: email,
-                  subscriptionType: planName, // Removed array brackets since it's a single string
-                  // priceId: subscriptionSelected,
-                },
-              );
-              
-              console.log('Subscription updated:', response.data);
-              Alert.alert(
-                'Success!',
-                'Your subscription has been updated successfully.',
-                [
-                  {
-                    text: 'OK',
-                    onPress: () => navigation.goBack(),
-                  },
-                ],
-                { cancelable: false }
-              );
-            } catch (error) {
-              console.log('Update subscription error:', error);
-              
-              let errorMessage = 'Failed to update subscription. Please try again.';
-              if (error.response?.data?.message) {
-                errorMessage = error.response.data.message;
-              }
-              
-              Alert.alert('Error', errorMessage);
-            } finally {
-              setLoading(false);
-            }
-          },
-        },
-      ],
-    );
-  }}>
-  <Text style={styles.actionButtonText}>Update Subscription</Text>
-</TouchableOpacity>
-              <TouchableOpacity
-                style={styles.deleteButton}
-                onPress={() => {
-                  Alert.alert(
-                    'Cancel Subscription',
-                    'Are you sure you want to cancel your subscription?',
-                    [
-                      {
-                        text: 'No',
-                        style: 'cancel',
-                      },
-                      {
-                        text: 'Yes, Cancel',
-                        onPress: () => {
-                          // Add your delete logic here
-                          Alert.alert('Success', 'Subscription cancelled successfully!');
-                        },
-                      },
-                    ],
-                  );
-                }}>
-                <Text style={styles.deleteButtonText}>Cancel Subscription</Text>
-              </TouchableOpacity>
-            </View>
-
             <View style={styles.paymentButtonsContainer}>
               {isApplePaySupported && (
                 <PlatformPayButton
@@ -697,6 +636,34 @@ const SubscriptionScreen = () => {
                 style={styles.continueButton}
                 onPress={openPaymentSheet}>
                 <Text style={styles.continueText}>Pay By Card</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.actionButtonsContainer}>
+              <TouchableOpacity
+                style={styles.deleteButton}
+                onPress={() => {
+                  Alert.alert(
+                    'Cancel Subscription',
+                    'Are you sure you want to cancel your subscription?',
+                    [
+                      {
+                        text: 'No',
+                        style: 'cancel',
+                      },
+                      {
+                        text: 'Yes, Cancel',
+                        onPress: () => {
+                          // Add your delete logic here
+                          Alert.alert(
+                            'Success',
+                            'Subscription cancelled successfully!',
+                          );
+                        },
+                      },
+                    ],
+                  );
+                }}>
+                <Text style={styles.deleteButtonText}>Cancel Subscription</Text>
               </TouchableOpacity>
             </View>
           </>
@@ -747,7 +714,6 @@ const SalvageRoute = ({
           Expand your inventory with unique opportunities.
         </Text>
         <View style={styles.tabContainer}>
-        
           <TouchableOpacity
             onPress={() =>
               onSelectSubscription('price_1R57DZDnmorUxClnRG48rfKZ')
@@ -785,12 +751,16 @@ const SalvageRoute = ({
             <Text style={styles.optionSubText}>180 GBP</Text>
           </TouchableOpacity>
         </View>
-        
+
         {/* Add Corporate Box */}
-        <View style={[styles.tabContainer, { 
-          justifyContent: 'center',
-          marginHorizontal: wp * 0.05
-        }]}>
+        <View
+          style={[
+            styles.tabContainer,
+            {
+              justifyContent: 'center',
+              marginHorizontal: wp * 0.05,
+            },
+          ]}>
           <TouchableOpacity
             onPress={() =>
               onSelectSubscription('price_1R9a3xDnmorUxClnuwyFYx1B')
@@ -817,7 +787,6 @@ const SalvageRoute = ({
 
 // ScrapRoute Component
 const ScrapRoute = ({products, onSelectSubscription, selectedSubscription}) => {
-
   return (
     <ScrollView contentContainerStyle={styles.scrollContent}>
       <View style={styles.tabContent}>
@@ -870,12 +839,16 @@ const ScrapRoute = ({products, onSelectSubscription, selectedSubscription}) => {
             <Text style={styles.optionSubText}>180 GBP</Text>
           </TouchableOpacity>
         </View>
-        
+
         {/* Add Corporate Box */}
-        <View style={[styles.tabContainer, { 
-          justifyContent: 'center',
-          marginHorizontal: wp * 0.05
-        }]}>
+        <View
+          style={[
+            styles.tabContainer,
+            {
+              justifyContent: 'center',
+              marginHorizontal: wp * 0.05,
+            },
+          ]}>
           <TouchableOpacity
             onPress={() =>
               onSelectSubscription('price_1R9a2eDnmorUxCln8q94c9Xg')
@@ -899,7 +872,6 @@ const ScrapRoute = ({products, onSelectSubscription, selectedSubscription}) => {
     </ScrollView>
   );
 };
-
 
 // Scene Map for TabView
 
@@ -1049,7 +1021,7 @@ const styles = StyleSheet.create({
   },
   paymentButtonsContainer: {
     paddingHorizontal: 20,
-    paddingVertical:10,
+    paddingVertical: 10,
     width: '100%',
   },
   paymentButton: {
@@ -1072,7 +1044,7 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.bold,
   },
   corporateBox: {
-    width: wp - (wp * 0.1), // Full width minus padding
+    width: wp - wp * 0.1, // Full width minus padding
     height: hp / 4.5,
     borderRadius: 10,
     borderWidth: 1,
@@ -1090,32 +1062,16 @@ const styles = StyleSheet.create({
     marginVertical: hp * 0.02,
     marginBottom: hp * 0.01,
   },
-  updateButton: {
-    width: '48%',
-    paddingVertical: hp * 0.015,
-    backgroundColor: Colors.primary,
-    alignItems: 'center',
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: Colors.primary,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.23,
-    shadowRadius: 2.62,
-    elevation: 4,
-  },
+
   deleteButton: {
-    width: '48%',
+    width: '100%',
     paddingVertical: hp * 0.015,
     backgroundColor: Colors.white,
     alignItems: 'center',
     borderRadius: 20,
     borderWidth: 1,
     borderColor: '#FF3B30',
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 2,
@@ -1133,7 +1089,7 @@ const styles = StyleSheet.create({
     color: '#FF3B30',
     fontSize: wp * 0.038,
     fontFamily: Fonts.semiBold,
-  }
+  },
 });
 
 export default SubscriptionScreen;
