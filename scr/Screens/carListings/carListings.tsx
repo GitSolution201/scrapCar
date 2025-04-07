@@ -347,11 +347,13 @@ const Listings = () => {
           disabled={item.isSold}
           style={[
             styles.listingCard,
-            item.isSold && styles.listingCardBlurred
+            item.isSold && styles.listingCardBlurred,
           ]}>
           <TouchableWithoutFeedback
             style={styles.heartIconContainer}
-            onPress={() => !item.isSold && handleToggleFavorite(item, isFavorite)}
+            onPress={() =>
+              !item.isSold && handleToggleFavorite(item, isFavorite)
+            }
             disabled={item.isSold}>
             <Image
               source={
@@ -359,21 +361,22 @@ const Listings = () => {
                   ? require('../../assets/heart.png')
                   : require('../../assets/simpleHeart.png')
               }
-              style={[styles.heartIcon, item.isSold && { opacity: 0.5 }]}
+              style={[styles.heartIcon, item.isSold && {opacity: 0.5}]}
               tintColor={Colors?.black}
             />
           </TouchableWithoutFeedback>
 
           <Image
             source={{uri: item?.displayImage}}
-            style={[styles.carImage, item.isSold && { opacity: 0.5 }]}
+            style={[styles.carImage, item.isSold && {opacity: 0.5}]}
             resizeMode="contain"
           />
 
-          <View style={[
-            styles.detailsContainer,
-            item.isSold && styles.blurredContent
-          ]}>
+          <View
+            style={[
+              styles.detailsContainer,
+              item.isSold && styles.blurredContent,
+            ]}>
             <View style={styles.carTagContainer}>
               <Text style={styles.scrapText}>{item.tag || 'Unknown'}</Text>
             </View>
@@ -390,7 +393,10 @@ const Listings = () => {
             ].map(([label, value], index) => (
               <View key={index} style={styles.infoRow}>
                 <Text style={styles.label}>{label}</Text>
-                <Text style={styles.value} numberOfLines={1} ellipsizeMode="tail">
+                <Text
+                  style={styles.value}
+                  numberOfLines={1}
+                  ellipsizeMode="tail">
                   {value?.toString().toUpperCase() || 'N/A'}
                 </Text>
               </View>
@@ -400,23 +406,32 @@ const Listings = () => {
               <View style={{alignItems: 'center'}}>
                 <Image
                   source={require('../../assets/pin.png')}
-                  style={[styles.icon, item.isSold && { opacity: 0.5 }]}
+                  style={[styles.icon, item.isSold && {opacity: 0.5}]}
                 />
-                <Text style={[styles.footerText, item.isSold && { opacity: 0.5 }]}>{distance}</Text>
+                <Text
+                  style={[styles.footerText, item.isSold && {opacity: 0.5}]}>
+                  {distance}
+                </Text>
               </View>
               <View style={{alignItems: 'center'}}>
                 <Image
                   source={require('../../assets/timer.png')}
-                  style={[styles.icon, item.isSold && { opacity: 0.5 }]}
+                  style={[styles.icon, item.isSold && {opacity: 0.5}]}
                 />
-                <Text style={[styles.footerText, item.isSold && { opacity: 0.5 }]}>{timeAgo}</Text>
+                <Text
+                  style={[styles.footerText, item.isSold && {opacity: 0.5}]}>
+                  {timeAgo}
+                </Text>
               </View>
               <View style={{alignItems: 'center'}}>
                 <Image
                   source={require('../../assets/eye.png')}
-                  style={[styles.icon, item.isSold && { opacity: 0.5 }]}
+                  style={[styles.icon, item.isSold && {opacity: 0.5}]}
                 />
-                <Text style={[styles.footerText, item.isSold && { opacity: 0.5 }]}>{item?.views?.length}</Text>
+                <Text
+                  style={[styles.footerText, item.isSold && {opacity: 0.5}]}>
+                  {item?.views?.length}
+                </Text>
               </View>
             </View>
           </View>
@@ -851,7 +866,7 @@ const styles = StyleSheet.create({
     paddingVertical: hp(6.8),
     borderTopLeftRadius: wp(4),
     borderTopRightRadius: wp(4),
-     borderBottomLeftRadius: wp(4),
+    borderBottomLeftRadius: wp(4),
     borderBottomRightRadius: wp(4),
     alignItems: 'center',
     justifyContent: 'center',
@@ -869,6 +884,21 @@ const styles = StyleSheet.create({
     fontSize: wp(4),
     fontFamily: Fonts.bold,
     letterSpacing: 1,
+  },
+  listingCard: {
+    backgroundColor: Colors.white,
+    borderRadius: wp(4),
+    borderWidth: 0.2,
+    marginTop: hp(1.5),
+    marginBottom: hp(3.5),
+    paddingTop: hp(3.5),
+    paddingHorizontal: wp(3.5),
+    paddingBottom: hp(2),
+    shadowColor: Colors.black,
+    shadowOpacity: 0.1,
+    shadowRadius: wp(1),
+    shadowOffset: {width: 0, height: hp(0.5)},
+    elevation: 3,
   },
   listingCardBlurred: {
     opacity: 0.7,
