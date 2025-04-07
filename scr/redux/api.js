@@ -180,7 +180,7 @@ export const checkSubscription = async email => {
       email: email,
     });
     console.log('====================================latest');
-    console.log(response.data);
+    console.log(response.data?.subscriptions);
     console.log('====================================');
     if (response.data) {
       return response.data;

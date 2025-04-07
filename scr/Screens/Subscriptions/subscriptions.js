@@ -126,89 +126,53 @@ const SubscriptionScreen = () => {
 
   useEffect(() => {
     if (subscriptions && subscriptions.length > 0) {
-      const activeSubscription = subscriptions.find(
-        sub => sub.status === 'active',
-      );
+      const activeSubscription = subscriptions.find(sub => sub.status === 'active');
       if (activeSubscription && activeSubscription.plan) {
         console.log('Active subscription found:', activeSubscription.plan);
 
-        // First check the subscription name
-        let planName = activeSubscription.plan.name;
-        let planType = ''; // 'scrap', 'salvage', or 'corporate'
-        let interval = activeSubscription.plan.interval; // 'month' or 'week'
-
-        // Determine the subscription type
-        if (planName.toLowerCase().includes('scrap')) {
-          planType = 'scrap';
-        } else if (planName.toLowerCase().includes('salvage')) {
-          planType = 'salvage';
-        } else if (
-          planName.toLowerCase().includes('corporate') ||
-          planName === 'Unknown Plan'
-        ) {
-          planType = 'corporate';
-        }
-
-        // Find matching product by type and interval
-        const matchingProduct = products.find(product => {
-          // Match by type first
-          const productMatchesType = product.type === planType;
-          if (!productMatchesType) return false;
-
-          // Then match by interval
-          if (
-            interval === 'month' &&
-            product.name.toLowerCase().includes('monthly')
-          ) {
-            return true;
-          }
-          if (
-            interval === 'week' &&
-            product.name.toLowerCase().includes('weekly')
-          ) {
-            return true;
-          }
-
-          // If interval is not clear, just match by type
-          if (!interval || interval === 'N/A') {
-            // Default to monthly for Unknown Plans
-            if (
-              planName === 'Unknown Plan' &&
-              product.name.toLowerCase().includes('monthly')
-            ) {
-              return true;
-            }
-            return productMatchesType;
-          }
-
-          return false;
-        });
-
-        if (matchingProduct) {
-          console.log(
-            'Setting active subscription:',
-            matchingProduct.name,
-            matchingProduct.id,
+        // First check if it's an Unknown Plan (Corporate)
+        if (activeSubscription.plan.name === 'Unknown Plan') {
+          // Find the corporate product based on the current tab only
+          const corporateProduct = products.find(p => 
+            p.type === 'corporate' && 
+            ((index === 0 && p.name.includes('Scrap')) ||
+             (index === 1 && p.name.includes('Salvage')))
           );
-          setSubscriptionSelected(matchingProduct.id);
-
-          // Set the tab index based on the subscription type
-          if (planType === 'scrap') {
-            setIndex(0); // Switch to Scrap tab
-          } else if (planType === 'salvage') {
-            setIndex(1); // Switch to Salvage tab
+          if (corporateProduct) {
+            setSubscriptionSelected(corporateProduct.id);
           }
         } else {
-          console.log(
-            'No matching product found for:',
-            planName,
-            interval,
-            planType,
-          );
+          // Handle normal plans - REMOVE automatic tab switching
+          let planName = activeSubscription.plan.name;
+          let planType = '';
+          let interval = activeSubscription.plan.interval;
+
+          if (planName.toLowerCase().includes('scrap')) {
+            planType = 'scrap';
+          } else if (planName.toLowerCase().includes('salvage')) {
+            planType = 'salvage';
+          }
+
+          const matchingProduct = products.find(product => {
+            const productMatchesType = product.type === planType;
+            if (!productMatchesType) return false;
+
+            if (interval === 'month' && product.name.toLowerCase().includes('monthly')) {
+              return true;
+            }
+            if (interval === 'week' && product.name.toLowerCase().includes('weekly')) {
+              return true;
+            }
+            return false;
+          });
+
+          if (matchingProduct) {
+            setSubscriptionSelected(matchingProduct.id);
+          }
         }
       }
     }
-  }, [subscriptions, products]);
+  }, [subscriptions, products, index]);
 
   const initializePaymentMethods = async () => {
     if (isApplePaySupported) {
@@ -277,12 +241,24 @@ const SubscriptionScreen = () => {
         Alert.alert('Error', 'Please select a subscription plan first');
         return;
       }
+
+      // Check if selected subscription is already active
+      const isActive = subscriptions.some(sub => {
+        if (sub.status !== 'active') return false;
+        const product = products.find(p => p.id === subscriptionSelected);
+        return product && product.name.toLowerCase().includes(sub.plan.name.toLowerCase());
+      });
+
+      if (isActive) {
+        Alert.alert('Error', 'This subscription is already active');
+        return;
+      }
+
       console.log('@subcription', subscriptionSelected?.price);
       console.log('@prodcut', products);
 
       const amount =
         products.find(p => p.id === subscriptionSelected)?.price || 0;
-
       const response = await axios.post(
         'https://scrape4you.onrender.com/stripe/create-customer-and-subscription',
         {
@@ -494,6 +470,7 @@ const SubscriptionScreen = () => {
       onSelectSubscription: subscription => {
         setSubscriptionSelected(subscription);
       },
+      currentIndex: index,
     };
     switch (route.key) {
       case 'scrap':
@@ -699,7 +676,29 @@ const SalvageRoute = ({
   products,
   onSelectSubscription,
   selectedSubscription,
+  currentIndex,
 }) => {
+  const {subscriptions = []} = useSelector(
+    state => state?.subscription?.subscriptionData || {},
+  );
+
+const isSubscriptionActive = (subscriptionId) => {
+  return subscriptions.some(sub => {
+    // Check if subscription is active
+    if (sub.status !== 'active') return false;
+    
+    // Direct comparison with plan.id
+    return sub.plan.id === subscriptionId;
+  });
+};
+  const handleSubscriptionSelect = (subscriptionId) => {
+    if (isSubscriptionActive(subscriptionId)) {
+      Alert.alert('Already Active', 'This subscription is already active.');
+      return;
+    }
+    onSelectSubscription(subscriptionId);
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.scrollContent}>
       <View style={styles.tabContent}>
@@ -715,13 +714,15 @@ const SalvageRoute = ({
         </Text>
         <View style={styles.tabContainer}>
           <TouchableOpacity
-            onPress={() =>
-              onSelectSubscription('price_1R57DZDnmorUxClnRG48rfKZ')
-            }
+            onPress={() => handleSubscriptionSelect('price_1R57DZDnmorUxClnRG48rfKZ')}
+            disabled={isSubscriptionActive('price_1R57DZDnmorUxClnRG48rfKZ')}
             style={[
               styles.optionSelected,
-              selectedSubscription === 'price_1R57DZDnmorUxClnRG48rfKZ' &&
-                styles.optionFocused,
+              (selectedSubscription === 'price_1R57DZDnmorUxClnRG48rfKZ' || 
+               isSubscriptionActive('price_1R57DZDnmorUxClnRG48rfKZ')) && 
+              styles.optionFocused,
+              isSubscriptionActive('price_1R57DZDnmorUxClnRG48rfKZ') && 
+              styles.optionDisabled,
             ]}>
             <Image
               source={require('../../assets/loyalty.png')}
@@ -731,15 +732,22 @@ const SalvageRoute = ({
             <Text style={styles.optionText}>Weekly</Text>
             <Text style={styles.sharingText}>Individual Subscription</Text>
             <Text style={styles.optionSubText}>50 GBP</Text>
+            {isSubscriptionActive('price_1R57DZDnmorUxClnRG48rfKZ') && (
+              <View style={styles.activeOverlay}>
+                <Text style={styles.activeText}>Active</Text>
+              </View>
+            )}
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() =>
-              onSelectSubscription('price_1R15A1DnmorUxCln7W0DslGy')
-            }
+            onPress={() => handleSubscriptionSelect('price_1R15A1DnmorUxCln7W0DslGy')}
+            disabled={isSubscriptionActive('price_1R15A1DnmorUxCln7W0DslGy')}
             style={[
               styles.optionSelected,
-              selectedSubscription === 'price_1R15A1DnmorUxCln7W0DslGy' &&
-                styles.optionFocused,
+              (selectedSubscription === 'price_1R15A1DnmorUxCln7W0DslGy' || 
+               isSubscriptionActive('price_1R15A1DnmorUxCln7W0DslGy')) && 
+              styles.optionFocused,
+              isSubscriptionActive('price_1R15A1DnmorUxCln7W0DslGy') && 
+              styles.optionDisabled,
             ]}>
             <Image
               source={require('../../assets/loyalty.png')}
@@ -749,6 +757,11 @@ const SalvageRoute = ({
             <Text style={styles.optionText}>Monthly</Text>
             <Text style={styles.sharingText}>Individual Subscription</Text>
             <Text style={styles.optionSubText}>180 GBP</Text>
+            {isSubscriptionActive('price_1R15A1DnmorUxCln7W0DslGy') && (
+              <View style={styles.activeOverlay}>
+                <Text style={styles.activeText}>Active</Text>
+              </View>
+            )}
           </TouchableOpacity>
         </View>
 
@@ -762,13 +775,15 @@ const SalvageRoute = ({
             },
           ]}>
           <TouchableOpacity
-            onPress={() =>
-              onSelectSubscription('price_1R9a3xDnmorUxClnuwyFYx1B')
-            }
+            onPress={() => handleSubscriptionSelect('price_1R9a3xDnmorUxClnuwyFYx1B')}
+            disabled={isSubscriptionActive('price_1R9a3xDnmorUxClnuwyFYx1B')}
             style={[
               styles.corporateBox,
-              selectedSubscription === 'price_1R9a3xDnmorUxClnuwyFYx1B' &&
-                styles.optionFocused,
+              (selectedSubscription === 'price_1R9a3xDnmorUxClnuwyFYx1B' || 
+               isSubscriptionActive('price_1R9a3xDnmorUxClnuwyFYx1B')) && 
+              styles.optionFocused,
+              isSubscriptionActive('price_1R9a3xDnmorUxClnuwyFYx1B') && 
+              styles.optionDisabled,
             ]}>
             <Image
               source={require('../../assets/loyalty.png')}
@@ -778,6 +793,11 @@ const SalvageRoute = ({
             <Text style={styles.optionText}>Corporate Monthly</Text>
             <Text style={styles.sharingText}>Business Subscription</Text>
             <Text style={styles.optionSubText}>300 GBP</Text>
+            {isSubscriptionActive('price_1R9a3xDnmorUxClnuwyFYx1B') && (
+              <View style={styles.activeOverlay}>
+                <Text style={styles.activeText}>Active</Text>
+              </View>
+            )}
           </TouchableOpacity>
         </View>
       </View>
@@ -786,7 +806,34 @@ const SalvageRoute = ({
 };
 
 // ScrapRoute Component
-const ScrapRoute = ({products, onSelectSubscription, selectedSubscription}) => {
+const ScrapRoute = ({
+  products,
+  onSelectSubscription,
+  selectedSubscription,
+  currentIndex,
+}) => {
+  const {subscriptions = []} = useSelector(
+    state => state?.subscription?.subscriptionData || {},
+  );
+
+const isSubscriptionActive = (subscriptionId) => {
+console.log('@ID',subscriptionId)
+  return subscriptions.some(sub => {
+    // Check if subscription is active
+    if (sub.status !== 'active') return false;
+    
+    // Direct comparison with plan.id
+    return sub.plan.id === subscriptionId;
+  });
+};
+  const handleSubscriptionSelect = (subscriptionId) => {
+    if (isSubscriptionActive(subscriptionId)) {
+      Alert.alert('Already Active', 'This subscription is already active.');
+      return;
+    }
+    onSelectSubscription(subscriptionId);
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.scrollContent}>
       <View style={styles.tabContent}>
@@ -803,13 +850,15 @@ const ScrapRoute = ({products, onSelectSubscription, selectedSubscription}) => {
         </Text>
         <View style={styles.tabContainer}>
           <TouchableOpacity
-            onPress={() =>
-              onSelectSubscription('price_1R57CnDnmorUxClnS97UhVMT')
-            }
+            onPress={() => handleSubscriptionSelect('price_1R57CnDnmorUxClnS97UhVMT')}
+            disabled={isSubscriptionActive('price_1R57CnDnmorUxClnS97UhVMT')}
             style={[
               styles.optionSelected,
-              selectedSubscription === 'price_1R57CnDnmorUxClnS97UhVMT' &&
-                styles.optionFocused,
+              (selectedSubscription === 'price_1R57CnDnmorUxClnS97UhVMT' || 
+               isSubscriptionActive('price_1R57CnDnmorUxClnS97UhVMT')) && 
+              styles.optionFocused,
+              isSubscriptionActive('price_1R57CnDnmorUxClnS97UhVMT') && 
+              styles.optionDisabled,
             ]}>
             <Image
               source={require('../../assets/loyalty.png')}
@@ -819,15 +868,22 @@ const ScrapRoute = ({products, onSelectSubscription, selectedSubscription}) => {
             <Text style={styles.optionText}>Weekly</Text>
             <Text style={styles.sharingText}>Individual Subscription</Text>
             <Text style={styles.optionSubText}>50 GBP</Text>
+            {isSubscriptionActive('price_1R57CnDnmorUxClnS97UhVMT') && (
+              <View style={styles.activeOverlay}>
+                <Text style={styles.activeText}>Active</Text>
+              </View>
+            )}
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() =>
-              onSelectSubscription('price_1R573DDnmorUxClnp4X4Imki')
-            }
+            onPress={() => handleSubscriptionSelect('price_1R573DDnmorUxClnp4X4Imki')}
+            disabled={isSubscriptionActive('price_1R573DDnmorUxClnp4X4Imki')}
             style={[
               styles.optionSelected,
-              selectedSubscription === 'price_1R573DDnmorUxClnp4X4Imki' &&
-                styles.optionFocused,
+              (selectedSubscription === 'price_1R573DDnmorUxClnp4X4Imki' || 
+               isSubscriptionActive('price_1R573DDnmorUxClnp4X4Imki')) && 
+              styles.optionFocused,
+              isSubscriptionActive('price_1R573DDnmorUxClnp4X4Imki') && 
+              styles.optionDisabled,
             ]}>
             <Image
               source={require('../../assets/loyalty.png')}
@@ -837,6 +893,11 @@ const ScrapRoute = ({products, onSelectSubscription, selectedSubscription}) => {
             <Text style={styles.optionText}>Monthly</Text>
             <Text style={styles.sharingText}>Individual Subscription</Text>
             <Text style={styles.optionSubText}>180 GBP</Text>
+            {isSubscriptionActive('price_1R573DDnmorUxClnp4X4Imki') && (
+              <View style={styles.activeOverlay}>
+                <Text style={styles.activeText}>Active</Text>
+              </View>
+            )}
           </TouchableOpacity>
         </View>
 
@@ -850,14 +911,18 @@ const ScrapRoute = ({products, onSelectSubscription, selectedSubscription}) => {
             },
           ]}>
           <TouchableOpacity
-            onPress={() =>
-              onSelectSubscription('price_1R9a2eDnmorUxCln8q94c9Xg')
-            }
+   
+            onPress={() => handleSubscriptionSelect('price_1R9a2eDnmorUxCln8q94c9Xg')}
+            disabled={isSubscriptionActive('price_1R9a2eDnmorUxCln8q94c9Xg')}
             style={[
               styles.corporateBox,
-              selectedSubscription === 'price_1R9a2eDnmorUxCln8q94c9Xg' &&
-                styles.optionFocused,
-            ]}>
+              (selectedSubscription === 'price_1R9a2eDnmorUxCln8q94c9Xg' || 
+               isSubscriptionActive('price_1R9a2eDnmorUxCln8q94c9Xg')) && 
+              styles.optionFocused,
+              isSubscriptionActive('price_1R9a2eDnmorUxCln8q94c9Xg') && 
+              styles.optionDisabled,
+            ]}
+            >
             <Image
               source={require('../../assets/loyalty.png')}
               style={styles.optionImage}
@@ -866,6 +931,12 @@ const ScrapRoute = ({products, onSelectSubscription, selectedSubscription}) => {
             <Text style={styles.optionText}>Corporate Monthly</Text>
             <Text style={styles.sharingText}>Business Subscription</Text>
             <Text style={styles.optionSubText}>300 GBP</Text>
+          
+            {isSubscriptionActive('price_1R9a2eDnmorUxCln8q94c9Xg') && (
+              <View style={styles.activeOverlay}>
+                <Text style={styles.activeText}>Active</Text>
+              </View>
+            )}
           </TouchableOpacity>
         </View>
       </View>
@@ -1089,6 +1160,31 @@ const styles = StyleSheet.create({
     color: '#FF3B30',
     fontSize: wp * 0.038,
     fontFamily: Fonts.semiBold,
+  },
+  optionDisabled: {
+    opacity: 0.7,
+  },
+  
+  activeOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 10,
+  },
+  
+  activeText: {
+    color: Colors.primary,
+    fontSize: wp * 0.045,
+    fontFamily: Fonts.bold,
+    backgroundColor: Colors.white,
+    paddingHorizontal: wp * 0.04,
+    paddingVertical: wp * 0.02,
+    borderRadius: wp * 0.02,
   },
 });
 

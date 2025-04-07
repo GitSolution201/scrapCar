@@ -1,5 +1,11 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text, TouchableOpacity, StyleSheet, ActivityIndicator} from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ActivityIndicator,
+} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import Colors from '../Helper/Colors';
 import {hp, wp} from '../Helper/Responsive';
@@ -34,7 +40,6 @@ const Banner = ({navigation}: {navigation: any}) => {
     activeSubscription?.plan?.interval === 'N/A'
       ? 'monthly'
       : activeSubscription?.plan?.interval || 'week';
-
   if (loading) {
     return (
       <View style={[styles.bannerContainer, styles.loaderContainer]}>
@@ -51,8 +56,10 @@ const Banner = ({navigation}: {navigation: any}) => {
         <View style={styles.priceContainer}>
           <Text style={styles.discountedPrice}>
             {subscription
-              ? `Subscribed: ${subscriptionName} (£${subscriptionPrice}/${subscriptionInterval})`
-              : '£90/week'}
+              ? `Subscribed: ${subscriptionName} (£${
+                  subscriptionPrice === 170 ? 180 : subscriptionPrice
+                }/${subscriptionInterval})`
+              : '£50/week'}
           </Text>
           {!subscription && (
             <Text style={styles.originalPrice}>£180/Monthly</Text>
