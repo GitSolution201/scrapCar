@@ -125,56 +125,7 @@ const SubscriptionScreen = () => {
     }
   }, [userData?.email, dispatch]);
 
-  useEffect(() => {
-    if (subscriptions && subscriptions.length > 0) {
-      const activeSubscription = subscriptions.find(sub => sub.status === 'active');
-      if (activeSubscription && activeSubscription.plan) {
-        console.log('Active subscription found:', activeSubscription.plan);
-
-        // First check if it's an Unknown Plan (Corporate)
-        if (activeSubscription.plan.name === 'Unknown Plan') {
-          // Find the corporate product based on the current tab only
-          const corporateProduct = products.find(p => 
-            p.type === 'corporate' && 
-            ((index === 0 && p.name.includes('Scrap')) ||
-             (index === 1 && p.name.includes('Salvage')))
-          );
-          if (corporateProduct) {
-            setSubscriptionSelected(corporateProduct.id);
-          }
-        } else {
-          // Handle normal plans - REMOVE automatic tab switching
-          let planName = activeSubscription.plan.name;
-          let planType = '';
-          let interval = activeSubscription.plan.interval;
-
-          if (planName.toLowerCase().includes('scrap')) {
-            planType = 'scrap';
-          } else if (planName.toLowerCase().includes('salvage')) {
-            planType = 'salvage';
-          }
-
-          const matchingProduct = products.find(product => {
-            const productMatchesType = product.type === planType;
-            if (!productMatchesType) return false;
-
-            if (interval === 'month' && product.name.toLowerCase().includes('monthly')) {
-              return true;
-            }
-            if (interval === 'week' && product.name.toLowerCase().includes('weekly')) {
-              return true;
-            }
-            return false;
-          });
-
-          if (matchingProduct) {
-            setSubscriptionSelected(matchingProduct.id);
-          }
-        }
-      }
-    }
-  }, [subscriptions, products, index]);
-
+ 
   const initializePaymentMethods = async () => {
     if (isApplePaySupported) {
       await initApplePay();
@@ -238,7 +189,7 @@ const SubscriptionScreen = () => {
 
   const handlePlatformPay = async () => {
     try {
-      if (!subscriptionSelected) {
+      if (!subscriptionSelected || subscriptionSelected === '') {
         Alert.alert('Error', 'Please select a subscription plan first');
         return;
       }
@@ -382,9 +333,11 @@ const SubscriptionScreen = () => {
     };
   };
   const openPaymentSheet = async () => {
-    // see below
-
     try {
+      if (!subscriptionSelected || subscriptionSelected === '') {
+        Alert.alert('Error', 'Please select a subscription plan first');
+        return;
+      }
       const response = await axios.post(
         'https://scrape4you.onrender.com/stripe/create-customer-and-subscription',
         {
@@ -611,7 +564,7 @@ const SubscriptionScreen = () => {
             />
           )}
         />
-        {subscriptionSelected !== '' ? (
+        {subscriptionSelected && subscriptionSelected !== '' ? (
           <>
             <View style={styles.paymentButtonsContainer}>
               {isApplePaySupported && (
@@ -649,7 +602,6 @@ const SubscriptionScreen = () => {
                       {
                         text: 'Yes, Cancel',
                         onPress: () => {
-                          // Add your delete logic here
                           Alert.alert(
                             'Success',
                             'Subscription cancelled successfully!',
@@ -674,14 +626,25 @@ const SubscriptionScreen = () => {
                 style={{
                   width: '100%',
                   height: 50,
+                  opacity: 0.5
                 }}
+                disabled={true}
               />
             )}
 
-            {renderPaymentButton()}
+            {isPlatformPayAvailable && (
+              <TouchableOpacity
+                style={[styles.googlePayButton, { opacity: 0.5 }]}
+                onPress={() => Alert.alert('Please Select Any Subscription')}
+                disabled={true}>
+                <Text style={styles.googlePayText}>Pay with Google Pay</Text>
+              </TouchableOpacity>
+            )}
+            
             <TouchableOpacity
-              style={styles.continueButton}
-              onPress={() => Alert.alert('Please Select Any Subscription')}>
+              style={[styles.continueButton, { opacity: 0.5 }]}
+              onPress={() => Alert.alert('Please Select Any Subscription')}
+              disabled={true}>
               <Text style={styles.continueText}>Pay By Card</Text>
             </TouchableOpacity>
           </View>
@@ -711,10 +674,19 @@ const isSubscriptionActive = (subscriptionId) => {
   });
 };
   const handleSubscriptionSelect = (subscriptionId) => {
-    if (isSubscriptionActive(subscriptionId)) {
-      Alert.alert('Already Active', 'This subscription is already active.');
+    // First check if this subscription is already active
+    const isActive = isSubscriptionActive(subscriptionId);
+    
+    if (isActive) {
+      Alert.alert(
+        'Already Active',
+        'This subscription is already active. You cannot purchase the same subscription again.',
+        [{ text: 'OK', style: 'default' }]
+      );
       return;
     }
+
+    // If not active, allow selection
     onSelectSubscription(subscriptionId);
   };
 
@@ -846,10 +818,19 @@ console.log('@ID',subscriptionId)
   });
 };
   const handleSubscriptionSelect = (subscriptionId) => {
-    if (isSubscriptionActive(subscriptionId)) {
-      Alert.alert('Already Active', 'This subscription is already active.');
+    // First check if this subscription is already active
+    const isActive = isSubscriptionActive(subscriptionId);
+    
+    if (isActive) {
+      Alert.alert(
+        'Already Active',
+        'This subscription is already active. You cannot purchase the same subscription again.',
+        [{ text: 'OK', style: 'default' }]
+      );
       return;
     }
+
+    // If not active, allow selection
     onSelectSubscription(subscriptionId);
   };
 
