@@ -343,55 +343,56 @@ const Listings = () => {
     return (
       <View style={styles.listingCardContainer}>
         <TouchableOpacity
-         onPress={() => {
-          if (item.isSold) {
-            Alert.alert(
-              'Car Sold', 
-              'This car has already been sold.',
-              [{ text: 'OK' }]
-            );
-          } else {
-            handleCarDetailsNavigation(item);
-          }
-        }}
-          style={[
-            styles.listingCard,
-            item.isSold && styles.listingCardBlurred,
-          ]}>
-          <TouchableWithoutFeedback
-            style={styles.heartIconContainer}
-            onPress={() =>
-              !item.isSold && handleToggleFavorite(item, isFavorite)
+          onPress={() => {
+            if (item.isSold) {
+              Alert.alert('Car Sold', 'This car has already been sold.', [
+                {text: 'OK'},
+              ]);
+            } else {
+              handleCarDetailsNavigation(item);
             }
-            disabled={item.isSold}>
+          }}
+          style={styles.listingCard} // Removed the blurred style from here
+        >
+          {/* Heart icon - conditionally shown */}
+          {!item.isSold && (
+            <TouchableWithoutFeedback
+              style={styles.heartIconContainer}
+              onPress={() => handleToggleFavorite(item, isFavorite)}>
+              <Image
+                source={
+                  isFavorite
+                    ? require('../../assets/heart.png')
+                    : require('../../assets/simpleHeart.png')
+                }
+                style={styles.heartIcon}
+                tintColor={Colors?.black}
+              />
+            </TouchableWithoutFeedback>
+          )}
+
+          {/* Show SOLD text if car is sold */}
+          {item.isSold && <Text style={styles.soldText}>SOLD</Text>}
+
+          {/* Image - only shown if not sold */}
+          {!item.isSold && (
             <Image
-              source={
-                isFavorite
-                  ? require('../../assets/heart.png')
-                  : require('../../assets/simpleHeart.png')
-              }
-              style={[styles.heartIcon, item.isSold && {opacity: 0.5}]}
-              tintColor={Colors?.black}
+              source={{uri: item?.displayImage}}
+              style={styles.carImage}
+              resizeMode="contain"
             />
-          </TouchableWithoutFeedback>
+          )}
 
-          <Image
-            source={{uri: item?.displayImage}}
-            style={[styles.carImage, item.isSold && {opacity: 0.5}]}
-            resizeMode="contain"
-          />
-
+          {/* Details container - always visible but with reduced opacity if sold */}
           <View
-            style={[
-              styles.detailsContainer,
-              item.isSold && styles.blurredContent,
-            ]}>
+            style={[styles.detailsContainer, item.isSold && {opacity: 0.5}]}>
             <View style={styles.carTagContainer}>
               <Text style={styles.scrapText}>{item.tag || 'Unknown'}</Text>
             </View>
             <Text style={styles.carTitle}>
               {item.make} {item.model} ({item.yearOfManufacture})
             </Text>
+
             {[
               ['Registration:', item.registrationNumber],
               ['Year:', item.yearOfManufacture],
@@ -1038,6 +1039,14 @@ const styles = StyleSheet.create({
     width: wp(5),
     height: wp(5),
     tintColor: Colors.primary,
+  },
+
+  soldText: {
+    color: '#FF3B30',
+    fontSize: wp(4.5),
+    paddingHorizontal: wp(2),
+    paddingVertical: wp(1),
+    fontFamily: Fonts.bold,
   },
 });
 
