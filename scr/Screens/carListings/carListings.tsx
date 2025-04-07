@@ -343,8 +343,17 @@ const Listings = () => {
     return (
       <View style={styles.listingCardContainer}>
         <TouchableOpacity
-          onPress={() => !item.isSold && handleCarDetailsNavigation(item)}
-          disabled={item.isSold}
+         onPress={() => {
+          if (item.isSold) {
+            Alert.alert(
+              'Car Sold', 
+              'This car has already been sold.',
+              [{ text: 'OK' }]
+            );
+          } else {
+            handleCarDetailsNavigation(item);
+          }
+        }}
           style={[
             styles.listingCard,
             item.isSold && styles.listingCardBlurred,

@@ -43,7 +43,7 @@ const Banner = ({navigation}: {navigation: any}) => {
   if (loading) {
     return (
       <View style={[styles.bannerContainer, styles.loaderContainer]}>
-        <ActivityIndicator size="large" color={Colors.primary} />
+        <ActivityIndicator size='small' color={Colors.primary} />
         <Text style={styles.loadingText}>Loading subscription details...</Text>
       </View>
     );
@@ -151,6 +151,7 @@ const styles = StyleSheet.create({
     marginTop: hp(1),
     color: Colors.primary,
     fontSize: wp(3.5),
+    marginLeft:hp(1),
     fontFamily: Fonts.regular,
   },
 });

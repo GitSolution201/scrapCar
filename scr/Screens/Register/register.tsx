@@ -59,7 +59,12 @@ const Register = ({navigation}: {navigation: any}) => {
           },
         ]);
       } else if (registerResponse.error) {
-        Alert.alert('Error', registerResponse.error);
+        // Check if error is an object with message property
+        const errorMessage = typeof registerResponse.error === 'object' 
+          ? registerResponse.error.message || 'Registration failed'
+          : registerResponse.error;
+      
+        Alert.alert('Error', errorMessage);
       }
     }
   }, [registerResponse]);
