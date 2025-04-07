@@ -44,6 +44,7 @@ const SubscriptionScreen = () => {
   const navigation = useNavigation();
   const layout = useWindowDimensions();
   const [index, setIndex] = React.useState(0);
+  const token = useSelector((state: any) => state.auth?.token);
 
   const routes = [
     {key: 'scrap', title: 'Scrap'},
@@ -265,6 +266,12 @@ const SubscriptionScreen = () => {
           email: email,
           priceId: subscriptionSelected,
         },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
       );
 
       if (response.data?.clientSecret) {
@@ -381,9 +388,15 @@ const SubscriptionScreen = () => {
       const response = await axios.post(
         'https://scrape4you.onrender.com/stripe/create-customer-and-subscription',
         {
-          email: email, // user's email
-          priceId: subscriptionSelected, // selected price ID from state
+          email: email,
+          priceId: subscriptionSelected,
         },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
       );
       const {paymentIntent, ephemeralKey, customer} =
         await fetchPaymentSheetParams();
@@ -486,9 +499,15 @@ const SubscriptionScreen = () => {
       const response = await axios.post(
         'https://scrape4you.onrender.com/stripe/create-customer-and-subscription',
         {
-          email: email, // user's email
-          priceId: subscriptionSelected, // selected price ID from state
+          email: email,
+          priceId: subscriptionSelected,
         },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
       );
       // Successful response (status 2xx)
 
@@ -983,7 +1002,6 @@ const styles = StyleSheet.create({
   optionSelected: {
     width: wp / 2.4,
     borderRadius: 10,
-    borderWidth: 1,
     borderColor: Colors.primary,
     backgroundColor: Colors.white,
     alignItems: 'center',
@@ -991,11 +1009,16 @@ const styles = StyleSheet.create({
     marginBottom: wp * 0.03,
     height: hp / 4.5,
     padding: 10,
+    position: 'relative',
   },
   optionFocused: {
-    backgroundColor: Colors.primary + '20',
     borderWidth: 2,
     borderColor: Colors.primary,
+  },
+  optionDisabled: {
+    backgroundColor: Colors?.white,
+    opacity: 1,
+    borderWidth: 0,
   },
   optionImage: {
     width: '18%',
@@ -1003,7 +1026,7 @@ const styles = StyleSheet.create({
   },
   optionText: {
     marginTop: wp * 0.01,
-    fontSize: wp * 0.045,
+    fontSize: wp * 0.035,
     fontFamily: Fonts.bold,
     color: Colors.black,
   },
@@ -1015,7 +1038,7 @@ const styles = StyleSheet.create({
   },
   optionSubText: {
     marginTop: wp * 0.01,
-    fontSize: wp * 0.045,
+    fontSize: wp * 0.035,
     fontFamily: Fonts.bold,
     color: Colors.black,
   },
@@ -1115,16 +1138,16 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.bold,
   },
   corporateBox: {
-    width: wp - wp * 0.1, // Full width minus padding
+    width: wp - wp * 0.1,
     height: hp / 4.5,
     borderRadius: 10,
-    borderWidth: 1,
-    borderColor: Colors.primary,
+    
     backgroundColor: Colors.white,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: wp * 0.03,
     padding: 10,
+    position: 'relative',
   },
   actionButtonsContainer: {
     flexDirection: 'row',
@@ -1161,30 +1184,22 @@ const styles = StyleSheet.create({
     fontSize: wp * 0.038,
     fontFamily: Fonts.semiBold,
   },
-  optionDisabled: {
-    opacity: 0.7,
-  },
-  
   activeOverlay: {
     position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.1)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 10,
+    top: 10,
+    left: 10,
+    backgroundColor: 'transparent',
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
+    borderRadius: 0,
   },
   
   activeText: {
     color: Colors.primary,
-    fontSize: wp * 0.045,
+    fontSize: wp * 0.03,
     fontFamily: Fonts.bold,
-    backgroundColor: Colors.white,
-    paddingHorizontal: wp * 0.04,
-    paddingVertical: wp * 0.02,
-    borderRadius: wp * 0.02,
+    backgroundColor: 'transparent',
+    padding: 0,
   },
 });
 
