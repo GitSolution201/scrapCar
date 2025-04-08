@@ -514,6 +514,99 @@ const SubscriptionScreen = () => {
     const selectedProduct = products.find(p => p.id === subscriptionSelected);
     return selectedProduct ? selectedProduct.name : '';
   };
+  const cancelSubscription = async (subscriptionId) => {
+    try {
+      console.log('@@@@ID', subscriptionId);
+      
+      // 1. Check if token exists and is valid
+      if (!token) {
+        Alert.alert('Error', 'Authentication required. Please login again.');
+        return;
+      }
+  
+      const response = await axios.post(
+        'https://scrape4you.onrender.com/stripe/cancel-subscription',
+        { id: subscriptionId },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      
+      console.log('Cancel Subscription Response:', response.data);
+      return response.data;
+    }
+    catch (error) {
+      console.log('@ERROR',error)
+      // Handle 401 specifically
+      if (error.response?.status === 401) {
+        Alert.alert(
+          'Session Expired',
+          'Your session has expired. Please login again.',
+          [{ text: 'OK', onPress: () => console.log('login') }]
+        );
+      }
+      // Rest of your existing error handling...
+    }
+  };
+  // const cancelSubscription = async (subscriptionId) => {
+  //   try {
+  //     console.log('@@@@ID',subscriptionId)
+  //     const response = await axios.post(
+  //       'https://scrape4you.onrender.com/stripe/cancel-subscription',
+  //       {
+  //         id: subscriptionId
+  //       },
+  //       {
+  //         headers: {
+  //           'Authorization': `Bearer ${token}`,
+  //           'Content-Type': 'application/json'
+  //         }
+  //       }
+  //     );
+      
+  //     console.log('Cancel Subscription Response:', response.data);
+  //     return response.data;
+  //   }
+  //   catch (error) {
+  //     console.log('Cancel Subscription Error:', error);
+      
+  //     // For Axios errors (API response errors)
+  //     if (error.response) {
+  //       console.log('Error Data:', error.response.data);
+  //       console.log('Error Status:', error.response.status);
+  //       console.log('Error Headers:', error.response.headers);
+  //       Alert.alert(
+  //         'Subscription Cancellation Failed',
+  //         `Server responded with: ${error.response.data?.message || error.response.statusText}`
+  //       );
+  //     } 
+  //     // For request made but no response received
+  //     else if (error.request) {
+  //       console.log('Request:', error.request);
+  //       Alert.alert(
+  //         'Network Error',
+  //         'No response received from server. Please check your internet connection.'
+  //       );
+  //     } 
+  //     // For other errors
+  //     else {
+  //       console.log('Error Config:', error.config);
+  //       Alert.alert(
+  //         'Unexpected Error',
+  //         error.message || 'Something went wrong while cancelling subscription'
+  //       );
+  //     }
+      
+  //     throw error; // Only if you need to propagate the error further
+  //   }
+  //   //  catch (error) {
+  //   //   console.log('Cancel Subscription Error:', error);
+  //   //   throw error;
+  //   // }
+  // };
 
   return (
     <StripeProvider
@@ -559,11 +652,38 @@ const SubscriptionScreen = () => {
                         },
                         {
                           text: 'Yes, Cancel',
-                          onPress: () => {
-                            Alert.alert(
-                              'Success',
-                              'Subscription cancelled successfully!',
-                            );
+                          onPress: async () => {
+                            try {
+                              // Find the active subscription ID
+                              const activeSubscription = subscriptions.find(
+                                sub => sub.plan.id === subscriptionSelected
+                              );
+                              console.log('@AC|TIVE',activeSubscription)
+                              if (!activeSubscription) {
+                                Alert.alert('Error', 'Could not find active subscription');
+                                return;
+                              }
+
+                              await cancelSubscription(activeSubscription?.plan?.id);
+                              
+                              // Refresh subscription data
+                              dispatch(checkSubscriptionRequest({email: userData.email}));
+                              
+                              // Reset selection states
+                              setSubscriptionSelected('');
+                              setSelectedActiveSubscription(false);
+                              
+                              Alert.alert(
+                                'Success',
+                                'Subscription cancelled successfully!'
+                              );
+                            } catch (error) {
+                              console.error('Error cancelling subscription:', error);
+                              Alert.alert(
+                                'Error',
+                                'Failed to cancel subscription. Please try again.'
+                              );
+                            }
                           },
                         },
                       ],
@@ -786,7 +906,6 @@ const ScrapRoute = ({
   );
 
 const isSubscriptionActive = (subscriptionId) => {
-console.log('@ID',subscriptionId)
   return subscriptions.some(sub => {
     // Check if subscription is active
     if (sub.status !== 'active') return false;
