@@ -58,6 +58,7 @@ const SubscriptionScreen = () => {
   const [clientSecret, setClientSecret] = useState('');
   const [subscriptionSelected, setSubscriptionSelected] = useState('');
   const [isApplePaySupported, setIsApplePaySupported] = useState(false);
+  const [selectedActiveSubscription, setSelectedActiveSubscription] = useState(false);
   //
   const [products, setProducts] = useState([
     {
@@ -194,14 +195,7 @@ const SubscriptionScreen = () => {
         return;
       }
 
-      // Check if selected subscription is already active
-      const isActive = subscriptions.some(sub => {
-        if (sub.status !== 'active') return false;
-        const product = products.find(p => p.id === subscriptionSelected);
-        return product && product.name.toLowerCase().includes(sub.plan.name.toLowerCase());
-      });
-
-      if (isActive) {
+      if (selectedActiveSubscription) {
         Alert.alert('Error', 'This subscription is already active');
         return;
       }
@@ -338,6 +332,15 @@ const SubscriptionScreen = () => {
         Alert.alert('Error', 'Please select a subscription plan first');
         return;
       }
+  
+      if (selectedActiveSubscription) {
+        Alert.alert('Error', 'This subscription is already active');
+        return;
+      }
+  
+      setLoading(true);
+      
+      // Step 1: Create the subscription intent
       const response = await axios.post(
         'https://scrape4you.onrender.com/stripe/create-customer-and-subscription',
         {
@@ -351,85 +354,54 @@ const SubscriptionScreen = () => {
           }
         }
       );
-      const {paymentIntent, ephemeralKey, customer} =
-        await fetchPaymentSheetParams();
-      // Successful response (status 2xx)
-      console.log('====================================');
-      console.log(paymentIntent, customer, ephemeralKey);
-      console.log('====================================');
-      const {error} = await initPaymentSheet({
+  
+      // Step 2: Initialize payment sheet with the returned client secret
+      const { error } = await initPaymentSheet({
         merchantDisplayName: 'merchant.com.carscrap',
-        customerId: customer,
-        customerEphemeralKeySecret: ephemeralKey,
-        paymentIntentClientSecret: paymentIntent,
+        customerId: response.data.customerId,
+        customerEphemeralKeySecret: response.data.ephemeralKey,
+        paymentIntentClientSecret: response.data.clientSecret,
         returnURL: 'https://scrape4you.onrender.com',
         allowsDelayedPaymentMethods: true,
-
-        // Set `allowsDelayedPaymentMethods` to true if your business can handle payment
-        //methods that complete payment after a delay, like SEPA Debit and Sofort.
       });
-      const {error: paymentError} = await presentPaymentSheet();
-
+  
+      if (error) {
+        Alert.alert('Error', error.message);
+        return;
+      }
+  
+      // Step 3: Present the payment sheet
+      const { error: paymentError } = await presentPaymentSheet();
+  
       if (paymentError) {
         Alert.alert('Error', paymentError.message);
-      } else {
-        console.log('sec====================================');
-        console.log(response.data.clientSecret);
-        console.log('====================================');
-        await confirmPayment(response.data.clientSecret, {
-          paymentMethodType: 'Card', // Explicitly specify card payment
-          billingDetails: {
-            email: email, // Customer email
+        return;
+      }
+  
+      // Payment was successful
+      Alert.alert(
+        'Congratulations! 🎉',
+        'Your subscription has been successfully activated. Welcome to our premium services. You now have access to all features.',
+        [
+          {
+            text: 'Continue',
+            onPress: () => {
+              dispatch(checkSubscriptionRequest({email: userData.email})),
+              navigation.goBack();
+            },
           },
-        })
-          .then(res => {
-            console.log('====================================');
-            console.log(res);
-            console.log('====================================');
-            Alert.alert(
-              'Congratulations! 🎉',
-              'Your subscription has been successfully activated. Welcome to our premium services. You now have access to all features.',
-              [
-                {
-                  text: 'Continue',
-                  onPress: () => {
-                    dispatch(checkSubscriptionRequest({email: userData.email})),
-                      navigation.goBack();
-                  },
-                },
-              ],
-              {cancelable: false},
-            );
-          })
-          .catch(err => {
-            console.log('err====================================');
-            console.log(err);
-            console.log('====================================');
-          });
-      }
-      return response.data;
+        ],
+        {cancelable: false},
+      );
+  
     } catch (error) {
-      // Axios error handling
-      if (error.response) {
-        // Server responded with error status (4xx/5xx)
-        console.error(
-          'Server error:',
-          error.response.status,
-          error.response.data,
-        );
-        throw new Error(error.response.data.message || 'Subscription failed');
-      } else if (error.request) {
-        // Request was made but no response received
-        console.error('Network error:', error.request);
-        throw new Error('Network error - no server response');
-      } else {
-        // Setup error
-        console.error('Request setup error:', error.message);
-        throw new Error('Failed to create subscription request');
-      }
+      console.error('Payment error:', error);
+      Alert.alert('Error', 'Payment failed. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
-  const renderScene = ({route}) => {
+    const renderScene = ({route}) => {
     const sharedProps = {
       products: products,
       selectedSubscription: subscriptionSelected,
@@ -437,6 +409,7 @@ const SubscriptionScreen = () => {
         setSubscriptionSelected(subscription);
       },
       currentIndex: index,
+      setSelectedActiveSubscription: setSelectedActiveSubscription,
     };
     switch (route.key) {
       case 'scrap':
@@ -449,6 +422,10 @@ const SubscriptionScreen = () => {
   };
   const handleApplePay = async () => {
     try {
+      if (selectedActiveSubscription) {
+        Alert.alert('Error', 'This subscription is already active');
+        return;
+      }
       const response = await axios.post(
         'https://scrape4you.onrender.com/stripe/create-customer-and-subscription',
         {
@@ -566,54 +543,58 @@ const SubscriptionScreen = () => {
         />
         {subscriptionSelected && subscriptionSelected !== '' ? (
           <>
-            <View style={styles.paymentButtonsContainer}>
-              {isApplePaySupported && (
-                <PlatformPayButton
-                  onPress={handleApplePay}
-                  type={PlatformPay.ButtonType.Order}
-                  appearance={PlatformPay.ButtonStyle.Black}
-                  borderRadius={25}
-                  style={{
-                    width: '100%',
-                    height: 50,
-                  }}
-                />
-              )}
-
-              {renderPaymentButton()}
-              <TouchableOpacity
-                style={styles.continueButton}
-                onPress={openPaymentSheet}>
-                <Text style={styles.continueText}>Pay By Card</Text>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.actionButtonsContainer}>
-              <TouchableOpacity
-                style={styles.deleteButton}
-                onPress={() => {
-                  Alert.alert(
-                    'Cancel Subscription',
-                    'Are you sure you want to cancel your subscription?',
-                    [
-                      {
-                        text: 'No',
-                        style: 'cancel',
-                      },
-                      {
-                        text: 'Yes, Cancel',
-                        onPress: () => {
-                          Alert.alert(
-                            'Success',
-                            'Subscription cancelled successfully!',
-                          );
+            {selectedActiveSubscription ? (
+              // Show only cancel button if an active subscription is selected
+              <View style={styles.actionButtonsContainer}>
+                <TouchableOpacity
+                  style={styles.deleteButton}
+                  onPress={() => {
+                    Alert.alert(
+                      'Cancel Subscription',
+                      'Are you sure you want to cancel your subscription?',
+                      [
+                        {
+                          text: 'No',
+                          style: 'cancel',
                         },
-                      },
-                    ],
-                  );
-                }}>
-                <Text style={styles.deleteButtonText}>Cancel Subscription</Text>
-              </TouchableOpacity>
-            </View>
+                        {
+                          text: 'Yes, Cancel',
+                          onPress: () => {
+                            Alert.alert(
+                              'Success',
+                              'Subscription cancelled successfully!',
+                            );
+                          },
+                        },
+                      ],
+                    );
+                  }}>
+                  <Text style={styles.deleteButtonText}>Cancel Subscription</Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              // Show payment buttons only if selected subscription is not active
+              <View style={styles.paymentButtonsContainer}>
+                {isApplePaySupported && (
+                  <PlatformPayButton
+                    onPress={handleApplePay}
+                    type={PlatformPay.ButtonType.Order}
+                    appearance={PlatformPay.ButtonStyle.Black}
+                    borderRadius={25}
+                    style={{
+                      width: '100%',
+                      height: 50,
+                    }}
+                  />
+                )}
+                {renderPaymentButton()}
+                <TouchableOpacity
+                  style={styles.continueButton}
+                  onPress={openPaymentSheet}>
+                  <Text style={styles.continueText}>Pay By Card</Text>
+                </TouchableOpacity>
+              </View>
+            )}
           </>
         ) : (
           <View style={styles.paymentButtonsContainer}>
@@ -631,7 +612,6 @@ const SubscriptionScreen = () => {
                 disabled={true}
               />
             )}
-
             {isPlatformPayAvailable && (
               <TouchableOpacity
                 style={[styles.googlePayButton, { opacity: 0.5 }]}
@@ -659,6 +639,7 @@ const SalvageRoute = ({
   onSelectSubscription,
   selectedSubscription,
   currentIndex,
+  setSelectedActiveSubscription,
 }) => {
   const {subscriptions = []} = useSelector(
     state => state?.subscription?.subscriptionData || {},
@@ -678,15 +659,14 @@ const isSubscriptionActive = (subscriptionId) => {
     const isActive = isSubscriptionActive(subscriptionId);
     
     if (isActive) {
-      Alert.alert(
-        'Already Active',
-        'This subscription is already active. You cannot purchase the same subscription again.',
-        [{ text: 'OK', style: 'default' }]
-      );
+      // If subscription is active, just select it to show cancel button
+      setSelectedActiveSubscription(true);
+      onSelectSubscription(subscriptionId);
       return;
     }
 
-    // If not active, allow selection
+    // If not active, allow normal selection for purchase
+    setSelectedActiveSubscription(false);
     onSelectSubscription(subscriptionId);
   };
 
@@ -706,7 +686,6 @@ const isSubscriptionActive = (subscriptionId) => {
         <View style={styles.tabContainer}>
           <TouchableOpacity
             onPress={() => handleSubscriptionSelect('price_1R57DZDnmorUxClnRG48rfKZ')}
-            disabled={isSubscriptionActive('price_1R57DZDnmorUxClnRG48rfKZ')}
             style={[
               styles.optionSelected,
               (selectedSubscription === 'price_1R57DZDnmorUxClnRG48rfKZ' || 
@@ -731,7 +710,6 @@ const isSubscriptionActive = (subscriptionId) => {
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => handleSubscriptionSelect('price_1R15A1DnmorUxCln7W0DslGy')}
-            disabled={isSubscriptionActive('price_1R15A1DnmorUxCln7W0DslGy')}
             style={[
               styles.optionSelected,
               (selectedSubscription === 'price_1R15A1DnmorUxCln7W0DslGy' || 
@@ -767,7 +745,6 @@ const isSubscriptionActive = (subscriptionId) => {
           ]}>
           <TouchableOpacity
             onPress={() => handleSubscriptionSelect('price_1R9a3xDnmorUxClnuwyFYx1B')}
-            disabled={isSubscriptionActive('price_1R9a3xDnmorUxClnuwyFYx1B')}
             style={[
               styles.corporateBox,
               (selectedSubscription === 'price_1R9a3xDnmorUxClnuwyFYx1B' || 
@@ -802,6 +779,7 @@ const ScrapRoute = ({
   onSelectSubscription,
   selectedSubscription,
   currentIndex,
+  setSelectedActiveSubscription,
 }) => {
   const {subscriptions = []} = useSelector(
     state => state?.subscription?.subscriptionData || {},
@@ -822,15 +800,14 @@ console.log('@ID',subscriptionId)
     const isActive = isSubscriptionActive(subscriptionId);
     
     if (isActive) {
-      Alert.alert(
-        'Already Active',
-        'This subscription is already active. You cannot purchase the same subscription again.',
-        [{ text: 'OK', style: 'default' }]
-      );
+      // If subscription is active, just select it to show cancel button
+      setSelectedActiveSubscription(true);
+      onSelectSubscription(subscriptionId);
       return;
     }
 
-    // If not active, allow selection
+    // If not active, allow normal selection for purchase
+    setSelectedActiveSubscription(false);
     onSelectSubscription(subscriptionId);
   };
 
@@ -851,7 +828,6 @@ console.log('@ID',subscriptionId)
         <View style={styles.tabContainer}>
           <TouchableOpacity
             onPress={() => handleSubscriptionSelect('price_1R57CnDnmorUxClnS97UhVMT')}
-            disabled={isSubscriptionActive('price_1R57CnDnmorUxClnS97UhVMT')}
             style={[
               styles.optionSelected,
               (selectedSubscription === 'price_1R57CnDnmorUxClnS97UhVMT' || 
@@ -876,7 +852,6 @@ console.log('@ID',subscriptionId)
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => handleSubscriptionSelect('price_1R573DDnmorUxClnp4X4Imki')}
-            disabled={isSubscriptionActive('price_1R573DDnmorUxClnp4X4Imki')}
             style={[
               styles.optionSelected,
               (selectedSubscription === 'price_1R573DDnmorUxClnp4X4Imki' || 
@@ -913,7 +888,6 @@ console.log('@ID',subscriptionId)
           <TouchableOpacity
    
             onPress={() => handleSubscriptionSelect('price_1R9a2eDnmorUxCln8q94c9Xg')}
-            disabled={isSubscriptionActive('price_1R9a2eDnmorUxCln8q94c9Xg')}
             style={[
               styles.corporateBox,
               (selectedSubscription === 'price_1R9a2eDnmorUxCln8q94c9Xg' || 
