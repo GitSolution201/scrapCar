@@ -39,6 +39,13 @@ import axios from 'axios';
 import {checkSubscriptionRequest} from '../../redux/slices/subcriptionsSlice';
 
 const {width: wp, height: hp} = Dimensions.get('window');
+const api = axios.create({
+  baseURL: 'https://scrape4you.onrender.com', // Replace this with your actual API base URL
+  timeout: 10000, // Timeout in milliseconds
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
 
 const SubscriptionScreen = () => {
   const navigation = useNavigation();
@@ -58,7 +65,8 @@ const SubscriptionScreen = () => {
   const [clientSecret, setClientSecret] = useState('');
   const [subscriptionSelected, setSubscriptionSelected] = useState('');
   const [isApplePaySupported, setIsApplePaySupported] = useState(false);
-  const [selectedActiveSubscription, setSelectedActiveSubscription] = useState(false);
+  const [selectedActiveSubscription, setSelectedActiveSubscription] =
+    useState(false);
   //
   const [products, setProducts] = useState([
     {
@@ -126,7 +134,6 @@ const SubscriptionScreen = () => {
     }
   }, [userData?.email, dispatch]);
 
- 
   const initializePaymentMethods = async () => {
     if (isApplePaySupported) {
       await initApplePay();
@@ -213,10 +220,10 @@ const SubscriptionScreen = () => {
         },
         {
           headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        }
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        },
       );
 
       if (response.data?.clientSecret) {
@@ -332,14 +339,14 @@ const SubscriptionScreen = () => {
         Alert.alert('Error', 'Please select a subscription plan first');
         return;
       }
-  
+
       if (selectedActiveSubscription) {
         Alert.alert('Error', 'This subscription is already active');
         return;
       }
-  
+
       setLoading(true);
-      
+
       // Step 1: Create the subscription intent
       const response = await axios.post(
         'https://scrape4you.onrender.com/stripe/create-customer-and-subscription',
@@ -349,14 +356,14 @@ const SubscriptionScreen = () => {
         },
         {
           headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        }
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        },
       );
-  
+
       // Step 2: Initialize payment sheet with the returned client secret
-      const { error } = await initPaymentSheet({
+      const {error} = await initPaymentSheet({
         merchantDisplayName: 'merchant.com.carscrap',
         customerId: response.data.customerId,
         customerEphemeralKeySecret: response.data.ephemeralKey,
@@ -364,20 +371,20 @@ const SubscriptionScreen = () => {
         returnURL: 'https://scrape4you.onrender.com',
         allowsDelayedPaymentMethods: true,
       });
-  
+
       if (error) {
         Alert.alert('Error', error.message);
         return;
       }
-  
+
       // Step 3: Present the payment sheet
-      const { error: paymentError } = await presentPaymentSheet();
-  
+      const {error: paymentError} = await presentPaymentSheet();
+
       if (paymentError) {
         Alert.alert('Error', paymentError.message);
         return;
       }
-  
+
       // Payment was successful
       Alert.alert(
         'Congratulations! 🎉',
@@ -387,13 +394,12 @@ const SubscriptionScreen = () => {
             text: 'Continue',
             onPress: () => {
               dispatch(checkSubscriptionRequest({email: userData.email})),
-              navigation.goBack();
+                navigation.goBack();
             },
           },
         ],
         {cancelable: false},
       );
-  
     } catch (error) {
       console.error('Payment error:', error);
       Alert.alert('Error', 'Payment failed. Please try again.');
@@ -401,7 +407,7 @@ const SubscriptionScreen = () => {
       setLoading(false);
     }
   };
-    const renderScene = ({route}) => {
+  const renderScene = ({route}) => {
     const sharedProps = {
       products: products,
       selectedSubscription: subscriptionSelected,
@@ -434,10 +440,10 @@ const SubscriptionScreen = () => {
         },
         {
           headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        }
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        },
       );
       // Successful response (status 2xx)
 
@@ -559,17 +565,41 @@ const SubscriptionScreen = () => {
                         },
                         {
                           text: 'Yes, Cancel',
-                          onPress: () => {
-                            Alert.alert(
-                              'Success',
-                              'Subscription cancelled successfully!',
-                            );
+                          onPress: async () => {
+                            try {
+                              const response = await fetch(
+                                `https://scrape4you.onrender.com/stripe/cancel-subscription`,
+                                {
+                                  method: 'POST',
+                                  body: JSON.stringify({
+                                    subscriptionID:
+                                      'sub_1RBvnFDnmorUxClnUCBcxD5T',
+                                  }),
+
+                                  headers: {
+                                    Authorization: `Bearer ${token}`,
+                                    'Content-Type': 'application/json',
+                                  },
+                                },
+                              );
+                              const responseData = await response.json(); // Properly await the JSON parsing
+                              console.log(responseData);
+
+                              return response.data; // Return the data
+                            } catch (error) {
+                              console.log(
+                                'Get User Error:',
+                                error.response?.data || error.message,
+                              ); // Log the error
+                            }
                           },
                         },
                       ],
                     );
                   }}>
-                  <Text style={styles.deleteButtonText}>Cancel Subscription</Text>
+                  <Text style={styles.deleteButtonText}>
+                    Cancel Subscription
+                  </Text>
                 </TouchableOpacity>
               </View>
             ) : (
@@ -607,22 +637,22 @@ const SubscriptionScreen = () => {
                 style={{
                   width: '100%',
                   height: 50,
-                  opacity: 0.5
+                  opacity: 0.5,
                 }}
                 disabled={true}
               />
             )}
             {isPlatformPayAvailable && (
               <TouchableOpacity
-                style={[styles.googlePayButton, { opacity: 0.5 }]}
+                style={[styles.googlePayButton, {opacity: 0.5}]}
                 onPress={() => Alert.alert('Please Select Any Subscription')}
                 disabled={true}>
                 <Text style={styles.googlePayText}>Pay with Google Pay</Text>
               </TouchableOpacity>
             )}
-            
+
             <TouchableOpacity
-              style={[styles.continueButton, { opacity: 0.5 }]}
+              style={[styles.continueButton, {opacity: 0.5}]}
               onPress={() => Alert.alert('Please Select Any Subscription')}
               disabled={true}>
               <Text style={styles.continueText}>Pay By Card</Text>
@@ -645,19 +675,19 @@ const SalvageRoute = ({
     state => state?.subscription?.subscriptionData || {},
   );
 
-const isSubscriptionActive = (subscriptionId) => {
-  return subscriptions.some(sub => {
-    // Check if subscription is active
-    if (sub.status !== 'active') return false;
-    
-    // Direct comparison with plan.id
-    return sub.plan.id === subscriptionId;
-  });
-};
-  const handleSubscriptionSelect = (subscriptionId) => {
+  const isSubscriptionActive = subscriptionId => {
+    return subscriptions.some(sub => {
+      // Check if subscription is active
+      if (sub.status !== 'active') return false;
+
+      // Direct comparison with plan.id
+      return sub.plan.id === subscriptionId;
+    });
+  };
+  const handleSubscriptionSelect = subscriptionId => {
     // First check if this subscription is already active
     const isActive = isSubscriptionActive(subscriptionId);
-    
+
     if (isActive) {
       // If subscription is active, just select it to show cancel button
       setSelectedActiveSubscription(true);
@@ -685,14 +715,16 @@ const isSubscriptionActive = (subscriptionId) => {
         </Text>
         <View style={styles.tabContainer}>
           <TouchableOpacity
-            onPress={() => handleSubscriptionSelect('price_1R57DZDnmorUxClnRG48rfKZ')}
+            onPress={() =>
+              handleSubscriptionSelect('price_1R57DZDnmorUxClnRG48rfKZ')
+            }
             style={[
               styles.optionSelected,
-              (selectedSubscription === 'price_1R57DZDnmorUxClnRG48rfKZ' || 
-               isSubscriptionActive('price_1R57DZDnmorUxClnRG48rfKZ')) && 
-              styles.optionFocused,
-              isSubscriptionActive('price_1R57DZDnmorUxClnRG48rfKZ') && 
-              styles.optionDisabled,
+              (selectedSubscription === 'price_1R57DZDnmorUxClnRG48rfKZ' ||
+                isSubscriptionActive('price_1R57DZDnmorUxClnRG48rfKZ')) &&
+                styles.optionFocused,
+              isSubscriptionActive('price_1R57DZDnmorUxClnRG48rfKZ') &&
+                styles.optionDisabled,
             ]}>
             <Image
               source={require('../../assets/loyalty.png')}
@@ -709,14 +741,16 @@ const isSubscriptionActive = (subscriptionId) => {
             )}
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => handleSubscriptionSelect('price_1R15A1DnmorUxCln7W0DslGy')}
+            onPress={() =>
+              handleSubscriptionSelect('price_1R15A1DnmorUxCln7W0DslGy')
+            }
             style={[
               styles.optionSelected,
-              (selectedSubscription === 'price_1R15A1DnmorUxCln7W0DslGy' || 
-               isSubscriptionActive('price_1R15A1DnmorUxCln7W0DslGy')) && 
-              styles.optionFocused,
-              isSubscriptionActive('price_1R15A1DnmorUxCln7W0DslGy') && 
-              styles.optionDisabled,
+              (selectedSubscription === 'price_1R15A1DnmorUxCln7W0DslGy' ||
+                isSubscriptionActive('price_1R15A1DnmorUxCln7W0DslGy')) &&
+                styles.optionFocused,
+              isSubscriptionActive('price_1R15A1DnmorUxCln7W0DslGy') &&
+                styles.optionDisabled,
             ]}>
             <Image
               source={require('../../assets/loyalty.png')}
@@ -744,14 +778,16 @@ const isSubscriptionActive = (subscriptionId) => {
             },
           ]}>
           <TouchableOpacity
-            onPress={() => handleSubscriptionSelect('price_1R9a3xDnmorUxClnuwyFYx1B')}
+            onPress={() =>
+              handleSubscriptionSelect('price_1R9a3xDnmorUxClnuwyFYx1B')
+            }
             style={[
               styles.corporateBox,
-              (selectedSubscription === 'price_1R9a3xDnmorUxClnuwyFYx1B' || 
-               isSubscriptionActive('price_1R9a3xDnmorUxClnuwyFYx1B')) && 
-              styles.optionFocused,
-              isSubscriptionActive('price_1R9a3xDnmorUxClnuwyFYx1B') && 
-              styles.optionDisabled,
+              (selectedSubscription === 'price_1R9a3xDnmorUxClnuwyFYx1B' ||
+                isSubscriptionActive('price_1R9a3xDnmorUxClnuwyFYx1B')) &&
+                styles.optionFocused,
+              isSubscriptionActive('price_1R9a3xDnmorUxClnuwyFYx1B') &&
+                styles.optionDisabled,
             ]}>
             <Image
               source={require('../../assets/loyalty.png')}
@@ -785,20 +821,20 @@ const ScrapRoute = ({
     state => state?.subscription?.subscriptionData || {},
   );
 
-const isSubscriptionActive = (subscriptionId) => {
-console.log('@ID',subscriptionId)
-  return subscriptions.some(sub => {
-    // Check if subscription is active
-    if (sub.status !== 'active') return false;
-    
-    // Direct comparison with plan.id
-    return sub.plan.id === subscriptionId;
-  });
-};
-  const handleSubscriptionSelect = (subscriptionId) => {
+  const isSubscriptionActive = subscriptionId => {
+    console.log('@ID', subscriptionId);
+    return subscriptions.some(sub => {
+      // Check if subscription is active
+      if (sub.status !== 'active') return false;
+
+      // Direct comparison with plan.id
+      return sub.plan.id === subscriptionId;
+    });
+  };
+  const handleSubscriptionSelect = subscriptionId => {
     // First check if this subscription is already active
     const isActive = isSubscriptionActive(subscriptionId);
-    
+
     if (isActive) {
       // If subscription is active, just select it to show cancel button
       setSelectedActiveSubscription(true);
@@ -827,14 +863,16 @@ console.log('@ID',subscriptionId)
         </Text>
         <View style={styles.tabContainer}>
           <TouchableOpacity
-            onPress={() => handleSubscriptionSelect('price_1R57CnDnmorUxClnS97UhVMT')}
+            onPress={() =>
+              handleSubscriptionSelect('price_1R57CnDnmorUxClnS97UhVMT')
+            }
             style={[
               styles.optionSelected,
-              (selectedSubscription === 'price_1R57CnDnmorUxClnS97UhVMT' || 
-               isSubscriptionActive('price_1R57CnDnmorUxClnS97UhVMT')) && 
-              styles.optionFocused,
-              isSubscriptionActive('price_1R57CnDnmorUxClnS97UhVMT') && 
-              styles.optionDisabled,
+              (selectedSubscription === 'price_1R57CnDnmorUxClnS97UhVMT' ||
+                isSubscriptionActive('price_1R57CnDnmorUxClnS97UhVMT')) &&
+                styles.optionFocused,
+              isSubscriptionActive('price_1R57CnDnmorUxClnS97UhVMT') &&
+                styles.optionDisabled,
             ]}>
             <Image
               source={require('../../assets/loyalty.png')}
@@ -851,14 +889,16 @@ console.log('@ID',subscriptionId)
             )}
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => handleSubscriptionSelect('price_1R573DDnmorUxClnp4X4Imki')}
+            onPress={() =>
+              handleSubscriptionSelect('price_1R573DDnmorUxClnp4X4Imki')
+            }
             style={[
               styles.optionSelected,
-              (selectedSubscription === 'price_1R573DDnmorUxClnp4X4Imki' || 
-               isSubscriptionActive('price_1R573DDnmorUxClnp4X4Imki')) && 
-              styles.optionFocused,
-              isSubscriptionActive('price_1R573DDnmorUxClnp4X4Imki') && 
-              styles.optionDisabled,
+              (selectedSubscription === 'price_1R573DDnmorUxClnp4X4Imki' ||
+                isSubscriptionActive('price_1R573DDnmorUxClnp4X4Imki')) &&
+                styles.optionFocused,
+              isSubscriptionActive('price_1R573DDnmorUxClnp4X4Imki') &&
+                styles.optionDisabled,
             ]}>
             <Image
               source={require('../../assets/loyalty.png')}
@@ -886,17 +926,17 @@ console.log('@ID',subscriptionId)
             },
           ]}>
           <TouchableOpacity
-   
-            onPress={() => handleSubscriptionSelect('price_1R9a2eDnmorUxCln8q94c9Xg')}
+            onPress={() =>
+              handleSubscriptionSelect('price_1R9a2eDnmorUxCln8q94c9Xg')
+            }
             style={[
               styles.corporateBox,
-              (selectedSubscription === 'price_1R9a2eDnmorUxCln8q94c9Xg' || 
-               isSubscriptionActive('price_1R9a2eDnmorUxCln8q94c9Xg')) && 
-              styles.optionFocused,
-              isSubscriptionActive('price_1R9a2eDnmorUxCln8q94c9Xg') && 
-              styles.optionDisabled,
-            ]}
-            >
+              (selectedSubscription === 'price_1R9a2eDnmorUxCln8q94c9Xg' ||
+                isSubscriptionActive('price_1R9a2eDnmorUxCln8q94c9Xg')) &&
+                styles.optionFocused,
+              isSubscriptionActive('price_1R9a2eDnmorUxCln8q94c9Xg') &&
+                styles.optionDisabled,
+            ]}>
             <Image
               source={require('../../assets/loyalty.png')}
               style={styles.optionImage}
@@ -905,7 +945,7 @@ console.log('@ID',subscriptionId)
             <Text style={styles.optionText}>Corporate Monthly</Text>
             <Text style={styles.sharingText}>Business Subscription</Text>
             <Text style={styles.optionSubText}>300 GBP</Text>
-          
+
             {isSubscriptionActive('price_1R9a2eDnmorUxCln8q94c9Xg') && (
               <View style={styles.activeOverlay}>
                 <Text style={styles.activeText}>Active</Text>
@@ -1096,7 +1136,7 @@ const styles = StyleSheet.create({
     width: wp - wp * 0.1,
     height: hp / 4.5,
     borderRadius: 10,
-    
+
     backgroundColor: Colors.white,
     alignItems: 'center',
     justifyContent: 'center',
@@ -1148,7 +1188,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     borderRadius: 0,
   },
-  
+
   activeText: {
     color: Colors.primary,
     fontSize: wp * 0.03,

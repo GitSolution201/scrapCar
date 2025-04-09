@@ -1411,6 +1411,27 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
+  - react-native-webview (13.13.5):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.01.01.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
   - React-nativeconfig (0.76.3)
   - React-NativeModulesApple (0.76.3):
     - glog
@@ -2014,6 +2035,7 @@ DEPENDENCIES:
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-simple-toast (from `../node_modules/react-native-simple-toast`)
   - "react-native-slider (from `../node_modules/@react-native-community/slider`)"
+  - react-native-webview (from `../node_modules/react-native-webview`)
   - React-nativeconfig (from `../node_modules/react-native/ReactCommon`)
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
@@ -2154,6 +2176,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-simple-toast"
   react-native-slider:
     :path: "../node_modules/@react-native-community/slider"
+  react-native-webview:
+    :path: "../node_modules/react-native-webview"
   React-nativeconfig:
     :path: "../node_modules/react-native/ReactCommon"
   React-NativeModulesApple:
@@ -2273,6 +2297,7 @@ SPEC CHECKSUMS:
   react-native-safe-area-context: 5e53e2b0fc3a2994ad0c89a2486e545b6566d8c4
   react-native-simple-toast: fdb8057f91e97411829b01983080b0d520792455
   react-native-slider: 8ac9b674825295690947a5ccab537dd3800b1a5f
+  react-native-webview: cb6ca8e0928ef826bdf061a39b7db56ab4d4d480
   React-nativeconfig: aeed6e2a8ac02b2df54476afcc7c663416c12bf7
   React-NativeModulesApple: c0783e5e21c71aa2764ac33120abc96208466fa6
   React-perflogger: 2991d4258277af250eb7a2705980ebb3ef9ba85e

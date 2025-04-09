@@ -43,7 +43,7 @@ const Banner = ({navigation}: {navigation: any}) => {
   if (loading) {
     return (
       <View style={[styles.bannerContainer, styles.loaderContainer]}>
-        <ActivityIndicator size='small' color={Colors.primary} />
+        <ActivityIndicator size="small" color={Colors.primary} />
         <Text style={styles.loadingText}>Loading subscription details...</Text>
       </View>
     );
@@ -56,10 +56,10 @@ const Banner = ({navigation}: {navigation: any}) => {
         <View style={styles.priceContainer}>
           <Text style={styles.discountedPrice}>
             {subscription
-              ? `Subscribed: ${subscriptionName} (£${
+              ? `${subscriptionName} (£${
                   subscriptionPrice === 170 ? 180 : subscriptionPrice
                 }/${subscriptionInterval})`
-              : '£50/week'}
+              : 'Start from £50/week'}
           </Text>
           {!subscription && (
             <Text style={styles.originalPrice}>£180/Monthly</Text>
@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
     marginTop: hp(1),
     color: Colors.primary,
     fontSize: wp(3.5),
-    marginLeft:hp(1),
+    marginLeft: hp(1),
     fontFamily: Fonts.regular,
   },
 });
