@@ -40,45 +40,50 @@ const Banner = ({navigation}: {navigation: any}) => {
     activeSubscription?.plan?.interval === 'N/A'
       ? 'monthly'
       : activeSubscription?.plan?.interval || 'week';
-  if (loading) {
-    return (
-      <View style={[styles.bannerContainer, styles.loaderContainer]}>
-        <ActivityIndicator size="small" color={Colors.primary} />
-        <Text style={styles.loadingText}>Loading subscription details...</Text>
-      </View>
-    );
-  }
 
   return (
     <View style={styles.bannerContainer}>
-      {/* Left Section: Text and Price */}
+      {/* Left Section: Text and Price OR Loader */}
       <View style={styles.leftSection}>
-        <View style={styles.priceContainer}>
-          <Text style={styles.discountedPrice}>
-            {subscription
-              ? `${subscriptionName} (£${
-                  subscriptionPrice === 170 ? 180 : subscriptionPrice
-                }/${subscriptionInterval})`
-              : 'Start from £50/week'}
-          </Text>
-          {!subscription && (
-            <Text style={styles.originalPrice}>£180/Monthly</Text>
-          )}
-        </View>
-        <Text style={styles.additionalText}>
-          {subscription
-            ? `Renews on ${new Date(
-                activeSubscription?.currentPeriodEnd,
-              ).toLocaleDateString()}`
-            : 'Subscribe to Contact Customers'}
-        </Text>
+        {loading ? (
+          <View style={styles.loadingWrapper}>
+            <ActivityIndicator size="small" color={Colors.primary} />
+            <Text style={styles.loadingText}>
+              Loading subscription details...
+            </Text>
+          </View>
+        ) : (
+          <>
+            <View style={styles.priceContainer}>
+              <Text style={styles.discountedPrice}>
+                {subscription
+                  ? `${subscriptionName} (£${
+                      subscriptionPrice === 170 ? 180 : subscriptionPrice
+                    }/${subscriptionInterval})`
+                  : 'Start from £50/week'}
+              </Text>
+              {!subscription && (
+                <Text style={styles.originalPrice}>£180/Monthly</Text>
+              )}
+            </View>
+            <Text style={styles.additionalText}>
+              {subscription
+                ? `Renews on ${new Date(
+                    activeSubscription?.currentPeriodEnd,
+                  ).toLocaleDateString()}`
+                : 'Subscribe to Contact Customers'}
+            </Text>
+          </>
+        )}
       </View>
 
+      {/* Right Section: Button always rendered to maintain width */}
       <TouchableOpacity
         style={styles.getNowButton}
-        onPress={() => navigation.navigate('Subscriptions')}>
+        onPress={() => navigation.navigate('Subscriptions')}
+        disabled={loading}>
         <Text style={styles.getNowText}>
-          {subscription ? 'Manage' : 'Get Now'}
+          {loading ? '...' : subscription ? 'Manage' : 'Get Now'}
         </Text>
       </TouchableOpacity>
     </View>
@@ -102,6 +107,11 @@ const styles = StyleSheet.create({
     elevation: 3,
     width: '100%',
   },
+  loadingWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
   leftSection: {
     flex: 1,
     marginRight: wp(2),
@@ -148,7 +158,6 @@ const styles = StyleSheet.create({
     padding: wp(4),
   },
   loadingText: {
-    marginTop: hp(1),
     color: Colors.primary,
     fontSize: wp(3.5),
     marginLeft: hp(1),
