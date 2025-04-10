@@ -453,7 +453,7 @@ const Listings = () => {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={Colors.primary} />
+        <ActivityIndicator size="small" color={Colors.primary} />
         <Text style={styles.loadingText}>Loading Listings...</Text>
       </View>
     );
