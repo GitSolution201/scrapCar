@@ -7,6 +7,8 @@ import {
   StyleSheet,
   ImageBackground,
   Image,
+  Modal,
+  Alert,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {loginRequest} from '../../redux/slices/authSlice';
@@ -23,7 +25,7 @@ import {checkSubscription} from '../../redux/api';
 
 const Login = ({navigation}: {navigation: any}) => {
   const dispatch = useDispatch();
-  const {loading, loginResponse, token,loginSuccess} = useSelector(
+  const {loading, loginResponse, token, loginSuccess} = useSelector(
     (state: any) => state.auth,
   );
   const [email, setEmail] = useState('');
@@ -37,16 +39,25 @@ const Login = ({navigation}: {navigation: any}) => {
   });
   const [apiError, setApiError] = useState('');
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+  const [confirmationMessage, setConfirmationMessage] = useState('');
+  const [showRateLimitModal, setShowRateLimitModal] = useState(false);
+  const [rateLimitMessage, setRateLimitMessage] = useState('');
+
   useEffect(() => {
     if (loginResponse) {
       setApiError('');
-      if (loginResponse.success) {
+      if (loginResponse.requires_confirmation) {
+        setConfirmationMessage(loginResponse.message);
+        setShowConfirmationModal(true);
+      } else if (loginResponse.success) {
         const setupHeaders = async () => {
           await axiosHeader(token);
           Toast.show(loginResponse?.message, Toast.LONG);
           navigation.replace('MainTabs');
         };
         setupHeaders();
+        dispatch(checkSubscription({email: email}));
       } else if (loginResponse?.error) {
         setApiError(loginResponse?.error);
       }
@@ -64,6 +75,7 @@ const Login = ({navigation}: {navigation: any}) => {
 
     return unsubscribe;
   }, [navigation]);
+
   const validateForm = () => {
     let errors = {};
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -83,19 +95,48 @@ const Login = ({navigation}: {navigation: any}) => {
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
-  const handleLogin = async () => {
-    if (validateForm()) {
-      setApiError('');
-      const deviceId = await DeviceInfo.getUniqueId();
 
+  const handleConfirmedLogin = async () => {
+    setShowConfirmationModal(false);
+    try {
+      const deviceId = await DeviceInfo.getUniqueId();
       dispatch(
         loginRequest({
           email,
           password,
-          deviceId, // Add deviceId to the payload
+          deviceId,
+          confirmLogin: true, // Add flag to indicate confirmed login
         }),
       );
-      dispatch(checkSubscription({email: email}));
+    } catch (error) {
+      if (error.response?.status === 429) {
+        setRateLimitMessage(
+          error.response?.data?.message ||
+            'Too many requests. Please try again later.',
+        );
+        setShowRateLimitModal(true);
+      } else {
+        setApiError(error.response?.data?.message || 'Login failed');
+      }
+    }
+  };
+
+  const handleRateLimitOk = () => {
+    setShowRateLimitModal(false);
+    handleConfirmedLogin();
+  };
+
+  const handleLogin = async () => {
+    if (validateForm()) {
+      setApiError('');
+      const deviceId = await DeviceInfo.getUniqueId();
+      dispatch(
+        loginRequest({
+          email,
+          password,
+          deviceId,
+        }),
+      );
     }
   };
 
@@ -106,10 +147,7 @@ const Login = ({navigation}: {navigation: any}) => {
       resizeMode="cover">
       <View style={styles.container}>
         {/* Logo */}
-        <Image
-          source={require('../../assets/logo.png')} // Path to your logo
-          style={styles.logo}
-        />
+        <Image source={require('../../assets/logo.png')} style={styles.logo} />
 
         <Text style={styles.title}>Sign in to your Account</Text>
         <Text style={styles.subtitle}>
@@ -117,14 +155,13 @@ const Login = ({navigation}: {navigation: any}) => {
         </Text>
 
         <Text style={styles.hidingColor}>Email Address</Text>
-
         <TextInput
           style={styles.input}
           placeholder="Enter your email address"
           value={email}
           onChangeText={text => {
             setEmail(text);
-            setApiError(''); // Clear error when user starts typing
+            setApiError('');
           }}
           keyboardType="email-address"
           autoCapitalize="none"
@@ -142,7 +179,7 @@ const Login = ({navigation}: {navigation: any}) => {
             value={password}
             onChangeText={text => {
               setPassword(text);
-              setApiError(''); // Clear error when user starts typing
+              setApiError('');
             }}
             secureTextEntry={!isPasswordVisible}
             placeholderTextColor="#9E9E9E"
@@ -187,6 +224,47 @@ const Login = ({navigation}: {navigation: any}) => {
             Don't have an account? <Text style={styles.linkBold}>Sign Up</Text>
           </Text>
         </TouchableOpacity>
+
+        {/* Confirmation Modal */}
+        <Modal
+          visible={showConfirmationModal}
+          transparent={true}
+          animationType="slide">
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalText}>{confirmationMessage}</Text>
+              <View style={styles.modalButtons}>
+                <TouchableOpacity
+                  style={[styles.modalButton, styles.yesButton]}
+                  onPress={handleConfirmedLogin}>
+                  <Text style={styles.buttonText}>Yes, Login</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.modalButton, styles.noButton]}
+                  onPress={() => setShowConfirmationModal(false)}>
+                  <Text style={styles.buttonText}>No</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+
+        {/* Rate Limit Modal */}
+        <Modal
+          visible={showRateLimitModal}
+          transparent={true}
+          animationType="slide">
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalText}>{rateLimitMessage}</Text>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.okButton]}
+                onPress={handleRateLimitOk}>
+                <Text style={styles.buttonText}>OK</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
       </View>
     </ImageBackground>
   );
@@ -223,6 +301,7 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.bold,
     marginBottom: hp(2),
     color: '#007BFF',
+    textAlign: 'center',
   },
   hidingColor: {
     color: '#000000AB',
@@ -248,20 +327,17 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
     marginBottom: wp(3),
   },
-
   passwordInput: {
-    flex: 1, // Ensures the input takes full width and text doesn't overlap the icon
+    flex: 1,
     height: hp(6),
     fontSize: wp(4),
     paddingLeft: hp(2),
-    paddingRight: wp(10), // Reserves space for the eye icon
+    paddingRight: wp(10),
     color: '#000',
   },
-
   eyeIcon: {
     marginRight: hp(1.5),
   },
-
   button: {
     backgroundColor: '#007BFF',
     padding: hp(2),
@@ -298,6 +374,45 @@ const styles = StyleSheet.create({
     color: 'red',
     fontSize: wp(3.5),
     marginBottom: hp(2),
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: wp(80),
+    backgroundColor: 'white',
+    padding: wp(5),
+    borderRadius: wp(2),
+  },
+  modalText: {
+    fontSize: wp(4),
+    marginBottom: hp(3),
+    textAlign: 'center',
+    fontFamily: Fonts.regular,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  modalButton: {
+    padding: hp(1.5),
+    borderRadius: wp(2),
+    width: wp(35),
+    alignItems: 'center',
+  },
+  yesButton: {
+    backgroundColor: Colors.primary,
+  },
+  noButton: {
+    backgroundColor: Colors.gray,
+  },
+  okButton: {
+    backgroundColor: Colors.primary,
+    alignSelf: 'center',
+    width: wp(30),
   },
 });
 

@@ -1,5 +1,5 @@
 import {takeLatest, put, call} from 'redux-saga/effects';
-import {login, register} from '../api'; // Import the APIs
+import {attemptLogin, login, register} from '../api'; // Import the APIs
 import {
   loginRequest,
   loginSuccess,
@@ -13,15 +13,25 @@ import {checkSubscriptionRequest} from '../slices/subcriptionsSlice';
 // Worker saga for login
 function* handleLogin(action) {
   try {
-    const response = yield call(login, action.payload); // Call the login API
-    yield put(loginSuccess(response)); // Dispatch success action with API response
-    console.log('====================================');
-    console.log(response);
-    console.log('====================================');
-    yield put(checkSubscriptionRequest({email: response.email}));
+    // First call attemptLogin
+    const attemptResponse = yield call(attemptLogin, action.payload);
+
+    // If it requires confirmation, dispatch success with that info
+    if (attemptResponse.requires_confirmation) {
+      yield put(loginSuccess(attemptResponse));
+    } else {
+      // Otherwise proceed with normal login
+      const loginResponse = yield call(login, action.payload);
+      yield put(loginSuccess(loginResponse));
+      yield put(checkSubscriptionRequest({email: action.payload.email}));
+    }
   } catch (error) {
     console.log('@error in saga', error);
-    yield put(loginFailure(error.message || 'Login failed')); // Dispatch failure action
+    yield put(
+      loginFailure(
+        error.response?.data?.message || error.message || 'Login failed',
+      ),
+    );
   }
 }
 

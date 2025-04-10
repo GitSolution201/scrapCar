@@ -12,6 +12,7 @@ const api = axios.create({
 });
 
 // Login API
+// In your api.ts
 export const login = async userData => {
   try {
     const response = await api.post(
@@ -19,9 +20,10 @@ export const login = async userData => {
       JSON.stringify({
         email: userData.email,
         password: userData.password,
-        deviceId: userData.deviceId, // Include deviceId in the request
+        deviceId: userData.deviceId,
       }),
     );
+
     if (response.data?.message === 'Login successful') {
       return response.data;
     } else {
@@ -29,9 +31,55 @@ export const login = async userData => {
     }
   } catch (error) {
     console.log('API Error:', error.response?.data || error.message);
-    throw new Error(error.response?.data?.message || 'Login failed');
+    // Re-throw the error so saga can handle it
+    throw error;
   }
 };
+//Atempt login
+export const attemptLogin = async (userData: {
+  email: string,
+  password: string,
+  deviceId: string,
+}) => {
+  try {
+    const response = await api.post(
+      '/auth/attemptLogin',
+      JSON.stringify({
+        email: userData.email,
+        password: userData.password,
+        deviceId: 'ec657ca9150317e8',
+      }),
+    );
+    console.log('@respoc', response);
+    return response.data;
+  } catch (error) {
+    console.log(
+      'Attempt Login API Error:',
+      error.response?.data || error.message,
+    );
+    throw error; // Re-throw the error for saga to handle
+  }
+};
+// export const login = async userData => {
+//   try {
+//     const response = await api.post(
+//       '/auth/login',
+//       JSON.stringify({
+//         email: userData.email,
+//         password: userData.password,
+//         deviceId: userData.deviceId, // Include deviceId in the request
+//       }),
+//     );
+//     if (response.data?.message === 'Login successful') {
+//       return response.data;
+//     } else {
+//       throw new Error(response.data?.message || 'Login failed');
+//     }
+//   } catch (error) {
+//     console.log('API Error:', error.response?.data || error.message);
+//     throw new Error(error.response?.data?.message || 'Login failed');
+//   }
+// };
 // Register API
 export const register = async userData => {
   try {

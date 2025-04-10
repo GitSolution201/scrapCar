@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit';
+import {createSlice} from '@reduxjs/toolkit';
 
 const initialState = {
   loading: false, // Loading state for both login and register
@@ -15,28 +15,36 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     // Login Actions
-    loginRequest: (state) => {
+    loginRequest: state => {
       state.loading = true;
       state.loginResponse = null;
       state.error = null;
     },
     loginSuccess: (state, action) => {
       state.loading = false;
-      state.token = action.payload.access_token; 
-      state.deviceId = action.payload.active_devices; 
-      state.loginResponse = {
-        success: true,
-        message: action.payload.message,
-      };
+      // Handle both cases (confirmation required or actual login)
+      if (action.payload.requires_confirmation) {
+        state.loginResponse = {
+          requires_confirmation: true,
+          message: action.payload.message,
+        };
+      } else {
+        state.token = action.payload.access_token;
+        state.deviceId = action.payload.active_devices;
+        state.loginResponse = {
+          success: true,
+          message: action.payload.message,
+        };
+      }
     },
     loginFailure: (state, action) => {
       state.loading = false;
       state.error = action.payload; // Save error message
-      state.loginResponse = { success: false, error: action.payload };
+      state.loginResponse = {success: false, error: action.payload};
     },
 
     // Register Actions
-    registerRequest: (state) => {
+    registerRequest: state => {
       state.loading = true;
       state.registerResponse = null;
       state.error = null;
@@ -58,7 +66,7 @@ const authSlice = createSlice({
     },
 
     // Logout Action
-    logout: (state) => {
+    logout: state => {
       state.loading = false;
       state.user = null;
       state.token = null;
@@ -68,7 +76,7 @@ const authSlice = createSlice({
     },
 
     // Reset Register Response
-    resetRegisterResponse: (state) => {
+    resetRegisterResponse: state => {
       state.registerResponse = null;
     },
   },
