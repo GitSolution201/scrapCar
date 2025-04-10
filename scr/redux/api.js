@@ -88,7 +88,26 @@ export const getFavListings = async token => {
 };
 // Get User Details
 
-
+export const fetchUserDetails = async token => {
+  const deviceId = await DeviceInfo.getUniqueId();
+  try {
+    const response = await api.get('/auth/get-user-details', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'device-id': deviceId,
+      },
+    });
+    return response.data; // Return the data
+  } catch (error) {
+    console.log(
+      'Fetch User Details Error:',
+      error.response?.data || error.message,
+    ); // Log the error
+    throw new Error(
+      error.response?.data?.message || 'Failed to fetch user details',
+    ); // Throw a meaningful error
+  }
+};
 //User Profile Update
 export const updateUserProfile = async (token, updatedData) => {
   const deviceId = await DeviceInfo.getUniqueId();
@@ -184,13 +203,13 @@ export const cancelSubscription = async (subscriptionId, token) => {
   try {
     const response = await api.post(
       '/stripe/cancel-subscription',
-      { subscriptionID: subscriptionId },
+      {subscriptionID: subscriptionId},
       {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-      }
+      },
     );
     return response.data;
   } catch (error) {
