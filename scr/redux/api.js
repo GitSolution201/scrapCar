@@ -179,6 +179,7 @@ export const checkSubscription = async email => {
     return;
   }
 };
+
 export const cancelSubscription = async (subscriptionId, token) => {
   try {
     const response = await api.post(
@@ -191,7 +192,6 @@ export const cancelSubscription = async (subscriptionId, token) => {
         },
       }
     );
-    console.log('@@@RESPONC',response?.data)
     return response.data;
   } catch (error) {
     console.log(

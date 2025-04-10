@@ -14,6 +14,7 @@ import {
   KeyboardAvoidingView,
   ScrollView,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 
 import {TabView, SceneMap, TabBar} from 'react-native-tab-view';
@@ -118,6 +119,7 @@ const SubscriptionScreen = () => {
   const {hasSubscription, subscriptions = []} = useSelector(
     state => state?.subscription?.subscriptionData || {},
   );
+   const {cancelSuccess,cancelLoading}= useSelector(state=>state?.cancelSubscription)
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -125,6 +127,8 @@ const SubscriptionScreen = () => {
       setEmail(userData.email);
     }
   }, [userData]);
+ 
+  
   useEffect(() => {
     initializePaymentMethods();
   }, []);
@@ -133,7 +137,7 @@ const SubscriptionScreen = () => {
     if (userData?.email) {
       dispatch(checkSubscriptionRequest({email: userData.email}));
     }
-  }, [userData?.email, dispatch]);
+  }, [userData?.email, cancelSuccess]);
 
   const initializePaymentMethods = async () => {
     if (isApplePaySupported) {
@@ -522,15 +526,11 @@ const SubscriptionScreen = () => {
     return selectedProduct ? selectedProduct.name : '';
   };
   const cancelSubscription = async (subscriptionId) => {
-    
-      console.log('@@@@ID', subscriptionId);
-      // 1. Check if token exists and is valid
-      if (!token) {
-        Alert.alert('Error', 'Authentication required. Please login again.');
-        return;
-      }
-      dispatch(cancelSubscriptionRequest({ subscriptionId, token }));
-
+    if (!token) {
+      Alert.alert('Error', 'Authentication required. Please login again.');
+      return;
+    }
+    dispatch(cancelSubscriptionRequest({ subscriptionId, token }));
   };
   return (
     <StripeProvider
@@ -560,7 +560,7 @@ const SubscriptionScreen = () => {
         />
         {subscriptionSelected && subscriptionSelected !== '' ? (
           <>
-            {selectedActiveSubscription ? (
+            {selectedActiveSubscription  ? (
               // Show only cancel button if an active subscription is selected
               <View style={styles.actionButtonsContainer}>
                 <TouchableOpacity
@@ -639,9 +639,11 @@ const SubscriptionScreen = () => {
                           },}]
                     );
                   }}>
-                  <Text style={styles.deleteButtonText}>
-                    Cancel Subscription
-                  </Text>
+                  {cancelLoading ? (
+        <ActivityIndicator color="#FF3B30" />
+      ) : (
+        <Text style={styles.deleteButtonText}>Cancel Subscription</Text>
+      )}
                 </TouchableOpacity>
               </View>
             ) : (
