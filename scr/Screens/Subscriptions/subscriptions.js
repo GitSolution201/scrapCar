@@ -37,6 +37,7 @@ import {
 import {useDispatch, useSelector} from 'react-redux';
 import axios from 'axios';
 import {checkSubscriptionRequest} from '../../redux/slices/subcriptionsSlice';
+import { cancelSubscriptionRequest } from '../../redux/slices/canceleSubcriptionsSlice';
 
 const {width: wp, height: hp} = Dimensions.get('window');
 const api = axios.create({
@@ -520,7 +521,17 @@ const SubscriptionScreen = () => {
     const selectedProduct = products.find(p => p.id === subscriptionSelected);
     return selectedProduct ? selectedProduct.name : '';
   };
+  const cancelSubscription = async (subscriptionId) => {
+    
+      console.log('@@@@ID', subscriptionId);
+      // 1. Check if token exists and is valid
+      if (!token) {
+        Alert.alert('Error', 'Authentication required. Please login again.');
+        return;
+      }
+      dispatch(cancelSubscriptionRequest({ subscriptionId, token }));
 
+  };
   return (
     <StripeProvider
       publishableKey={publishableKey}
@@ -565,36 +576,67 @@ const SubscriptionScreen = () => {
                         },
                         {
                           text: 'Yes, Cancel',
+                          // onPress: async () => {
+                          //   try {
+                          //     const response = await fetch(
+                          //       `https://scrape4you.onrender.com/stripe/cancel-subscription`,
+                          //       {
+                          //         method: 'POST',
+                          //         body: JSON.stringify({
+                          //           subscriptionID:
+                          //             'sub_1RBvnFDnmorUxClnUCBcxD5T',
+                          //         }),
+
+                          //         headers: {
+                          //           Authorization: `Bearer ${token}`,
+                          //           'Content-Type': 'application/json',
+                          //         },
+                          //       },
+                          //     );
+                          //     const responseData = await response.json(); // Properly await the JSON parsing
+                          //     console.log('@RESSSS',responseData);
+
+                          //     return response.data; // Return the data
+                          //   } catch (error) {
+                          //     console.log(
+                          //       'Get User Error:',
+                          //       error.response?.data || error.message,
+                          //     ); // Log the error
+                          //   }
+                          // },
                           onPress: async () => {
                             try {
-                              const response = await fetch(
-                                `https://scrape4you.onrender.com/stripe/cancel-subscription`,
-                                {
-                                  method: 'POST',
-                                  body: JSON.stringify({
-                                    subscriptionID:
-                                      'sub_1RBvnFDnmorUxClnUCBcxD5T',
-                                  }),
-
-                                  headers: {
-                                    Authorization: `Bearer ${token}`,
-                                    'Content-Type': 'application/json',
-                                  },
-                                },
+                              // Find the active subscription ID
+                              const activeSubscription = subscriptions.find(
+                                sub => sub.plan.id === subscriptionSelected
                               );
-                              const responseData = await response.json(); // Properly await the JSON parsing
-                              console.log(responseData);
+                              console.log('@AC|TIVE',activeSubscription)
+                              if (!activeSubscription) {
+                                Alert.alert('Error', 'Could not find active subscription');
+                                return;
+                              }
 
-                              return response.data; // Return the data
+                              await cancelSubscription(activeSubscription?.subscriptionId);
+                              
+                              // Refresh subscription data
+                              dispatch(checkSubscriptionRequest({email: userData.email}));
+                              
+                              // Reset selection states
+                              setSubscriptionSelected('');
+                              setSelectedActiveSubscription(false);
+                              
+                              Alert.alert(
+                                'Success',
+                                'Subscription cancelled successfully!'
+                              );
                             } catch (error) {
-                              console.log(
-                                'Get User Error:',
-                                error.response?.data || error.message,
-                              ); // Log the error
+                              console.error('Error cancelling subscription:', error);
+                              Alert.alert(
+                                'Error',
+                                'Failed to cancel subscription. Please try again.'
+                              );
                             }
-                          },
-                        },
-                      ],
+                          },}]
                     );
                   }}>
                   <Text style={styles.deleteButtonText}>
@@ -822,7 +864,6 @@ const ScrapRoute = ({
   );
 
   const isSubscriptionActive = subscriptionId => {
-    console.log('@ID', subscriptionId);
     return subscriptions.some(sub => {
       // Check if subscription is active
       if (sub.status !== 'active') return false;
