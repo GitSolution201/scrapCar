@@ -902,13 +902,13 @@ const ScrapRoute = ({
       };
     }, []), // Add dependencies if these are used: setSelectedActiveSubscription, onSelectSubscription
   );
-  const isSubscriptionActive = async subscriptionIds => {
+  const isSubscriptionActive = subscriptionIds => {
     // Convert single ID to array for consistent handling
     const ids = Array.isArray(subscriptionIds)
       ? subscriptionIds
       : [subscriptionIds];
 
-    const activeSubscription = await subscriptions.find(sub => {
+    const activeSubscription = subscriptions.find(sub => {
       // Check if subscription is active
       if (sub.status !== 'active') return false;
 
