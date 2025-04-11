@@ -793,9 +793,7 @@ const SalvageRoute = ({
               resizeMode="contain"
             />
             <Text style={styles.optionText}>Weekly</Text>
-            <Text style={styles.sharingText}>
-              price_1R57DZDnmorUxClnRG48rfKZ
-            </Text>
+            <Text style={styles.sharingText}>Individual Subscription</Text>
             <Text style={styles.optionSubText}>50 GBP</Text>
             {isSubscriptionActive('price_1R57DZDnmorUxClnRG48rfKZ') && (
               <View style={styles.activeOverlay}>
@@ -819,9 +817,7 @@ const SalvageRoute = ({
               resizeMode="contain"
             />
             <Text style={styles.optionText}>Monthly</Text>
-            <Text style={styles.sharingText}>
-              price_1R15A1DnmorUxCln7W0DslGy
-            </Text>
+            <Text style={styles.sharingText}>Individual Subscription</Text>
             <Text style={styles.optionSubText}>180 GBP</Text>
             {isSubscriptionActive('price_1R15A1DnmorUxCln7W0DslGy') && (
               <View style={styles.activeOverlay}>
@@ -856,9 +852,7 @@ const SalvageRoute = ({
               resizeMode="contain"
             />
             <Text style={styles.optionText}>Corporate Monthly</Text>
-            <Text style={styles.sharingText}>
-              price_1R9a3xDnmorUxClnuwyFYx1B
-            </Text>
+            <Text style={styles.sharingText}>Business Subscription</Text>
             <Text style={styles.optionSubText}>300 GBP</Text>
             {isSubscriptionActive('price_1R9a3xDnmorUxClnuwyFYx1B') && (
               <View style={styles.activeOverlay}>
@@ -948,7 +942,6 @@ const ScrapRoute = ({
           Access a curated list of car sellers.
         </Text>
         <Text style={styles.description}>
-          {' '}
           Get real-time updates on vehicles.
         </Text>
         <Text style={styles.description}>
@@ -971,9 +964,7 @@ const ScrapRoute = ({
               resizeMode="contain"
             />
             <Text style={styles.optionText}>Weekly</Text>
-            <Text style={styles.sharingText}>
-              price_1R57CnDnmorUxClnS97UhVMT
-            </Text>
+            <Text style={styles.sharingText}>Individual Subscription</Text>
             <Text style={styles.optionSubText}>50 GBP</Text>
             {isSubscriptionActive('price_1R57CnDnmorUxClnS97UhVMT') && (
               <View style={styles.activeOverlay}>
@@ -997,9 +988,7 @@ const ScrapRoute = ({
               resizeMode="contain"
             />
             <Text style={styles.optionText}>Monthly</Text>
-            <Text style={styles.sharingText}>
-              price_1R573DDnmorUxClnp4X4Imki
-            </Text>
+            <Text style={styles.sharingText}>Individual Subscription</Text>
             <Text style={styles.optionSubText}>180 GBP</Text>
             {isSubscriptionActive('price_1R573DDnmorUxClnp4X4Imki') && (
               <View style={styles.activeOverlay}>
@@ -1034,9 +1023,7 @@ const ScrapRoute = ({
               resizeMode="contain"
             />
             <Text style={styles.optionText}>Corporate Monthly</Text>
-            <Text style={styles.sharingText}>
-              price_1R9a2eDnmorUxCln8q94c9Xg
-            </Text>
+            <Text style={styles.sharingText}>Business Subscription</Text>
             <Text style={styles.optionSubText}>300 GBP</Text>
 
             {isSubscriptionActive('price_1R9a2eDnmorUxCln8q94c9Xg') && (
