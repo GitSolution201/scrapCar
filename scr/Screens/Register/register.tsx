@@ -59,11 +59,13 @@ const Register = ({navigation}: {navigation: any}) => {
           },
         ]);
       } else if (registerResponse.error) {
+        console.log('@ERRE', registerResponse?.error);
         // Check if error is an object with message property
-        const errorMessage = typeof registerResponse.error === 'object' 
-          ? registerResponse.error.message || 'Registration failed'
-          : registerResponse.error;
-      
+        const errorMessage =
+          typeof registerResponse.error === 'object'
+            ? registerResponse.error.message || 'Registration failed'
+            : registerResponse.error;
+
         Alert.alert('Error', errorMessage);
       }
     }
@@ -101,7 +103,7 @@ const Register = ({navigation}: {navigation: any}) => {
         ...prev,
         passwordError: 'Please enter your password',
       }));
-    }else if (password.length < 6) {
+    } else if (password.length < 6) {
       setErrorMessages((prev: any) => ({
         ...prev,
         passwordError: 'Password must be at least 6 characters',

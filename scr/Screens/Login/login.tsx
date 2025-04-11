@@ -9,6 +9,7 @@ import {
   Image,
   Modal,
   Alert,
+  Pressable,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {loginRequest} from '../../redux/slices/authSlice';
@@ -100,12 +101,13 @@ const Login = ({navigation}: {navigation: any}) => {
     setShowConfirmationModal(false);
     try {
       const deviceId = await DeviceInfo.getUniqueId();
+      // Dispatch loginRequest with a flag indicating this is a confirmed attempt
       dispatch(
         loginRequest({
           email,
           password,
           deviceId,
-          confirmLogin: true, // Add flag to indicate confirmed login
+          isConfirmed: true,
         }),
       );
     } catch (error) {
@@ -120,10 +122,9 @@ const Login = ({navigation}: {navigation: any}) => {
       }
     }
   };
-
   const handleRateLimitOk = () => {
     setShowRateLimitModal(false);
-    handleConfirmedLogin();
+    // handleConfirmedLogin();
   };
 
   const handleLogin = async () => {
@@ -209,10 +210,10 @@ const Login = ({navigation}: {navigation: any}) => {
         {apiError && <Text style={styles.apiErrorText}>{apiError}</Text>}
 
         <TouchableOpacity
-          style={[styles.button, loading && styles.disabledButton]}
+          style={[styles.loginButton, loading && styles.disabledButton]}
           onPress={handleLogin}
           disabled={loading}>
-          <Text style={styles.buttonText}>
+          <Text style={[styles.LoginButtonText, {color: Colors?.white}]}>
             {loading ? 'Please wait...' : 'Log In'}
           </Text>
         </TouchableOpacity>
@@ -225,43 +226,51 @@ const Login = ({navigation}: {navigation: any}) => {
           </Text>
         </TouchableOpacity>
 
-        {/* Confirmation Modal */}
         <Modal
           visible={showConfirmationModal}
           transparent={true}
-          animationType="slide">
+          animationType="fade"
+          onRequestClose={() => setShowConfirmationModal(false)}>
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
               <Text style={styles.modalText}>{confirmationMessage}</Text>
-              <View style={styles.modalButtons}>
-                <TouchableOpacity
-                  style={[styles.modalButton, styles.yesButton]}
-                  onPress={handleConfirmedLogin}>
-                  <Text style={styles.buttonText}>Yes, Login</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.modalButton, styles.noButton]}
+              <View style={styles.buttonRow}>
+                <Pressable
+                  style={[styles.button, styles.cancelButton]}
                   onPress={() => setShowConfirmationModal(false)}>
-                  <Text style={styles.buttonText}>No</Text>
-                </TouchableOpacity>
+                  <Text style={[styles.buttonText, styles.cancelButtonText]}>
+                    No
+                  </Text>
+                </Pressable>
+                <Pressable
+                  style={[styles.button, styles.confirmButton]}
+                  onPress={handleConfirmedLogin}>
+                  <Text style={[styles.buttonText, styles.confirmButtonText]}>
+                    Yes, Login
+                  </Text>
+                </Pressable>
               </View>
             </View>
           </View>
         </Modal>
 
-        {/* Rate Limit Modal */}
         <Modal
           visible={showRateLimitModal}
           transparent={true}
-          animationType="slide">
+          animationType="fade"
+          onRequestClose={() => setShowRateLimitModal(false)}>
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
               <Text style={styles.modalText}>{rateLimitMessage}</Text>
-              <TouchableOpacity
-                style={[styles.modalButton, styles.okButton]}
-                onPress={handleRateLimitOk}>
-                <Text style={styles.buttonText}>OK</Text>
-              </TouchableOpacity>
+              <View style={styles.singleButtonRow}>
+                <Pressable
+                  style={[styles.button, styles.okButton]}
+                  onPress={handleRateLimitOk}>
+                  <Text style={[styles.buttonText, styles.okButtonText]}>
+                    OK
+                  </Text>
+                </Pressable>
+              </View>
             </View>
           </View>
         </Modal>
@@ -338,15 +347,21 @@ const styles = StyleSheet.create({
   eyeIcon: {
     marginRight: hp(1.5),
   },
-  button: {
+  loginButton: {
     backgroundColor: '#007BFF',
     padding: hp(2),
     marginTop: hp(5),
     borderRadius: wp(2),
     alignItems: 'center',
   },
+
   buttonText: {
-    color: '#FFF',
+    color: Colors?.black,
+    fontSize: wp(4),
+    fontFamily: Fonts.bold,
+  },
+  LoginButtonText: {
+    color: Colors?.black,
     fontSize: wp(4),
     fontFamily: Fonts.bold,
   },
@@ -375,6 +390,7 @@ const styles = StyleSheet.create({
     fontSize: wp(3.5),
     marginBottom: hp(2),
   },
+
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -382,37 +398,66 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
-    width: wp(80),
+    width: '80%',
     backgroundColor: 'white',
-    padding: wp(5),
-    borderRadius: wp(2),
+    padding: 20,
+    borderRadius: 15,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
   },
   modalText: {
-    fontSize: wp(4),
-    marginBottom: hp(3),
-    textAlign: 'center',
+    fontSize: 16,
     fontFamily: Fonts.regular,
+    marginVertical: 15,
+    textAlign: 'center',
   },
-  modalButtons: {
+  buttonRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
+    marginTop: 10,
+    width: '100%',
+    borderTopWidth: 1,
+    borderColor: '#D3D3D3',
   },
-  modalButton: {
-    padding: hp(1.5),
-    borderRadius: wp(2),
-    width: wp(35),
+  singleButtonRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 10,
+    width: '100%',
+    borderTopWidth: 1,
+    borderColor: '#D3D3D3',
+  },
+  button: {
+    flex: 1,
+    paddingVertical: 12,
     alignItems: 'center',
   },
-  yesButton: {
-    backgroundColor: Colors.primary,
+  cancelButton: {
+    borderRightWidth: 1,
+    borderColor: '#D3D3D3',
   },
-  noButton: {
-    backgroundColor: Colors.gray,
+  cancelButtonText: {
+    fontFamily: Fonts.bold,
+    color: '#007AFF',
+    borderColor: '#D3D3D3',
+  },
+  confirmButton: {
+    backgroundColor: 'white',
+  },
+  confirmButtonText: {
+    color: Colors.red, // Use your primary color
+    fontFamily: Fonts.bold,
   },
   okButton: {
-    backgroundColor: Colors.primary,
-    alignSelf: 'center',
-    width: wp(30),
+    width: '100%',
+  },
+  okButtonText: {
+    color: Colors.primary,
+    fontFamily: Fonts.bold,
   },
 });
 

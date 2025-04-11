@@ -47,10 +47,9 @@ export const attemptLogin = async (userData: {
       JSON.stringify({
         email: userData.email,
         password: userData.password,
-        deviceId: 'ec657ca9150317e8',
+        deviceId: userData?.deviceId,
       }),
     );
-    console.log('@respoc', response);
     return response.data;
   } catch (error) {
     console.log(
@@ -87,6 +86,7 @@ export const register = async userData => {
     if (response.data?.message === 'Registration Successful') {
       return response.data;
     } else {
+      console.log('@EROR in REgister', response);
       throw new Error(response.data?.message || 'Registration failed');
     }
   } catch (error) {
@@ -227,9 +227,9 @@ export const checkSubscription = async email => {
     const response = await api.post('/stripe/check-subscription', {
       email: email,
     });
-    console.log('====================================latest');
-    console.log(response.data?.subscriptions);
-    console.log('====================================');
+    // console.log('====================================latest');
+    // console.log(response.data?.subscriptions);
+    // console.log('====================================');
     if (response.data) {
       return response.data;
     }

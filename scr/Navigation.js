@@ -81,24 +81,22 @@ const MainStack = () => (
 
 /* App Navigation */
 const AppNavigation = () => {
-  const token = useSelector(state => state.auth.token); 
+  const token = useSelector(state => state.auth.token);
   const dispatch = useDispatch();
   const {userData} = useSelector(state => state?.user);
-
   // Check device ID and active devices
   useEffect(() => {
     const checkActiveDevice = async () => {
       try {
-
         // Get current device ID based on platform
-        const currentDeviceId = Platform.OS === 'android' 
-          ? await DeviceInfo.getAndroidId()
-          : await DeviceInfo.getUniqueId();
-
+        const currentDeviceId =
+          Platform.OS === 'android'
+            ? await DeviceInfo.getAndroidId()
+            : await DeviceInfo.getUniqueId();
         if (userData?.active_devices && currentDeviceId) {
           // Check if current device ID exists in active devices
-          const isDeviceActive = userData.active_devices.includes(currentDeviceId);
-          
+          const isDeviceActive =
+            userData.active_devices.includes(currentDeviceId);
 
           // If device is not in active devices, logout user
           if (!isDeviceActive) {
@@ -126,8 +124,6 @@ const AppNavigation = () => {
       }
     }
   }, [token]);
-
- 
 
   return (
     <NavigationContainer>

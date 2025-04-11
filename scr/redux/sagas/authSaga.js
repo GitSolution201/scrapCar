@@ -13,18 +13,20 @@ import {checkSubscriptionRequest} from '../slices/subcriptionsSlice';
 // Worker saga for login
 function* handleLogin(action) {
   try {
-    // First call attemptLogin
-    const attemptResponse = yield call(attemptLogin, action.payload);
+    // Only call attemptLogin if this is NOT a confirmed attempt
+    if (!action.payload.isConfirmed) {
+      const attemptResponse = yield call(attemptLogin, action.payload);
 
-    // If it requires confirmation, dispatch success with that info
-    if (attemptResponse.requires_confirmation) {
-      yield put(loginSuccess(attemptResponse));
-    } else {
-      // Otherwise proceed with normal login
-      const loginResponse = yield call(login, action.payload);
-      yield put(loginSuccess(loginResponse));
-      yield put(checkSubscriptionRequest({email: action.payload.email}));
+      if (attemptResponse.requires_confirmation) {
+        yield put(loginSuccess(attemptResponse));
+        return; // Exit early since we're showing confirmation modal
+      }
     }
+
+    // Proceed with normal login (either no confirmation needed or this is a confirmed attempt)
+    const loginResponse = yield call(login, action.payload);
+    yield put(loginSuccess(loginResponse));
+    yield put(checkSubscriptionRequest({email: action.payload.email}));
   } catch (error) {
     console.log('@error in saga', error);
     yield put(
@@ -34,7 +36,6 @@ function* handleLogin(action) {
     );
   }
 }
-
 // Worker saga for register
 function* handleRegister(action) {
   try {
