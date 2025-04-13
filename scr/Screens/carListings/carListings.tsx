@@ -261,11 +261,10 @@ const Listings = () => {
     const filterMatch =
       (activeFilters.includes('Scrap') && item.tag === 'scrap') ||
       (activeFilters.includes('Salvage') && item.tag === 'salvage');
-
     // Filter by search query (postcode or location name)
-    const searchMatch =
-      item.postcode.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.fullAddress?.toLowerCase().includes(searchQuery.toLowerCase());
+    const searchMatch = item?.fullAddress
+      ?.toLowerCase()
+      .includes(searchQuery.toLowerCase());
 
     // Filter by distance if a location is selected
     let distanceMatch = true;
@@ -616,7 +615,7 @@ const Listings = () => {
           />
           <TextInput
             style={styles.searchBar}
-            placeholder="Search by postcode or location..."
+            placeholder="Search by location..."
             placeholderTextColor={Colors.textGray}
             value={searchQuery}
             onChangeText={setSearchQuery}

@@ -270,5 +270,38 @@ export const cancelSubscription = async (subscriptionId, token) => {
     );
   }
 };
-
+// Update Subcription
+export const updateSubscription = async (subscription, token) => {
+  try {
+    const response = await api.put(
+      '/auth/update-subscription',
+      {
+        subscription,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      },
+    );
+    if (response?.status === 200) {
+      return response.data;
+    }
+  } catch (error) {
+    console.log(
+      'Update Subscription Error:',
+      error.response?.data || error?.message,
+    );
+    const errorMessage =
+      error.response?.data?.message ||
+      error.response?.data?.error ||
+      error.message ||
+      'Failed to update subscription';
+    console.log(errorMessage);
+    throw new Error(
+      error?.response?.data?.message || 'Failed to update subscription',
+    );
+  }
+};
 export default api;

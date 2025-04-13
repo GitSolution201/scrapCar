@@ -39,6 +39,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import axios from 'axios';
 import {checkSubscriptionRequest} from '../../redux/slices/subcriptionsSlice';
 import {cancelSubscriptionRequest} from '../../redux/slices/canceleSubcriptionsSlice';
+import {updateSubscriptionRequest} from '../../redux/slices/updateSubcriptionSlice';
 
 const {width: wp, height: hp} = Dimensions.get('window');
 const api = axios.create({
@@ -122,6 +123,10 @@ const SubscriptionScreen = () => {
   const {cancelSuccess, cancelLoading} = useSelector(
     state => state?.cancelSubscription,
   );
+  const {updateSuccess, updateLoading, updateSubscriptionData} = useSelector(
+    state => state?.updateSubscription,
+  );
+  // console.log('@UDPATE', updateSubscriptionData);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -138,7 +143,7 @@ const SubscriptionScreen = () => {
     if (userData?.email) {
       dispatch(checkSubscriptionRequest({email: userData.email}));
     }
-  }, [userData?.email, cancelSuccess]);
+  }, [userData?.email, cancelSuccess, updateSuccess]);
 
   const initializePaymentMethods = async () => {
     if (isApplePaySupported) {
@@ -565,78 +570,176 @@ const SubscriptionScreen = () => {
         {subscriptionSelected && subscriptionSelected !== '' ? (
           <>
             {selectedActiveSubscription ? (
-              // Show only cancel button if an active subscription is selected
-              <View style={styles.actionButtonsContainer}>
-                <TouchableOpacity
-                  style={styles.deleteButton}
-                  onPress={() => {
-                    Alert.alert(
-                      'Cancel Subscription',
-                      'Are you sure you want to cancel your subscription?',
-                      [
-                        {
-                          text: 'No',
-                          style: 'cancel',
-                        },
-                        {
-                          text: 'Yes, Cancel',
-                          onPress: async () => {
-                            try {
-                              // Find the active subscription ID
-                              const activeSubscription = subscriptions.find(
-                                sub => sub.plan.id === subscriptionSelected,
-                              );
-                              if (!activeSubscription) {
+              // Show only update button if an active subscription is selected
+              <>
+                <View style={styles.actionButtonsContainer}>
+                  <TouchableOpacity
+                    style={styles.updateButton}
+                    onPress={() => {
+                      Alert.alert(
+                        'Update Subscription',
+                        'Are you sure you want to update your subscription?',
+                        [
+                          {
+                            text: 'No',
+                            style: 'cancel',
+                          },
+                          {
+                            text: 'Yes, Update',
+                            onPress: async () => {
+                              try {
+                                // Find the active subscription ID
+                                const activeSubscription = subscriptions.find(
+                                  sub => sub.plan.id === subscriptionSelected,
+                                );
+                                console.log('@ACTIVE', activeSubscription);
+                                if (!activeSubscription) {
+                                  Alert.alert(
+                                    'Error',
+                                    'Could not find active subscription',
+                                  );
+                                  return;
+                                }
+                                const planName = activeSubscription.plan.name; // Assuming the plan object has a 'name' property
+
+                                // Dispatch with plan name instead of ID
+                                dispatch(
+                                  updateSubscriptionRequest({
+                                    subcription: planName, // Changed from newPlanId to newPlanName
+                                    token: token,
+                                  }),
+                                );
+                                if (updateSuccess) {
+                                  Alert.alert(
+                                    'Success',
+                                    updateSubscriptionData,
+                                    [
+                                      {
+                                        text: 'OK',
+                                        onPress: async () => {
+                                          // Refresh subscription data
+                                          dispatch(
+                                            checkSubscriptionRequest({
+                                              email: userData.email,
+                                            }),
+                                          );
+
+                                          // Reset selection states
+                                          setSubscriptionSelected('');
+                                          setSelectedActiveSubscription(false);
+                                          navigation?.goBack();
+                                        },
+                                      },
+                                    ],
+                                  );
+                                }
+
+                                // Refresh subscription data
+                                dispatch(
+                                  checkSubscriptionRequest({
+                                    email: userData.email,
+                                  }),
+                                );
+
+                                // Reset selection states
+                                setSubscriptionSelected('');
+                                setSelectedActiveSubscription(false);
+                              } catch (error) {
+                                console.error(
+                                  'Error update subscription:',
+                                  error,
+                                );
                                 Alert.alert(
                                   'Error',
-                                  'Could not find active subscription',
+                                  'Failed to update subscription. Please try again.',
                                 );
-                                return;
                               }
-
-                              await cancelSubscription(
-                                activeSubscription?.subscriptionId,
-                              );
-
-                              // Refresh subscription data
-                              dispatch(
-                                checkSubscriptionRequest({
-                                  email: userData.email,
-                                }),
-                              );
-
-                              // Reset selection states
-                              setSubscriptionSelected('');
-                              setSelectedActiveSubscription(false);
-
-                              Alert.alert(
-                                'Success',
-                                'Subscription cancelled successfully!',
-                              );
-                            } catch (error) {
-                              console.error(
-                                'Error cancelling subscription:',
-                                error,
-                              );
-                              Alert.alert(
-                                'Error',
-                                'Failed to cancel subscription. Please try again.',
-                              );
-                            }
+                            },
                           },
-                        },
-                      ],
-                    );
-                  }}>
-                  {cancelLoading ? (
-                    <ActivityIndicator color="#FF3B30" />
-                  ) : (
-                    <Text style={styles.deleteButtonText}>
-                      Cancel Subscription
-                    </Text>
-                  )}
-                </TouchableOpacity>
-              </View>
+                        ],
+                      );
+                    }}>
+                    {updateLoading ? (
+                      <ActivityIndicator color="#FF3B30" />
+                    ) : (
+                      <Text style={styles.updateButtonText}>
+                        Update Subscription
+                      </Text>
+                    )}
+                  </TouchableOpacity>
+                </View>
+                <View style={styles.actionButtonsContainer}>
+                  <TouchableOpacity
+                    style={styles.deleteButton}
+                    onPress={() => {
+                      Alert.alert(
+                        'Cancel Subscription',
+                        'Are you sure you want to cancel your subscription?',
+                        [
+                          {
+                            text: 'No',
+                            style: 'cancel',
+                          },
+                          {
+                            text: 'Yes, Cancel',
+                            onPress: async () => {
+                              try {
+                                // Find the active subscription ID
+                                const activeSubscription = subscriptions.find(
+                                  sub => sub.plan.id === subscriptionSelected,
+                                );
+                                if (!activeSubscription) {
+                                  Alert.alert(
+                                    'Error',
+                                    'Could not find active subscription',
+                                  );
+                                  return;
+                                }
+
+                                await cancelSubscription(
+                                  activeSubscription?.subscriptionId,
+                                );
+
+                                // Refresh subscription data
+                                dispatch(
+                                  checkSubscriptionRequest({
+                                    email: userData.email,
+                                  }),
+                                );
+
+                                // Reset selection states
+                                setSubscriptionSelected('');
+                                setSelectedActiveSubscription(false);
+
+                                Alert.alert(
+                                  'Success',
+                                  'Subscription cancelled successfully!',
+                                );
+                              } catch (error) {
+                                console.error(
+                                  'Error cancelling subscription:',
+                                  error,
+                                );
+                                Alert.alert(
+                                  'Error',
+                                  'Failed to cancel subscription. Please try again.',
+                                );
+                              }
+                            },
+                          },
+                        ],
+                      );
+                    }}>
+                    {cancelLoading ? (
+                      <ActivityIndicator color="#FF3B30" />
+                    ) : (
+                      <Text style={styles.deleteButtonText}>
+                        Cancel Subscription
+                      </Text>
+                    )}
+                  </TouchableOpacity>
+                </View>
+              </>
             ) : (
               // Show payment buttons only if selected subscription is not active
               <View style={styles.paymentButtonsContainer}>
@@ -1252,13 +1355,30 @@ const styles = StyleSheet.create({
     shadowRadius: 2.62,
     elevation: 4,
   },
-  actionButtonText: {
-    color: Colors.white,
-    fontSize: wp * 0.038,
-    fontFamily: Fonts.semiBold,
+  updateButton: {
+    width: '100%',
+    paddingVertical: hp * 0.015,
+    backgroundColor: Colors.white,
+    alignItems: 'center',
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: Colors.primary,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.23,
+    shadowRadius: 2.62,
+    elevation: 4,
   },
   deleteButtonText: {
     color: '#FF3B30',
+    fontSize: wp * 0.038,
+    fontFamily: Fonts.semiBold,
+  },
+  updateButtonText: {
+    color: Colors?.primary,
     fontSize: wp * 0.038,
     fontFamily: Fonts.semiBold,
   },

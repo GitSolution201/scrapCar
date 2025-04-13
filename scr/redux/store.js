@@ -11,8 +11,10 @@ import favoritesReducer from './slices/favouriteSlice';
 import favListingsReducer from './slices/favouriteListingSlice';
 import subscriptionReducer from './slices/subcriptionsSlice';
 import cancelSubscriptionReducer from './slices/canceleSubcriptionsSlice';
+import updateSubscriptionReducer from './slices/updateSubcriptionSlice';
 
 import cancelSubscriptionSaga from './sagas/cancelSubcriptionsSaga';
+import updateSubscriptionSaga from './sagas/updateSubcriptionSaga';
 
 import viewCountReducer from './slices/viewCount'; // Import the new slice
 import authSaga from './sagas/authSaga';
@@ -38,6 +40,7 @@ const persistConfig = {
     'viewCount',
     'subscription',
     'cancelSubscription',
+    'updateSubscription',
   ], // Add the new slice to the whitelist
 };
 
@@ -51,7 +54,7 @@ const rootReducer = combineReducers({
   viewCount: viewCountReducer, // Add the new slice
   subscription: subscriptionReducer, // Add the new reducer
   cancelSubscription: cancelSubscriptionReducer,
-
+  updateSubscription: updateSubscriptionReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -76,5 +79,6 @@ sagaMiddleware.run(favListingsSaga);
 sagaMiddleware.run(viewCountSaga); // Run the new saga
 sagaMiddleware.run(subscriptionSaga); // Run the new saga
 sagaMiddleware.run(cancelSubscriptionSaga);
+sagaMiddleware.run(updateSubscriptionSaga);
 
 export {store, persistor};
