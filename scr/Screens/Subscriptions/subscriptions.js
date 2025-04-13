@@ -438,6 +438,8 @@ const SubscriptionScreen = () => {
         Alert.alert('Error', 'This subscription is already active');
         return;
       }
+      const amount =
+        products.find(p => p.id === subscriptionSelected)?.price || 0;
       const response = await axios.post(
         'https://scrape4you.onrender.com/stripe/create-customer-and-subscription',
         {
@@ -460,7 +462,8 @@ const SubscriptionScreen = () => {
             cartItems: [
               {
                 label: 'Total',
-                amount: '180', // Pence for GBP
+                amount: amount * 100,
+                // amount: '180', // Pence for GBP
                 paymentType: PlatformPay.PaymentType.Immediate,
               },
             ],
