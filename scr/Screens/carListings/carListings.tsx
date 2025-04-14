@@ -34,6 +34,7 @@ import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete'
 import {updateViewCountRequest} from '../../redux/slices/viewCount';
 import {axiosHeader} from '../../Services/apiHeader';
 import api from '../../redux/api';
+import Slider from '@react-native-community/slider';
 
 // Local images
 const localImages = {
@@ -62,6 +63,8 @@ const Listings = () => {
     latitude: null,
     longitude: null,
   });
+  const [distance, setDistance] = useState(5); // Distance in kilometers
+
   const [adress, setAddress] = useState('');
   const [location, setLocation] = useState('');
   const locationOptions = [
@@ -289,10 +292,10 @@ const Listings = () => {
       const selectedDistance = parseFloat(selectedLocation);
 
       // Ensure selectedDistance is a valid number
-      if (!isNaN(selectedDistance)) {
-        distanceMatch = distanceInMiles <= selectedDistance;
-      }
+      // if (!isNaN(selectedDistance)) {
+      distanceMatch = distanceInMiles <= selectedDistance;
     }
+    // }
 
     return filterMatch && searchMatch && distanceMatch;
   });
@@ -465,6 +468,9 @@ const Listings = () => {
       </View>
     );
   }
+  const handleSliderComplete = () => {
+    console.log('object');
+  };
   return (
     <SafeAreaView style={styles.container}>
       <Banner navigation={navigation} />
@@ -628,7 +634,23 @@ const Listings = () => {
           />
         </TouchableOpacity>
       </View>
-
+      <View style={styles.sliderContainer} pointerEvents="box-none">
+        <Text style={styles.distanceText}>
+          {/* {kilometersToMiles(distance).toFixed(0)} miles */}
+          10 miles
+        </Text>
+        <Slider
+          style={styles.slider}
+          minimumValue={1}
+          maximumValue={80}
+          step={1}
+          value={distance}
+          minimumTrackTintColor="blue"
+          maximumTrackTintColor="gray"
+          thumbTintColor="blue"
+          onSlidingComplete={handleSliderComplete}
+        />
+      </View>
       <Modal
         transparent={true}
         visible={isLocationModalVisible}
@@ -992,6 +1014,26 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.regular,
     fontSize: wp(3),
     color: Colors.black,
+  },
+  //Slider
+  sliderContainer: {
+    padding: 10,
+    borderRadius: 10,
+    borderColor: Colors?.gray,
+    borderWidth: 1,
+    marginTop: hp(2),
+    marginBottom: hp(1),
+  },
+
+  distanceText: {
+    fontSize: 16,
+    fontFamily: Fonts.bold,
+    color: 'blue',
+    textAlign: 'center',
+  },
+  slider: {
+    width: '100%',
+    height: 15,
   },
   //Modal
   modalOverlay: {
