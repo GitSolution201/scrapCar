@@ -677,7 +677,7 @@ const styles = StyleSheet.create({
   locationContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginLeft: wp(-3),
+    marginLeft: Platform.OS === 'android' ? wp(-3) : 0,
     marginTop: hp(2),
   },
 
