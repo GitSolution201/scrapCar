@@ -677,22 +677,15 @@ const styles = StyleSheet.create({
   locationContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    marginLeft: wp(-3),
     marginTop: hp(2),
   },
-  textInput: {
-    flex: 1,
-    height: hp(6),
-    fontSize: 14,
-    color: Colors.black,
-    paddingVertical: 0,
-  },
+
   locationIcon: {
     width: wp(8),
     height: wp(8),
     tintColor: Colors.footerGray,
     resizeMode: 'contain',
-    marginLeft: wp(2),
   },
   searchBar: {
     flex: 1,
@@ -799,6 +792,7 @@ const styles = StyleSheet.create({
     shadowRadius: wp(1),
     shadowOffset: {width: 0, height: hp(0.5)},
     elevation: 3,
+    overflow: 'hidden',
   },
   listingCardBlurred: {
     opacity: 0.7,
@@ -840,10 +834,12 @@ const styles = StyleSheet.create({
   },
   carImage: {
     position: 'absolute',
-    top: -90,
-    right: 0,
-    width: '60%',
-    height: '60%',
+    top: -hp(5),
+    right: wp(2),
+    width: '50%',
+    height: '50%',
+    zIndex: 1,
+    resizeMode: 'contain',
   },
   detailsContainer: {
     padding: wp(2.5),
@@ -886,23 +882,22 @@ const styles = StyleSheet.create({
   },
   //Slider
   sliderContainer: {
-    padding: 10,
-    width: wp(80),
+    width: wp(82),
+
     borderRadius: 10,
     borderColor: Colors?.gray,
     borderWidth: 1,
     marginBottom: hp(1),
   },
-
+  slider: {
+    width: '100%',
+    height: 15,
+  },
   distanceText: {
     fontSize: 16,
     fontFamily: Fonts.bold,
     color: 'blue',
     textAlign: 'center',
-  },
-  slider: {
-    width: '100%',
-    height: 15,
   },
   //Modal
   modalOverlay: {
