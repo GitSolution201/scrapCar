@@ -354,8 +354,7 @@ const Listings = () => {
               handleCarDetailsNavigation(item);
             }
           }}
-          style={styles.listingCard} // Removed the blurred style from here
-        >
+          style={styles.listingCard}>
           {/* Heart icon - conditionally shown */}
           {!item.isSold && (
             <TouchableWithoutFeedback
@@ -474,138 +473,7 @@ const Listings = () => {
   return (
     <SafeAreaView style={styles.container}>
       <Banner navigation={navigation} />
-      {/* <View style={styles.locationContainer}>
-        <GooglePlacesAutocomplete
-          placeholder="Search by postcode or location..."
-          minLength={2} // Minimum length of text to trigger search
-          returnKeyType={'search'}
-          fetchDetails={true}
-          onPress={(carListings, details = null) => {
-            console.log('Selected Place:', carListings);
-            console.log('Place Details:', details);
-            // You can set the selected location or perform other actions here
-          }}
-          textInputProps={{
-            placeholderTextColor: Colors.textGray,
-            style: styles.textInput,
-          }}
-          styles={{
-            container: {
-              flex: 1,
-            },
-            textInputContainer: {
-              flexDirection: 'row',
-              alignItems: 'center',
-              backgroundColor: Colors.white,
-              borderRadius: wp(10),
-              borderWidth: wp(0.5),
-              borderColor: Colors.lightGray,
-              paddingHorizontal: wp(3),
-            },
-            textInput: {
-              flex: 1,
-              height: hp(6),
-              fontSize: 14,
-              color: Colors.black,
-              paddingVertical: 0,
-            },
-            listView: {
-              backgroundColor: Colors.white,
-              marginHorizontal: wp(5),
-              borderWidth: wp(0.3),
-              height: '50%',
-              borderColor: Colors.black,
-              elevation: 3, // Add elevation for Android
-              zIndex: 1000, // Ensure it appears above other elements
-              maxHeight: hp(30),
-            },
-            row: {
-              backgroundColor: Colors.white,
-              // height: hp(6),
-              flexDirection: 'row',
-              alignItems: 'center',
-              paddingHorizontal: wp(3),
-            },
-            separator: {
-              height: hp(0.1),
-              backgroundColor: Colors.darkGray,
-            },
-            description: {
-              color: Colors.black,
-              fontSize: 14,
-            },
-            poweredContainer: {
-              display: 'none', // Hide the "Powered by Google" logo
-            },
-          }}
-          query={{
-            key: 'AIzaSyC9PCVumxPB8jcTCo15qDfq2aRLto7Eivs', // Replace with your actual API key
-            language: 'en',
-            radius: '1000',
-          }}
-          debounce={200} // Add debounce to avoid too many requests
-        />
-        {/* <GooglePlacesAutocomplete
-          placeholder="Search by postcode or location..."
-          minLength={2}
-          returnKeyType={'search'}
-          fetchDetails={true}
-          onPress={(carListings, details = null) => {
-            console.log('Selected Place:', carListings);
-            console.log('Place Details:', details);
-          }}
-          textInputProps={{
-            placeholderTextColor: Colors.textGray,
-            style: styles.textInput,
-          }}
-          styles={{
-            container: {
-              flex: 1,
-            },
-            textInputContainer: {
-              flexDirection: 'row',
-              alignItems: 'center',
-              backgroundColor: Colors.white,
-              borderRadius: wp(10),
-              borderWidth: wp(0.5),
-              borderColor: Colors.lightGray,
-              paddingHorizontal: wp(3),
-            },
-            textInput: {
-              flex: 1,
-              height: hp(6),
-              fontSize: 14,
-              color: Colors.black,
-              paddingVertical: 0,
-            },
-            listView: {
-              backgroundColor: Colors.white,
-              marginHorizontal: wp(5),
-              borderWidth: wp(0.3),
-              borderColor: Colors.black,
-            },
-            row: {
-              backgroundColor: Colors.white,
-              height: hp(6),
-              flexDirection: 'row',
-            },
-            separator: {
-              height: hp(0.1),
-              backgroundColor: Colors.darkGray,
-            },
-            description: {
-              color: Colors.black,
-            },
-            poweredContainer: {
-              display: 'none', // Hide the "Powered by Google" logo
-            },
-          }}
-          query={{
-            key: 'AIzaSyC9PCVumxPB8jcTCo15qDfq2aRLto7Eivs', // Replace with your actual API key
-            language: 'en',
-            radius: '1000',
-          }}
-        /> */}
+
       {/* <TouchableOpacity onPress={() => setIsLocationModalVisible(true)}>
           <Image
             source={require('../../assets/location.png')}
@@ -614,7 +482,24 @@ const Listings = () => {
         </TouchableOpacity> */}
       {/* </View> */}
       <View style={styles.locationContainer}>
-        <View style={styles.searchContainer}>
+        <View style={styles.sliderContainer} pointerEvents="box-none">
+          <Text style={styles.distanceText}>
+            {/* {kilometersToMiles(distance).toFixed(0)} miles */}
+            10 miles
+          </Text>
+          <Slider
+            style={styles.slider}
+            minimumValue={1}
+            maximumValue={80}
+            step={1}
+            value={distance}
+            minimumTrackTintColor="blue"
+            maximumTrackTintColor="gray"
+            thumbTintColor="blue"
+            onSlidingComplete={handleSliderComplete}
+          />
+        </View>
+        {/* <View style={styles.searchContainer}>
           <Image
             source={require('../../assets/search.png')}
             style={styles.searchIcon}
@@ -626,7 +511,7 @@ const Listings = () => {
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
-        </View>
+        </View> */}
         <TouchableOpacity onPress={() => setIsLocationModalVisible(true)}>
           <Image
             source={require('../../assets/location.png')}
@@ -634,23 +519,7 @@ const Listings = () => {
           />
         </TouchableOpacity>
       </View>
-      <View style={styles.sliderContainer} pointerEvents="box-none">
-        <Text style={styles.distanceText}>
-          {/* {kilometersToMiles(distance).toFixed(0)} miles */}
-          10 miles
-        </Text>
-        <Slider
-          style={styles.slider}
-          minimumValue={1}
-          maximumValue={80}
-          step={1}
-          value={distance}
-          minimumTrackTintColor="blue"
-          maximumTrackTintColor="gray"
-          thumbTintColor="blue"
-          onSlidingComplete={handleSliderComplete}
-        />
-      </View>
+
       <Modal
         transparent={true}
         visible={isLocationModalVisible}
@@ -1018,10 +887,10 @@ const styles = StyleSheet.create({
   //Slider
   sliderContainer: {
     padding: 10,
+    width: wp(80),
     borderRadius: 10,
     borderColor: Colors?.gray,
     borderWidth: 1,
-    marginTop: hp(2),
     marginBottom: hp(1),
   },
 
