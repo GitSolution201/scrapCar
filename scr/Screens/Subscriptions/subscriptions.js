@@ -126,7 +126,6 @@ const SubscriptionScreen = () => {
   const {updateSuccess, updateLoading, updateSubscriptionData} = useSelector(
     state => state?.updateSubscription,
   );
-  // console.log('@UDPATE', updateSubscriptionData);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -205,16 +204,20 @@ const SubscriptionScreen = () => {
       checkPlatformPaySupport();
     }
   }, []);
-
   const handlePlatformPay = async () => {
+    // Add loading state
+    setLoading(true); // Assuming you have a state variable for loading
+
     try {
       if (!subscriptionSelected || subscriptionSelected === '') {
         Alert.alert('Error', 'Please select a subscription plan first');
+        setLoading(false);
         return;
       }
 
       if (selectedActiveSubscription) {
         Alert.alert('Error', 'This subscription is already active');
+        setLoading(false);
         return;
       }
 
@@ -223,6 +226,7 @@ const SubscriptionScreen = () => {
 
       const amount =
         products.find(p => p.id === subscriptionSelected)?.price || 0;
+
       const response = await axios.post(
         'https://scrape4you.onrender.com/stripe/create-customer-and-subscription',
         {
@@ -252,6 +256,7 @@ const SubscriptionScreen = () => {
         };
 
         console.log('Attempting payment with:', paymentMethod);
+        setLoading(false);
 
         const {error} = await confirmPlatformPayPayment(
           response.data.clientSecret,
@@ -262,6 +267,8 @@ const SubscriptionScreen = () => {
           console.log('Payment error:', error);
           Alert.alert('Error', 'Payment failed. Please try again.');
         } else {
+          setLoading(false);
+
           Alert.alert(
             'Congratulations! 🎉',
             'Your subscription has been successfully activated. Welcome to our premium services. You now have access to all features.',
@@ -281,6 +288,9 @@ const SubscriptionScreen = () => {
     } catch (error) {
       console.log('Payment error:', error);
       Alert.alert('Error', 'Payment failed. Please try again.');
+    } finally {
+      // Ensure loading is set to false when operation completes (success or failure)
+      setLoading(false);
     }
   };
 
@@ -372,6 +382,7 @@ const SubscriptionScreen = () => {
           },
         },
       );
+      setLoading(false);
 
       // Step 2: Initialize payment sheet with the returned client secret
       const {error} = await initPaymentSheet({
@@ -574,102 +585,6 @@ const SubscriptionScreen = () => {
               <>
                 <View style={styles.actionButtonsContainer}>
                   <TouchableOpacity
-                    style={styles.updateButton}
-                    onPress={() => {
-                      Alert.alert(
-                        'Update Subscription',
-                        'Are you sure you want to update your subscription?',
-                        [
-                          {
-                            text: 'No',
-                            style: 'cancel',
-                          },
-                          {
-                            text: 'Yes, Update',
-                            onPress: async () => {
-                              try {
-                                // Find the active subscription ID
-                                const activeSubscription = subscriptions.find(
-                                  sub => sub.plan.id === subscriptionSelected,
-                                );
-                                console.log('@ACTIVE', activeSubscription);
-                                if (!activeSubscription) {
-                                  Alert.alert(
-                                    'Error',
-                                    'Could not find active subscription',
-                                  );
-                                  return;
-                                }
-                                const planName = activeSubscription.plan.name; // Assuming the plan object has a 'name' property
-
-                                // Dispatch with plan name instead of ID
-                                dispatch(
-                                  updateSubscriptionRequest({
-                                    subcription: planName, // Changed from newPlanId to newPlanName
-                                    token: token,
-                                  }),
-                                );
-                                if (updateSuccess) {
-                                  Alert.alert(
-                                    'Success',
-                                    updateSubscriptionData,
-                                    [
-                                      {
-                                        text: 'OK',
-                                        onPress: async () => {
-                                          // Refresh subscription data
-                                          dispatch(
-                                            checkSubscriptionRequest({
-                                              email: userData.email,
-                                            }),
-                                          );
-
-                                          // Reset selection states
-                                          setSubscriptionSelected('');
-                                          setSelectedActiveSubscription(false);
-                                          navigation?.goBack();
-                                        },
-                                      },
-                                    ],
-                                  );
-                                }
-
-                                // Refresh subscription data
-                                dispatch(
-                                  checkSubscriptionRequest({
-                                    email: userData.email,
-                                  }),
-                                );
-
-                                // Reset selection states
-                                setSubscriptionSelected('');
-                                setSelectedActiveSubscription(false);
-                              } catch (error) {
-                                console.error(
-                                  'Error update subscription:',
-                                  error,
-                                );
-                                Alert.alert(
-                                  'Error',
-                                  'Failed to update subscription. Please try again.',
-                                );
-                              }
-                            },
-                          },
-                        ],
-                      );
-                    }}>
-                    {updateLoading ? (
-                      <ActivityIndicator color="#FF3B30" />
-                    ) : (
-                      <Text style={styles.updateButtonText}>
-                        Update Subscription
-                      </Text>
-                    )}
-                  </TouchableOpacity>
-                </View>
-                <View style={styles.actionButtonsContainer}>
-                  <TouchableOpacity
                     style={styles.deleteButton}
                     onPress={() => {
                       Alert.alert(
@@ -797,6 +712,11 @@ const SubscriptionScreen = () => {
             </TouchableOpacity>
           </View>
         )}
+        {loading && (
+          <View style={styles.loaderOverlay}>
+            <ActivityIndicator size="large" color={Colors.primary} />
+          </View>
+        )}
       </SafeAreaView>
     </StripeProvider>
   );
@@ -821,7 +741,6 @@ const SalvageRoute = ({
   useFocusEffect(
     useCallback(() => {
       const activeId = isSubscriptionActive(subscriptionIds);
-
       if (activeId) {
         setSelectedActiveSubscription(true);
         onSelectSubscription(activeId);
@@ -855,8 +774,8 @@ const SalvageRoute = ({
   };
   const handleSubscriptionSelect = subscriptionId => {
     // First check if this subscription is already active
-    const isActive = isSubscriptionActive(subscriptionId);
 
+    const isActive = isSubscriptionActive(subscriptionId);
     if (isActive) {
       // If subscription is active, just select it to show cancel button
       setSelectedActiveSubscription(true);
@@ -874,7 +793,7 @@ const SalvageRoute = ({
       <View style={styles.tabContent}>
         <Text style={styles.subHeader}>Salvage Monthly Subscription:</Text>
         <Text style={styles.description}>
-          Find salvaged cars at competitive prices.{' '}
+          Find salvaged cars at competitive prices.
         </Text>
         <Text style={styles.description}>
           Connect with sellers offload vehicles.
@@ -899,7 +818,7 @@ const SalvageRoute = ({
               resizeMode="contain"
             />
             <Text style={styles.optionText}>Weekly</Text>
-            <Text style={styles.sharingText}>One device per account</Text>
+            <Text style={styles.sharingText}>1 device per account</Text>
             <Text style={styles.optionSubText}>50 GBP</Text>
             {isSubscriptionActive('price_1R57DZDnmorUxClnRG48rfKZ') && (
               <View style={styles.activeOverlay}>
@@ -923,7 +842,7 @@ const SalvageRoute = ({
               resizeMode="contain"
             />
             <Text style={styles.optionText}>Monthly</Text>
-            <Text style={styles.sharingText}>One device per account</Text>
+            <Text style={styles.sharingText}>1 device per account</Text>
             <Text style={styles.optionSubText}>180 GBP</Text>
             {isSubscriptionActive('price_1R15A1DnmorUxCln7W0DslGy') && (
               <View style={styles.activeOverlay}>
@@ -958,7 +877,8 @@ const SalvageRoute = ({
               resizeMode="contain"
             />
             <Text style={styles.optionText}>Corporate Monthly</Text>
-            <Text style={styles.sharingText}>Two devices per account</Text>
+            <Text style={styles.forText}>for business use</Text>
+            <Text style={styles.sharingText}>2 devices per account</Text>
             <Text style={styles.optionSubText}>300 GBP</Text>
             {isSubscriptionActive('price_1R9a3xDnmorUxClnuwyFYx1B') && (
               <View style={styles.activeOverlay}>
@@ -988,7 +908,6 @@ const ScrapRoute = ({
     'price_1R9a2eDnmorUxCln8q94c9Xg',
     'price_1R573DDnmorUxClnp4X4Imki',
   ];
-
   useFocusEffect(
     useCallback(() => {
       const activeId = isSubscriptionActive(subscriptionIds);
@@ -1027,7 +946,6 @@ const ScrapRoute = ({
   const handleSubscriptionSelect = subscriptionId => {
     // First check if this subscription is already active
     const isActive = isSubscriptionActive(subscriptionId);
-
     if (isActive) {
       // If subscription is active, just select it to show cancel button
       setSelectedActiveSubscription(true);
@@ -1070,7 +988,7 @@ const ScrapRoute = ({
               resizeMode="contain"
             />
             <Text style={styles.optionText}>Weekly</Text>
-            <Text style={styles.sharingText}>One device per account</Text>
+            <Text style={styles.sharingText}>1 device per account</Text>
             <Text style={styles.optionSubText}>50 GBP</Text>
             {isSubscriptionActive('price_1R57CnDnmorUxClnS97UhVMT') && (
               <View style={styles.activeOverlay}>
@@ -1094,7 +1012,7 @@ const ScrapRoute = ({
               resizeMode="contain"
             />
             <Text style={styles.optionText}>Monthly</Text>
-            <Text style={styles.sharingText}>One device per account</Text>
+            <Text style={styles.sharingText}>1 device per account</Text>
             <Text style={styles.optionSubText}>180 GBP</Text>
             {isSubscriptionActive('price_1R573DDnmorUxClnp4X4Imki') && (
               <View style={styles.activeOverlay}>
@@ -1129,7 +1047,8 @@ const ScrapRoute = ({
               resizeMode="contain"
             />
             <Text style={styles.optionText}>Corporate Monthly</Text>
-            <Text style={styles.sharingText}>Two devices per account</Text>
+            <Text style={styles.forText}>for business use</Text>
+            <Text style={styles.sharingText}>2 devices per account</Text>
             <Text style={styles.optionSubText}>300 GBP</Text>
 
             {isSubscriptionActive('price_1R9a2eDnmorUxCln8q94c9Xg') && (
@@ -1152,6 +1071,17 @@ const styles = StyleSheet.create({
 
     // backgroundColor: Colors.white,
     // margin: Platform.OS === 'ios' ? 20 : 5,
+  },
+  loaderOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
   },
   scrollContent: {
     flexGrow: 1,
@@ -1216,6 +1146,12 @@ const styles = StyleSheet.create({
     fontSize: wp * 0.03,
     fontFamily: Fonts.regular,
     color: Colors.footerGray,
+  },
+  forText: {
+    marginTop: wp * 0.01,
+    fontSize: wp * 0.03,
+    fontFamily: Fonts.regular,
+    color: Colors.black,
   },
   optionSubText: {
     marginTop: wp * 0.01,
@@ -1355,23 +1291,7 @@ const styles = StyleSheet.create({
     shadowRadius: 2.62,
     elevation: 4,
   },
-  updateButton: {
-    width: '100%',
-    paddingVertical: hp * 0.015,
-    backgroundColor: Colors.white,
-    alignItems: 'center',
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: Colors.primary,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.23,
-    shadowRadius: 2.62,
-    elevation: 4,
-  },
+
   deleteButtonText: {
     color: '#FF3B30',
     fontSize: wp * 0.038,

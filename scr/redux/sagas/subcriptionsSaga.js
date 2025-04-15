@@ -1,11 +1,11 @@
 // Create a new file subscriptionSaga.js
-import { takeLatest, put, call } from 'redux-saga/effects';
+import {takeLatest, put, call} from 'redux-saga/effects';
 import {
   checkSubscriptionRequest,
   checkSubscriptionSuccess,
   checkSubscriptionFailure,
 } from '../slices/subcriptionsSlice';
-import { checkSubscription } from '../api';
+import {checkSubscription} from '../api';
 
 // Worker saga for checking subscription
 function* handleCheckSubscription(action) {
@@ -14,7 +14,7 @@ function* handleCheckSubscription(action) {
     yield put(checkSubscriptionSuccess(response));
   } catch (error) {
     console.log('@error in subscription saga', error);
-    yield put(checkSubscriptionFailure(error.message || 'Subscription check failed'));
+    yield put(checkSubscriptionFailure(error || 'Subscription check failed'));
   }
 }
 
