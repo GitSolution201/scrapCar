@@ -56,15 +56,15 @@ const Listings = () => {
   const [carListings, setCarListings] = useState([]); // Data state
   const {favoriteItems} = useSelector((state: any) => state?.favourite);
   const [activeFilters, setActiveFilters] = useState(['Scrap', 'Salvage']);
-  const [searchQuery, setSearchQuery] = useState('');
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [isLocationModalVisible, setIsLocationModalVisible] = useState(false);
   const [currentLocation, setCurrentLocation] = useState({
     latitude: null,
     longitude: null,
   });
-  const [distance, setDistance] = useState(5); // Distance in kilometers
-
+  // const [distance, setDistance] = useState(5); // Distance in kilometers
+  const [distance, setDistance] = useState(null); // Start with null (no filtering)
+  const [activeDistanceFilter, setActiveDistanceFilter] = useState(null); // Tracks if user is fil
   const [adress, setAddress] = useState('');
   const [location, setLocation] = useState('');
   const locationOptions = [
@@ -131,29 +131,6 @@ const Listings = () => {
     }
   };
 
-  //   const fetchCarListings = async () => {
-  //     setLoading(true); // Set loading to true
-  //     setError(null); // Reset error state
-
-  //     try {
-  //       if (!token) {
-  //         throw new Error('Token not found');
-  //       }
-  // console.log(token)
-  //       const response = await api.get('/car/get-all-listing', {
-  //         headers: {
-  //           Authorization: `Bearer ${token}`,
-  //           'Content-Type': 'application/json',
-  //         },
-  //       });
-  //       setCarListings(response.data); // Store carListings in state
-  //     } catch (err) {
-  //       console.log('API Error:', err);
-  //       setError(err.message || 'Failed to fetch car listings'); // Set error message
-  //     } finally {
-  //       setLoading(false); // Set loading to false
-  //     }
-  //   };
   const getLocation = async () => {
     const hasLocationPermission = await RequestLocationPermission();
     if (hasLocationPermission === 'granted') {
@@ -169,59 +146,6 @@ const Listings = () => {
       );
     }
   };
-  // const getLocation = () => {
-  //   Geolocation.getCurrentPosition(
-  //     position => {
-  //       const {latitude, longitude} = position.coords;
-  //       setCurrentLocation({latitude, longitude});
-
-  //       fetch(
-  //         `https://maps.googleapis.com/maps/api/geocode/json?latlng=${
-  //           position?.coords.latitude
-  //         },${
-  //           position?.coords.longitude
-  //         }&key=${'AIzaSyC9PCVumxPB8jcTCo15qDfq2aRLto7Eivs'}`,
-  //         {
-  //           method: 'get',
-  //           headers: {
-  //             Accept: 'application/json',
-  //           },
-  //         },
-  //       )
-  //         .then(res => res.json())
-  //         .then(res => {
-  //           const {formatted_address} = res?.results[0];
-  //           const {lat, lng} = res?.results[0]?.geometry?.location;
-  //           setAddress({
-  //             streetName: formatted_address,
-  //             latitude: lat,
-  //             longitude: lng,
-  //           });
-  //           setLocation({
-  //             evevtLocation: formatted_address,
-  //             eventLat: lat,
-  //             eventLng: lng,
-  //           });
-  //           // animateToRegion({
-  //           //   latitude: lat,
-  //           //   longitude: lng,
-  //           //   latitudeDelta: 0.02305,
-  //           //   longitudeDelta: 0.010525,
-  //           // });
-  //           // Toast.show(ToastMessages.locationFetch, Toast.SHORT, {
-  //           //   backgroundColor: Colors.green,
-  //           // });
-  //         })
-  //         .catch(error => {
-  //           console.log(error);
-  //         });
-  //     },
-  //     error => {
-  //       console.log(error.code, error.message);
-  //     },
-  //     {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
-  //   );
-  // };
   const handleFilterPress = filter => {
     if (filter === 'Saved') {
       navigation.navigate('Savage');
@@ -259,24 +183,22 @@ const Listings = () => {
     return `${distanceInMiles} mi`; // Return distance in miles
   };
 
+ 
   const filteredData = carListings?.filter(item => {
-    // Filter by active filters
+    // 1. Filter by active tags
     const filterMatch =
       (activeFilters.includes('Scrap') && item.tag === 'scrap') ||
-      (activeFilters.includes('Salvage') && item.tag === 'salvage');
-    // Filter by search query (postcode or location name)
-    // const searchMatch = item?.fullAddress
-    //   ?.toLowerCase()
-    //   .includes(searchQuery.toLowerCase());
+      (activeFilters.includes('Salvage') && item.tag === 'salvage') ||
+      activeFilters.length === 0;
 
-    // Filter by distance if a location is selected
+    // 2. Apply distance filter ONLY if user actively filtered
     let distanceMatch = true;
     if (
-      selectedLocation &&
-      currentLocation.latitude &&
-      currentLocation.longitude &&
-      item.latitude &&
-      item.longitude
+      activeDistanceFilter && // Only check if user interacted
+      currentLocation?.latitude &&
+      currentLocation?.longitude &&
+      item?.latitude &&
+      item?.longitude
     ) {
       const distanceInMeters = getDistance(
         {
@@ -285,21 +207,12 @@ const Listings = () => {
         },
         {latitude: item.latitude, longitude: item.longitude},
       );
-
-      const distanceInMiles = distanceInMeters * 0.000621371; // Convert meters to miles
-
-      // Extract the numeric value from the selected location (e.g., "5 miles" -> 5)
-      const selectedDistance = parseFloat(selectedLocation);
-
-      // Ensure selectedDistance is a valid number
-      // if (!isNaN(selectedDistance)) {
-      distanceMatch = distanceInMiles <= selectedDistance;
+      const distanceInMiles = distanceInMeters * 0.000621371;
+      distanceMatch = distanceInMiles <= distance;
     }
-    // }
 
     return filterMatch && distanceMatch;
   });
-
   const noDataFound = filteredData?.length === 0;
   const sortedData = filteredData?.sort((a, b) => {
     const dateA = new Date(a.date_added);
@@ -467,8 +380,15 @@ const Listings = () => {
       </View>
     );
   }
+  const handleSliderChange = value => {
+    setDistance(value);
+    setActiveDistanceFilter(true); // User is actively filtering
+  };
+
   const handleSliderComplete = () => {
-    console.log('object');
+    if (distance === null) {
+      setActiveDistanceFilter(false); // Reset if user slides to minimum
+    }
   };
   return (
     <SafeAreaView style={styles.container}>
@@ -485,18 +405,20 @@ const Listings = () => {
         <View style={styles.sliderContainer} pointerEvents="box-none">
           <Text style={styles.distanceText}>
             {/* {kilometersToMiles(distance).toFixed(0)} miles */}
-            10 miles
+            {distance || 10} miles
           </Text>
           <Slider
             style={styles.slider}
             minimumValue={1}
             maximumValue={80}
             step={1}
-            value={distance}
+            value={distance || 10} // Show 10 miles as default visual
+            onValueChange={handleSliderChange}
+            onSlidingComplete={handleSliderComplete}
             minimumTrackTintColor="blue"
             maximumTrackTintColor="gray"
             thumbTintColor="blue"
-            onSlidingComplete={handleSliderComplete}
+            // onSlidingComplete={handleSliderComplete}
           />
         </View>
         {/* <View style={styles.searchContainer}>
