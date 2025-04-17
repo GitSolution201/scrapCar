@@ -1,20 +1,26 @@
 import axios from 'axios';
-import {getCallingCode} from 'react-native-country-picker-modal';
 import DeviceInfo from 'react-native-device-info';
 // https://scrape4you.onrender.com/auth/register
 // Set up the base Axios instance
 const api = axios.create({
   baseURL: 'https://scrape4you.onrender.com', // Replace this with your actual API base URL
-  timeout: 10000, // Timeout in milliseconds
+  timeout: 30000, // Timeout in milliseconds
   headers: {
     'Content-Type': 'application/json',
   },
 });
-
+export const axiosHeader = token => {
+  if (token) {
+    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+  } else {
+    delete axios.defaults.headers.common['Authorization'];
+  }
+};
 // Login API
 // In your api.ts
 export const login = async userData => {
   try {
+    console.log('@ DATA SEND IN LOGIN', userData);
     const response = await api.post(
       '/auth/login',
       JSON.stringify({
@@ -36,17 +42,14 @@ export const login = async userData => {
   }
 };
 //Atempt login
-export const attemptLogin = async (userData: {
-  email: string,
-  password: string,
-  deviceId: string,
-}) => {
+export const attemptLogin = async userData => {
   try {
+    console.log('@USER DATA', userData);
     const response = await api.post(
       '/auth/attemptLogin',
       JSON.stringify({
-        email: userData.email,
-        password: userData.password,
+        email: userData?.email,
+        password: userData?.password,
         deviceId: userData?.deviceId,
       }),
     );
@@ -59,26 +62,7 @@ export const attemptLogin = async (userData: {
     throw error; // Re-throw the error for saga to handle
   }
 };
-// export const login = async userData => {
-//   try {
-//     const response = await api.post(
-//       '/auth/login',
-//       JSON.stringify({
-//         email: userData.email,
-//         password: userData.password,
-//         deviceId: userData.deviceId, // Include deviceId in the request
-//       }),
-//     );
-//     if (response.data?.message === 'Login successful') {
-//       return response.data;
-//     } else {
-//       throw new Error(response.data?.message || 'Login failed');
-//     }
-//   } catch (error) {
-//     console.log('API Error:', error.response?.data || error.message);
-//     throw new Error(error.response?.data?.message || 'Login failed');
-//   }
-// };
+
 // Register API
 export const register = async userData => {
   try {

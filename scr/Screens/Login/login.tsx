@@ -45,6 +45,8 @@ const Login = ({navigation}: {navigation: any}) => {
   const [showRateLimitModal, setShowRateLimitModal] = useState(false);
   const [rateLimitMessage, setRateLimitMessage] = useState('');
 
+  console.log('@token', token);
+
   useEffect(() => {
     if (loginResponse) {
       setApiError('');
