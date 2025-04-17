@@ -818,7 +818,15 @@ const SalvageRoute = ({
               resizeMode="contain"
             />
             <Text style={styles.optionText}>Weekly</Text>
-            <Text style={styles.sharingText}>1 device per account</Text>
+
+            <View style={styles.sharingRow}>
+              <Text style={styles.sharingText}>Use 1 Devices</Text>
+              <Image
+                source={require('../../assets/iphone.png')} // your icon here
+                style={styles.phoneIcon}
+                resizeMode="contain"
+              />
+            </View>
             <Text style={styles.optionSubText}>50 GBP</Text>
             {isSubscriptionActive('price_1R57DZDnmorUxClnRG48rfKZ') && (
               <View style={styles.activeOverlay}>
@@ -842,7 +850,14 @@ const SalvageRoute = ({
               resizeMode="contain"
             />
             <Text style={styles.optionText}>Monthly</Text>
-            <Text style={styles.sharingText}>1 device per account</Text>
+            <View style={styles.sharingRow}>
+              <Text style={styles.sharingText}>Use 1 Devices</Text>
+              <Image
+                source={require('../../assets/iphone.png')} // your icon here
+                style={styles.phoneIcon}
+                resizeMode="contain"
+              />
+            </View>
             <Text style={styles.optionSubText}>180 GBP</Text>
             {isSubscriptionActive('price_1R15A1DnmorUxCln7W0DslGy') && (
               <View style={styles.activeOverlay}>
@@ -878,7 +893,14 @@ const SalvageRoute = ({
             />
             <Text style={styles.optionText}>Corporate Monthly</Text>
             <Text style={styles.forText}>for business use</Text>
-            <Text style={styles.sharingText}>2 devices per account</Text>
+            <View style={styles.sharingRow}>
+              <Text style={styles.sharingText}>Use 2 Devices</Text>
+              <Image
+                source={require('../../assets/iphone.png')} // your icon here
+                style={styles.phoneIcon}
+                resizeMode="contain"
+              />
+            </View>
             <Text style={styles.optionSubText}>300 GBP</Text>
             {isSubscriptionActive('price_1R9a3xDnmorUxClnuwyFYx1B') && (
               <View style={styles.activeOverlay}>
@@ -988,7 +1010,14 @@ const ScrapRoute = ({
               resizeMode="contain"
             />
             <Text style={styles.optionText}>Weekly</Text>
-            <Text style={styles.sharingText}>1 device per account</Text>
+            <View style={styles.sharingRow}>
+              <Text style={styles.sharingText}>Use 1 Devices</Text>
+              <Image
+                source={require('../../assets/iphone.png')} // your icon here
+                style={styles.phoneIcon}
+                resizeMode="contain"
+              />
+            </View>
             <Text style={styles.optionSubText}>50 GBP</Text>
             {isSubscriptionActive('price_1R57CnDnmorUxClnS97UhVMT') && (
               <View style={styles.activeOverlay}>
@@ -1012,7 +1041,14 @@ const ScrapRoute = ({
               resizeMode="contain"
             />
             <Text style={styles.optionText}>Monthly</Text>
-            <Text style={styles.sharingText}>1 device per account</Text>
+            <View style={styles.sharingRow}>
+              <Text style={styles.sharingText}>Use 1 Devices</Text>
+              <Image
+                source={require('../../assets/iphone.png')} // your icon here
+                style={styles.phoneIcon}
+                resizeMode="contain"
+              />
+            </View>
             <Text style={styles.optionSubText}>180 GBP</Text>
             {isSubscriptionActive('price_1R573DDnmorUxClnp4X4Imki') && (
               <View style={styles.activeOverlay}>
@@ -1048,7 +1084,14 @@ const ScrapRoute = ({
             />
             <Text style={styles.optionText}>Corporate Monthly</Text>
             <Text style={styles.forText}>for business use</Text>
-            <Text style={styles.sharingText}>2 devices per account</Text>
+            <View style={styles.sharingRow}>
+              <Text style={styles.sharingText}>Use 2 Devices</Text>
+              <Image
+                source={require('../../assets/iphone.png')} // your icon here
+                style={styles.phoneIcon}
+                resizeMode="contain"
+              />
+            </View>
             <Text style={styles.optionSubText}>300 GBP</Text>
 
             {isSubscriptionActive('price_1R9a2eDnmorUxCln8q94c9Xg') && (
@@ -1143,13 +1186,26 @@ const styles = StyleSheet.create({
   },
   sharingText: {
     marginTop: wp * 0.01,
-    fontSize: wp * 0.03,
+    fontSize: wp * 0.033,
     fontFamily: Fonts.regular,
     color: Colors.footerGray,
   },
+  sharingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: wp * 0.01,
+    paddingLeft: 5,
+  },
+
+  phoneIcon: {
+    width: wp * 0.06, // slightly bigger
+    height: wp * 0.06, // keep it square for a balanced look
+    marginLeft: wp * 0.01,
+    resizeMode: 'contain',
+  },
   forText: {
     marginTop: wp * 0.01,
-    fontSize: wp * 0.03,
+    fontSize: wp * 0.033,
     fontFamily: Fonts.regular,
     color: Colors.black,
   },
@@ -1258,7 +1314,6 @@ const styles = StyleSheet.create({
     width: wp - wp * 0.1,
     height: hp / 4.5,
     borderRadius: 10,
-
     backgroundColor: Colors.white,
     alignItems: 'center',
     justifyContent: 'center',

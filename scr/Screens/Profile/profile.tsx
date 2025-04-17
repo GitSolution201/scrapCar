@@ -167,7 +167,7 @@ const Profile = () => {
           styles.container,
           {paddingTop: Platform.OS === 'ios' ? hp(2) : 0},
         ]}>
-        <Header navigation={navigation} />
+        <Header navigation={navigation} showNotification={true} />
         <View style={styles.profileSection}>
           <View style={styles.profileContainer}>
             <Image
@@ -321,7 +321,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: wp(5),
     backgroundColor: Colors.white,
-    margin:Platform.OS==='ios'? 20:5,
+    margin: Platform.OS === 'ios' ? 20 : 5,
   },
   headerTitleStyle: {
     flexDirection: 'row',

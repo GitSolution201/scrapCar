@@ -76,6 +76,7 @@ const MainStack = () => (
     <Stack.Screen name="CarDeatils" component={CarDeatils} />
     <Stack.Screen name="Subscriptions" component={SubscriptionScreen} />
     <Stack.Screen name="Savage" component={Savage} />
+    <Stack.Screen name="Notifications" component={Notifications} />
   </Stack.Navigator>
 );
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -12,6 +12,7 @@ import {
   TouchableWithoutFeedback,
   Alert,
   Modal,
+  TextInput,
 } from 'react-native';
 import {hp, wp} from '../../Helper/Responsive';
 import Colors from '../../Helper/Colors';
@@ -166,6 +167,46 @@ const Details = ({route, navigation}: {route: any; navigation: any}) => {
                 handleWhatsApp,
               ],
               ['Text', require('../../assets/messages.png'), handleTextMessage],
+            ].map(([text, icon, action], index) => {
+              const isSold = car?.isSold;
+              const opacityStyle = {opacity: isSold ? 0.3 : 1};
+
+              return (
+                <View key={index}>
+                  <TouchableOpacity
+                    style={[
+                      styles.contactButton,
+                      styles[`${text.toLowerCase()}Button`],
+                      opacityStyle,
+                    ]}
+                    onPress={() => {
+                      if (!isSold) {
+                        action('+' + car?.phoneNumber);
+                      }
+                    }}
+                    activeOpacity={isSold ? 1 : 0.7}
+                    disabled={isSold}>
+                    <Image source={icon} style={[styles.icon, opacityStyle]} />
+                  </TouchableOpacity>
+                  <Text style={[styles.contactText, opacityStyle]}>{text}</Text>
+                </View>
+              );
+            })}
+          </View>
+        </View>
+
+        {/* 
+        <View style={styles.contactContainer}>
+          <Text style={styles.contactTitle}>Contact Seller Via</Text>
+          <View style={styles.contactIcons}>
+            {[
+              ['Call', require('../../assets/apple.png'), handleCall],
+              [
+                'WhatsApp',
+                require('../../assets/whatsapp.png'),
+                handleWhatsApp,
+              ],
+              ['Text', require('../../assets/messages.png'), handleTextMessage],
             ].map(([text, icon, action], index) => (
               <View key={index}>
                 <TouchableOpacity
@@ -180,21 +221,36 @@ const Details = ({route, navigation}: {route: any; navigation: any}) => {
               </View>
             ))}
           </View>
+        </View> */}
+        <View style={styles.messageBox}>
+          <TextInput
+            placeholder="Write your message..."
+            style={styles.textArea}
+            multiline
+            numberOfLines={4}
+            textAlignVertical="top"
+          />
+          <TouchableOpacity
+            style={styles.sendButton}
+            onPress={() => console.log('Message sent')}>
+            <Text style={styles.sendButtonText}>Send a Quote</Text>
+          </TouchableOpacity>
         </View>
         <Modal
           visible={showWebView}
           animationType="slide"
           onRequestClose={() => setShowWebView(false)}>
           <SafeAreaView style={styles.webViewContainer}>
-            <View style={[
-              styles.webViewHeader,
-              Platform.OS === 'ios' && styles.webViewHeaderIOS
-            ]}>
+            <View
+              style={[
+                styles.webViewHeader,
+                Platform.OS === 'ios' && styles.webViewHeaderIOS,
+              ]}>
               <TouchableOpacity
                 onPress={() => setShowWebView(false)}
                 style={[
                   styles.closeButton,
-                  Platform.OS === 'ios' && styles.closeButtonIOS
+                  Platform.OS === 'ios' && styles.closeButtonIOS,
                 ]}>
                 <Text style={styles.closeButtonText}>Close</Text>
               </TouchableOpacity>
@@ -203,7 +259,7 @@ const Details = ({route, navigation}: {route: any; navigation: any}) => {
               source={{uri: webViewUrl}}
               style={styles.webView}
               startInLoadingState={true}
-              onError={(syntheticEvent) => {
+              onError={syntheticEvent => {
                 console.error('WebView error:', syntheticEvent.nativeEvent);
               }}
             />
@@ -323,7 +379,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     padding: wp(5),
     borderRadius: wp(3),
-    marginBottom: hp(7),
+    marginBottom: hp(2),
   },
   contactTitle: {
     fontSize: wp(5),
@@ -392,6 +448,46 @@ const styles = StyleSheet.create({
   },
   webView: {
     flex: 1,
+  },
+  messageBox: {
+    backgroundColor: Colors.white,
+
+    padding: wp(4),
+    borderRadius: wp(3),
+    marginBottom: hp(2),
+  },
+
+  messageLabel: {
+    fontSize: wp(4.5),
+    fontFamily: Fonts.semiBold,
+    color: Colors.darkGray,
+    marginBottom: hp(1),
+  },
+
+  textArea: {
+    borderWidth: 1,
+    borderColor: Colors.lightGray,
+    borderRadius: wp(3),
+    padding: wp(3),
+    fontSize: wp(4),
+    fontFamily: Fonts.regular,
+    color: Colors.black,
+    height: hp(15),
+    backgroundColor: '#f9f9f9',
+  },
+
+  sendButton: {
+    marginTop: hp(2),
+    backgroundColor: Colors.primary,
+    paddingVertical: hp(1.5),
+    borderRadius: wp(5),
+    alignItems: 'center',
+  },
+
+  sendButtonText: {
+    color: Colors.white,
+    fontSize: wp(4),
+    fontFamily: Fonts.bold,
   },
 });
 

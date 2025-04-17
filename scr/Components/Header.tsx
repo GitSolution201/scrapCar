@@ -1,14 +1,15 @@
-import {
-  View,
-  StyleSheet,
-  Image,
-  TouchableOpacity,
-} from 'react-native';
+import {View, StyleSheet, Image, TouchableOpacity} from 'react-native';
 import React from 'react';
 import Colors from '../Helper/Colors';
 import {hp, wp} from '../Helper/Responsive';
 
-export default function Header({navigation}: {navigation: any}) {
+export default function Header({
+  navigation,
+  showNotification,
+}: {
+  navigation: any;
+  showNotification: any;
+}) {
   return (
     <View style={styles.headerContainer}>
       {/* Left Side: Back Button */}
@@ -26,6 +27,17 @@ export default function Header({navigation}: {navigation: any}) {
       </View>
 
       <View style={styles.rightSection} />
+      {showNotification && (
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate('Notifications');
+          }}>
+          <Image
+            source={require('../assets/bellEmpty.png')}
+            style={styles.bellIcon}
+          />
+        </TouchableOpacity>
+      )}
     </View>
   );
 }
@@ -67,5 +79,10 @@ const styles = StyleSheet.create({
   },
   rightSection: {
     width: wp(30),
+  },
+  bellIcon: {
+    width: wp(6),
+    height: wp(6),
+    resizeMode: 'contain',
   },
 });

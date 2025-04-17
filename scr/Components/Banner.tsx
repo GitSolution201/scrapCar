@@ -96,7 +96,8 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     borderRadius: wp(3),
     borderWidth: 0.3,
-    padding: wp(3),
+    paddingHorizontal: wp(3),
+    paddingVertical: wp(1.5),
     borderColor: Colors.primary,
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -117,8 +118,8 @@ const styles = StyleSheet.create({
     marginRight: wp(2),
   },
   priceContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    // flexDirection: 'row',
+    // alignItems: 'center',
     marginBottom: hp(0.5),
   },
   discountedPrice: {

@@ -183,7 +183,6 @@ const Listings = () => {
     return `${distanceInMiles} mi`; // Return distance in miles
   };
 
- 
   const filteredData = carListings?.filter(item => {
     // 1. Filter by active tags
     const filterMatch =
@@ -261,7 +260,12 @@ const Listings = () => {
           onPress={() => {
             if (item.isSold) {
               Alert.alert('Car Sold', 'This car has already been sold.', [
-                {text: 'OK'},
+                {
+                  text: 'OK',
+                  onPress: () => {
+                    handleCarDetailsNavigation(item);
+                  },
+                },
               ]);
             } else {
               handleCarDetailsNavigation(item);
@@ -280,7 +284,6 @@ const Listings = () => {
                     : require('../../assets/simpleHeart.png')
                 }
                 style={styles.heartIcon}
-                tintColor={Colors?.black}
               />
             </TouchableWithoutFeedback>
           )}
@@ -567,35 +570,6 @@ const styles = StyleSheet.create({
     marginVertical: wp(2),
   },
 
-  searchMainContianer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: Colors.white,
-    borderRadius: wp(10),
-    paddingHorizontal: wp(4),
-    borderWidth: 1,
-    borderColor: Colors.lightGray,
-    shadowColor: Colors.black,
-    shadowOpacity: 0.1,
-    shadowRadius: wp(1),
-    shadowOffset: {width: 0, height: hp(0.5)},
-    elevation: 3,
-    width: wp(80),
-    height: hp(6),
-    alignSelf: 'flex-start',
-    marginTop: wp(4),
-  },
-  searchIcon: {
-    width: wp(3.5),
-    height: wp(3.5),
-    marginRight: wp(1),
-    tintColor: Colors.textGray,
-  },
   locationContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -609,15 +583,10 @@ const styles = StyleSheet.create({
     tintColor: Colors.footerGray,
     resizeMode: 'contain',
   },
-  searchBar: {
-    flex: 1,
-    fontFamily: Fonts.regular,
-    fontSize: hp(2),
-    color: Colors.black,
-  },
+
   filterContainer: {
     flexDirection: 'row',
-    marginVertical: hp(2),
+    marginVertical: hp(1.5),
   },
   filterButton: {
     paddingVertical: wp(2),
@@ -667,7 +636,6 @@ const styles = StyleSheet.create({
   },
   //render item
   listingCardContainer: {
-    marginTop: hp(1.5),
     marginBottom: hp(3.5),
     position: 'relative',
   },
@@ -704,8 +672,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     borderRadius: wp(4),
     borderWidth: 0.2,
-    marginTop: hp(1.5),
-    marginBottom: hp(3.5),
+    marginBottom: hp(0.5),
     paddingTop: hp(3.5),
     paddingHorizontal: wp(3.5),
     paddingBottom: hp(2),

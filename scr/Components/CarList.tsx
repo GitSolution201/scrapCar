@@ -19,7 +19,7 @@ export default function CarList({
 }: {
   item: any;
   itemIndex: any;
-  onPress;
+  onPress: any;
 }) {
   const navigation = useNavigation();
   const {favoriteItems} = useSelector((state: any) => state?.favourite);
@@ -46,7 +46,6 @@ export default function CarList({
       );
     }
   };
-
 
   const getTimeAgo = dateString => {
     const dateAdded = new Date(dateString);
@@ -173,7 +172,6 @@ const styles = StyleSheet.create({
     borderRadius: wp(4),
     borderWidth: 0.2,
     marginTop: hp(5),
-    marginBottom: hp(3.5),
     paddingTop: hp(3.5),
     paddingHorizontal: wp(3.5),
     paddingBottom: hp(2),
@@ -215,10 +213,12 @@ const styles = StyleSheet.create({
   },
   carImage: {
     position: 'absolute',
-    top: wp(-30),
-    right: 0,
-    width: '65%',
-    height: '65%',
+    top: -hp(4),
+    right: wp(2),
+    width: '50%',
+    height: '50%',
+    zIndex: 1,
+    resizeMode: 'contain',
   },
   detailsContainer: {
     padding: wp(2.5),
