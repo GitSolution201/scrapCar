@@ -25,8 +25,9 @@ function* handleLogin(action) {
 
     // Proceed with normal login (either no confirmation needed or this is a confirmed attempt)
     const loginResponse = yield call(login, action.payload);
-    console.log('@LOGIN RESPONCE', loginResponse);
+
     yield put(loginSuccess(loginResponse));
+
     yield put(checkSubscriptionRequest({email: action.payload.email}));
   } catch (error) {
     console.log('@error in saga in login', error);

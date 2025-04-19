@@ -85,6 +85,8 @@ const AppNavigation = () => {
   const token = useSelector(state => state.auth.token);
   const dispatch = useDispatch();
   const {userData} = useSelector(state => state?.user);
+  const {deviceId} = useSelector(state => state?.auth);
+
   // Check device ID and active devices
   useEffect(() => {
     const checkActiveDevice = async () => {
@@ -102,6 +104,7 @@ const AppNavigation = () => {
           // If device is not in active devices, logout user
           if (!isDeviceActive) {
             console.log('Device not authorized, logging out...');
+
             dispatch(logout());
           }
         }
