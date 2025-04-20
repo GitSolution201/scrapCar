@@ -19,6 +19,10 @@ import {fetchUserRequest} from './redux/slices/userDetail';
 import {checkSubscriptionRequest} from './redux/slices/subcriptionsSlice';
 import DeviceInfo from 'react-native-device-info';
 import {logout} from './redux/slices/authSlice';
+import forgotPassword from './Screens/ForgotPassword/forgotPassword';
+import getOTP from './Screens/GetOTP/getOTP';
+import resetPassword from './Screens/ResetPassword/resetPassword';
+import quoteMessages from './Screens/QuoteMessage/quoteMessages';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -36,6 +40,9 @@ const AuthStack = () => (
   <Stack.Navigator screenOptions={{headerShown: false}}>
     <Stack.Screen name="Login" component={Login} />
     <Stack.Screen name="Register" component={Register} />
+    <Stack.Screen name="forgotPassword" component={forgotPassword} />
+    <Stack.Screen name="getOTP" component={getOTP} />
+    <Stack.Screen name="resetPassword" component={resetPassword} />
   </Stack.Navigator>
 );
 
@@ -77,6 +84,7 @@ const MainStack = () => (
     <Stack.Screen name="Subscriptions" component={SubscriptionScreen} />
     <Stack.Screen name="Savage" component={Savage} />
     <Stack.Screen name="Notifications" component={Notifications} />
+    <Stack.Screen name="QuoteMessages" component={quoteMessages} />
   </Stack.Navigator>
 );
 

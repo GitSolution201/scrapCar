@@ -820,7 +820,7 @@ const SalvageRoute = ({
             <Text style={styles.optionText}>Weekly</Text>
 
             <View style={styles.sharingRow}>
-              <Text style={styles.sharingText}>Use 1 Devices</Text>
+              <Text style={styles.sharingText}>Use 1 Device</Text>
               <Image
                 source={require('../../assets/iphone.png')} // your icon here
                 style={styles.phoneIcon}
@@ -851,7 +851,7 @@ const SalvageRoute = ({
             />
             <Text style={styles.optionText}>Monthly</Text>
             <View style={styles.sharingRow}>
-              <Text style={styles.sharingText}>Use 1 Devices</Text>
+              <Text style={styles.sharingText}>Use 1 Device</Text>
               <Image
                 source={require('../../assets/iphone.png')} // your icon here
                 style={styles.phoneIcon}
@@ -895,6 +895,11 @@ const SalvageRoute = ({
             <Text style={styles.forText}>for business use</Text>
             <View style={styles.sharingRow}>
               <Text style={styles.sharingText}>Use 2 Devices</Text>
+              <Image
+                source={require('../../assets/iphone.png')} // your icon here
+                style={styles.phoneIcon}
+                resizeMode="contain"
+              />
               <Image
                 source={require('../../assets/iphone.png')} // your icon here
                 style={styles.phoneIcon}
@@ -1011,7 +1016,7 @@ const ScrapRoute = ({
             />
             <Text style={styles.optionText}>Weekly</Text>
             <View style={styles.sharingRow}>
-              <Text style={styles.sharingText}>Use 1 Devices</Text>
+              <Text style={styles.sharingText}>Use 1 Device</Text>
               <Image
                 source={require('../../assets/iphone.png')} // your icon here
                 style={styles.phoneIcon}
@@ -1042,7 +1047,7 @@ const ScrapRoute = ({
             />
             <Text style={styles.optionText}>Monthly</Text>
             <View style={styles.sharingRow}>
-              <Text style={styles.sharingText}>Use 1 Devices</Text>
+              <Text style={styles.sharingText}>Use 1 Device</Text>
               <Image
                 source={require('../../assets/iphone.png')} // your icon here
                 style={styles.phoneIcon}
@@ -1086,6 +1091,11 @@ const ScrapRoute = ({
             <Text style={styles.forText}>for business use</Text>
             <View style={styles.sharingRow}>
               <Text style={styles.sharingText}>Use 2 Devices</Text>
+              <Image
+                source={require('../../assets/iphone.png')} // your icon here
+                style={styles.phoneIcon}
+                resizeMode="contain"
+              />
               <Image
                 source={require('../../assets/iphone.png')} // your icon here
                 style={styles.phoneIcon}
@@ -1198,8 +1208,8 @@ const styles = StyleSheet.create({
   },
 
   phoneIcon: {
-    width: wp * 0.06, // slightly bigger
-    height: wp * 0.06, // keep it square for a balanced look
+    width: wp * 0.04, // slightly bigger
+    height: wp * 0.04, // keep it square for a balanced look
     marginLeft: wp * 0.01,
     resizeMode: 'contain',
   },

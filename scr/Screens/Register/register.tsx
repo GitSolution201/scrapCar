@@ -59,7 +59,6 @@ const Register = ({navigation}: {navigation: any}) => {
           },
         ]);
       } else if (registerResponse.error) {
-        console.log('@ERRE', registerResponse?.error);
         // Check if error is an object with message property
         const errorMessage =
           typeof registerResponse.error === 'object'
@@ -113,13 +112,16 @@ const Register = ({navigation}: {navigation: any}) => {
     }
   };
   const apiCall = () => {
+    const phoneNumber = `${callingCode}${phone}`;
+
     const userData = {
       first_name: firstName,
       last_name: lastName,
       email,
-      phone,
+      phone: phoneNumber,
       password,
     };
+    console.log('@USER regisetr', userData);
     dispatch(registerRequest(userData));
   };
 

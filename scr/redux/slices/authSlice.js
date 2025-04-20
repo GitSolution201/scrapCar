@@ -21,6 +21,7 @@ const authSlice = createSlice({
       state.error = null;
     },
     loginSuccess: (state, action) => {
+      console.log('@ACTIOn', action.payload);
       state.loading = false;
       // Handle both cases (confirmation required or actual login)
       if (action.payload.requires_confirmation) {

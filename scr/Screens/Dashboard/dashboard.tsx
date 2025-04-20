@@ -34,7 +34,9 @@ const Dashboard = ({navigation}: {navigation: any}) => {
           </View>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.card}>
+        <TouchableOpacity
+          style={styles.card}
+          onPress={() => navigation.navigate('QuoteMessages')}>
           <Image
             source={require('../../assets/comment.png')}
             style={[styles.icon, {height: hp('3.0%')}]}

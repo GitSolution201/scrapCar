@@ -9,7 +9,6 @@ import {
   Linking,
   SafeAreaView,
   Platform,
-  TouchableWithoutFeedback,
   Alert,
   Modal,
   TextInput,
@@ -19,19 +18,50 @@ import Colors from '../../Helper/Colors';
 import Header from '../../Components/Header';
 import Banner from '../../Components/Banner';
 import {Fonts} from '../../Helper/Fonts';
-import {useSelector} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import WebView from 'react-native-webview';
+import {resetQuoteState, sendQuoteRequest} from '../../redux/slices/qouteSlice';
+import Toast from 'react-native-simple-toast';
 
 const defaultCarImage = require('../../assets/car2.png');
 
 const Details = ({route, navigation}: {route: any; navigation: any}) => {
+  const dispatch = useDispatch();
   const {car} = route.params;
   const {hasSubscription} = useSelector(
     state => state?.subscription?.subscriptionData,
   );
+  const {userData} = useSelector((state: any) => state.user);
+  const token = useSelector((state: any) => state.auth?.token);
+  const qoute = useSelector((state: any) => state?.quote);
   const [showWebView, setShowWebView] = useState(false);
   const [webViewUrl, setWebViewUrl] = useState('');
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
 
+  useEffect(() => {
+    if (qoute?.success) {
+      Toast.show('Quote sent successfully!', Toast.SHORT);
+      setMessage('');
+      dispatch(resetQuoteState());
+    }
+  }, [qoute?.success]);
+
+  const handleSendQoute = async () => {
+    if (!message) {
+      setError('Please enter a message');
+    } else {
+      dispatch(
+        sendQuoteRequest({
+          listingId: car?._id,
+          userId: userData?.userId,
+          amount: '800',
+          message,
+          token,
+        }),
+      );
+    }
+  };
   const handleCall = (phoneNumber: any) => {
     if (!hasSubscription) {
       showSubscriptionAlert();
@@ -94,6 +124,7 @@ const Details = ({route, navigation}: {route: any; navigation: any}) => {
       year: 'numeric',
     });
   };
+
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
       <SafeAreaView
@@ -101,7 +132,7 @@ const Details = ({route, navigation}: {route: any; navigation: any}) => {
           styles.container,
           {paddingTop: Platform.OS === 'ios' ? hp(2) : 0},
         ]}>
-        <Header navigation={navigation} />
+        <Header navigation={navigation} showNotification={false} />
         <View style={styles.detailsContainer}>
           <Image
             source={
@@ -195,47 +226,29 @@ const Details = ({route, navigation}: {route: any; navigation: any}) => {
           </View>
         </View>
 
-        {/* 
-        <View style={styles.contactContainer}>
-          <Text style={styles.contactTitle}>Contact Seller Via</Text>
-          <View style={styles.contactIcons}>
-            {[
-              ['Call', require('../../assets/apple.png'), handleCall],
-              [
-                'WhatsApp',
-                require('../../assets/whatsapp.png'),
-                handleWhatsApp,
-              ],
-              ['Text', require('../../assets/messages.png'), handleTextMessage],
-            ].map(([text, icon, action], index) => (
-              <View key={index}>
-                <TouchableOpacity
-                  style={[
-                    styles.contactButton,
-                    styles[`${text.toLowerCase()}Button`],
-                  ]}
-                  onPress={() => action('+' + car?.phoneNumber)}>
-                  <Image source={icon} style={styles.icon} />
-                </TouchableOpacity>
-                <Text style={styles.contactText}>{text}</Text>
-              </View>
-            ))}
+        {!car?.isSold && (
+          <View style={styles.messageBox}>
+            <TextInput
+              placeholder="Write your message..."
+              style={[styles.textArea, {height: hp(15), marginTop: hp(2)}]}
+              multiline
+              numberOfLines={4}
+              textAlignVertical="top"
+              value={message}
+              onChangeText={text => {
+                setError('');
+                setMessage(text);
+              }}
+            />
+            {error ? <Text style={styles.errorText}>{error}</Text> : null}
+
+            <TouchableOpacity
+              style={styles.sendButton}
+              onPress={() => handleSendQoute()}>
+              <Text style={styles.sendButtonText}>Send a Quote</Text>
+            </TouchableOpacity>
           </View>
-        </View> */}
-        <View style={styles.messageBox}>
-          <TextInput
-            placeholder="Write your message..."
-            style={styles.textArea}
-            multiline
-            numberOfLines={4}
-            textAlignVertical="top"
-          />
-          <TouchableOpacity
-            style={styles.sendButton}
-            onPress={() => console.log('Message sent')}>
-            <Text style={styles.sendButtonText}>Send a Quote</Text>
-          </TouchableOpacity>
-        </View>
+        )}
         <Modal
           visible={showWebView}
           animationType="slide"
@@ -451,12 +464,16 @@ const styles = StyleSheet.create({
   },
   messageBox: {
     backgroundColor: Colors.white,
-
     padding: wp(4),
     borderRadius: wp(3),
     marginBottom: hp(2),
   },
-
+  errorText: {
+    color: 'red',
+    fontSize: wp(3.2),
+    marginTop: hp(0.5),
+    marginBottom: hp(1),
+  },
   messageLabel: {
     fontSize: wp(4.5),
     fontFamily: Fonts.semiBold,

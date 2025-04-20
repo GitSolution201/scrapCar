@@ -13,17 +13,23 @@ import subscriptionReducer from './slices/subcriptionsSlice';
 import cancelSubscriptionReducer from './slices/canceleSubcriptionsSlice';
 import updateSubscriptionReducer from './slices/updateSubcriptionSlice';
 
+import getQuoteDataReducer from './slices/qouteDataSlice';
+import getQuoteSaga from './sagas/qouteDataSaga';
+
+import qouteReducer from './slices/qouteSlice';
+import quoteSaga from './sagas/qouteSaga';
+
 import cancelSubscriptionSaga from './sagas/cancelSubcriptionsSaga';
 import updateSubscriptionSaga from './sagas/updateSubcriptionSaga';
 
-import viewCountReducer from './slices/viewCount'; // Import the new slice
+import viewCountReducer from './slices/viewCount';
 import authSaga from './sagas/authSaga';
 import userSaga from './sagas/carListingsSaga';
 import userDetailSaga from './sagas/userDetailSaga';
 import userProfileUpdateSage from './sagas/userProfileUpdateSage';
 import favouriteSaga from './sagas/favouriteSaga';
 import favListingsSaga from './sagas/favListingsSaga';
-import viewCountSaga from './sagas/viewCountSaga'; // Import the new saga
+import viewCountSaga from './sagas/viewCountSaga';
 import subscriptionSaga from './sagas/subcriptionsSaga';
 const sagaMiddleware = createSagaMiddleware();
 
@@ -41,6 +47,8 @@ const persistConfig = {
     'subscription',
     'cancelSubscription',
     'updateSubscription',
+    'qoute',
+    'getQuoteData',
   ], // Add the new slice to the whitelist
 };
 
@@ -55,6 +63,8 @@ const rootReducer = combineReducers({
   subscription: subscriptionReducer, // Add the new reducer
   cancelSubscription: cancelSubscriptionReducer,
   updateSubscription: updateSubscriptionReducer,
+  quote: qouteReducer,
+  quoteData: getQuoteDataReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -80,5 +90,7 @@ sagaMiddleware.run(viewCountSaga); // Run the new saga
 sagaMiddleware.run(subscriptionSaga); // Run the new saga
 sagaMiddleware.run(cancelSubscriptionSaga);
 sagaMiddleware.run(updateSubscriptionSaga);
+sagaMiddleware.run(quoteSaga);
+sagaMiddleware.run(getQuoteSaga);
 
 export {store, persistor};

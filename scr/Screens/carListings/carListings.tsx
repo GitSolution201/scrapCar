@@ -35,6 +35,7 @@ import {updateViewCountRequest} from '../../redux/slices/viewCount';
 import {axiosHeader} from '../../Services/apiHeader';
 import api from '../../redux/api';
 import Slider from '@react-native-community/slider';
+import {fetchUserRequest} from '../../redux/slices/userDetail';
 
 // Local images
 const localImages = {
@@ -85,8 +86,10 @@ const Listings = () => {
   useEffect(() => {
     if (isFocused) {
       fetchCarListings();
+      dispatch(fetchUserRequest(token));
     }
   }, [isFocused]);
+
   useEffect(() => {
     getLocation();
   }, []);

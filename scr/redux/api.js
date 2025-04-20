@@ -4,7 +4,7 @@ import DeviceInfo from 'react-native-device-info';
 // Set up the base Axios instance
 const api = axios.create({
   baseURL: 'https://scrape4you.onrender.com', // Replace this with your actual API base URL
-  timeout: 30000, // Timeout in milliseconds
+  timeout: 10000, // Timeout in milliseconds
   headers: {
     'Content-Type': 'application/json',
   },
@@ -286,6 +286,50 @@ export const updateSubscription = async (subscription, token) => {
     throw new Error(
       error?.response?.data?.message || 'Failed to update subscription',
     );
+  }
+};
+
+//Send a Qoute
+export const sendQuoteAPI = async ({
+  listingId,
+  userId,
+  amount,
+  message,
+  token,
+}) => {
+  try {
+    const response = await api.post(
+      '/quotes/create',
+      {
+        listingId,
+        agentId: userId,
+        amount,
+        message,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+    return response.data;
+  } catch (error) {
+    console.log('Quote API Error:', error.response?.data || error?.message);
+    throw new Error(error.response?.data?.message || 'Failed to send quote');
+  }
+};
+// Get Data of Quotes
+export const getQuotesAPI = async (userId, token) => {
+  try {
+    const response = await api.get(`/quotes/agent/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.log('Get Quotes API Error:', error.response?.data || error.message);
+    throw new Error(error.response?.data?.message || 'Failed to fetch quotes');
   }
 };
 export default api;

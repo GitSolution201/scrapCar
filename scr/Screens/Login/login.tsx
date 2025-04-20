@@ -109,7 +109,7 @@ const Login = ({navigation}: {navigation: any}) => {
           email,
           password,
           deviceId,
-          isConfirmed: true,
+          // isConfirmed: true,
         }),
       );
     } catch (error) {
@@ -210,7 +210,11 @@ const Login = ({navigation}: {navigation: any}) => {
           <Text style={styles.errorText}>{formErrors.password}</Text>
         )}
         {apiError && <Text style={styles.apiErrorText}>{apiError}</Text>}
-
+        <TouchableOpacity onPress={() => navigation.navigate('forgotPassword')}>
+          <Text style={{marginLeft: wp(2), color: '#007BFF'}}>
+            Forgot Password?
+          </Text>
+        </TouchableOpacity>
         <TouchableOpacity
           style={[styles.loginButton, loading && styles.disabledButton]}
           onPress={handleLogin}
