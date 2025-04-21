@@ -256,10 +256,9 @@ const Listings = () => {
       item.latitude,
       item.longitude,
     );
-
     return (
       <View style={styles.listingCardContainer}>
-        <TouchableOpacity
+        <TouchableWithoutFeedback
           onPress={() => {
             if (item.isSold) {
               Alert.alert('Car Sold', 'This car has already been sold.', [
@@ -273,99 +272,99 @@ const Listings = () => {
             } else {
               handleCarDetailsNavigation(item);
             }
-          }}
-          style={styles.listingCard}>
-          {/* Heart icon - conditionally shown */}
-          {!item.isSold && (
-            <TouchableWithoutFeedback
-              style={styles.heartIconContainer}
-              onPress={() => handleToggleFavorite(item, isFavorite)}>
+          }}>
+          <View style={styles.listingCard}>
+            {/* ✅ Move style here */}
+            {/* Heart icon - conditionally shown */}
+            {!item.isSold && (
+              <TouchableWithoutFeedback
+                onPress={() => handleToggleFavorite(item, isFavorite)}>
+                <View style={styles.heartIconContainer}>
+                  <Image
+                    source={
+                      isFavorite
+                        ? require('../../assets/heart.png')
+                        : require('../../assets/simpleHeart.png')
+                    }
+                    style={styles.heartIcon}
+                  />
+                </View>
+              </TouchableWithoutFeedback>
+            )}
+            {/* Show SOLD text if car is sold */}
+            {item.isSold && <Text style={styles.soldText}>SOLD</Text>}
+            {/* Image - only shown if not sold */}
+            {!item.isSold && (
               <Image
-                source={
-                  isFavorite
-                    ? require('../../assets/heart.png')
-                    : require('../../assets/simpleHeart.png')
-                }
-                style={styles.heartIcon}
+                source={{uri: item?.displayImage}}
+                style={styles.carImage}
+                resizeMode="contain"
               />
-            </TouchableWithoutFeedback>
-          )}
-
-          {/* Show SOLD text if car is sold */}
-          {item.isSold && <Text style={styles.soldText}>SOLD</Text>}
-
-          {/* Image - only shown if not sold */}
-          {!item.isSold && (
-            <Image
-              source={{uri: item?.displayImage}}
-              style={styles.carImage}
-              resizeMode="contain"
-            />
-          )}
-
-          {/* Details container - always visible but with reduced opacity if sold */}
-          <View
-            style={[styles.detailsContainer, item.isSold && {opacity: 0.5}]}>
-            <View style={styles.carTagContainer}>
-              <Text style={styles.scrapText}>{item.tag || 'Unknown'}</Text>
-            </View>
-            <Text style={styles.carTitle}>
-              {item.make} {item.model} ({item.yearOfManufacture})
-            </Text>
-
-            {[
-              ['Registration:', item.registrationNumber],
-              ['Year:', item.yearOfManufacture],
-              ['Postcode:', item.postcode],
-              ['Colour:', item.color],
-              ['Model:', item.model],
-              ['Fuel Type:', item.fuelType],
-            ].map(([label, value], index) => (
-              <View key={index} style={styles.infoRow}>
-                <Text style={styles.label}>{label}</Text>
-                <Text
-                  style={styles.value}
-                  numberOfLines={1}
-                  ellipsizeMode="tail">
-                  {value?.toString().toUpperCase() || 'N/A'}
-                </Text>
+            )}
+            {/* Details container - always visible but with reduced opacity if sold */}
+            <View
+              style={[styles.detailsContainer, item.isSold && {opacity: 0.5}]}>
+              <View style={styles.carTagContainer}>
+                <Text style={styles.scrapText}>{item.tag || 'Unknown'}</Text>
               </View>
-            ))}
+              <Text style={styles.carTitle}>
+                {item.make} {item.model} ({item.yearOfManufacture})
+              </Text>
 
-            <View style={styles.footer}>
-              <View style={{alignItems: 'center'}}>
-                <Image
-                  source={require('../../assets/pin.png')}
-                  style={[styles.icon, item.isSold && {opacity: 0.5}]}
-                />
-                <Text
-                  style={[styles.footerText, item.isSold && {opacity: 0.5}]}>
-                  {distance}
-                </Text>
-              </View>
-              <View style={{alignItems: 'center'}}>
-                <Image
-                  source={require('../../assets/timer.png')}
-                  style={[styles.icon, item.isSold && {opacity: 0.5}]}
-                />
-                <Text
-                  style={[styles.footerText, item.isSold && {opacity: 0.5}]}>
-                  {timeAgo}
-                </Text>
-              </View>
-              <View style={{alignItems: 'center'}}>
-                <Image
-                  source={require('../../assets/eye.png')}
-                  style={[styles.icon, item.isSold && {opacity: 0.5}]}
-                />
-                <Text
-                  style={[styles.footerText, item.isSold && {opacity: 0.5}]}>
-                  {item?.views?.length}
-                </Text>
+              {[
+                ['Registration:', item.registrationNumber],
+                ['Year:', item.yearOfManufacture],
+                ['Postcode:', item.postcode],
+                ['Colour:', item.color],
+                ['Model:', item.model],
+                ['Fuel Type:', item.fuelType],
+              ].map(([label, value], index) => (
+                <View key={index} style={styles.infoRow}>
+                  <Text style={styles.label}>{label}</Text>
+                  <Text
+                    style={styles.value}
+                    numberOfLines={1}
+                    ellipsizeMode="tail">
+                    {value?.toString().toUpperCase() || 'N/A'}
+                  </Text>
+                </View>
+              ))}
+
+              <View style={styles.footer}>
+                <View style={{alignItems: 'center'}}>
+                  <Image
+                    source={require('../../assets/pin.png')}
+                    style={[styles.icon, item.isSold && {opacity: 0.5}]}
+                  />
+                  <Text
+                    style={[styles.footerText, item.isSold && {opacity: 0.5}]}>
+                    {distance}
+                  </Text>
+                </View>
+                <View style={{alignItems: 'center'}}>
+                  <Image
+                    source={require('../../assets/timer.png')}
+                    style={[styles.icon, item.isSold && {opacity: 0.5}]}
+                  />
+                  <Text
+                    style={[styles.footerText, item.isSold && {opacity: 0.5}]}>
+                    {timeAgo}
+                  </Text>
+                </View>
+                <View style={{alignItems: 'center'}}>
+                  <Image
+                    source={require('../../assets/eye.png')}
+                    style={[styles.icon, item.isSold && {opacity: 0.5}]}
+                  />
+                  <Text
+                    style={[styles.footerText, item.isSold && {opacity: 0.5}]}>
+                    {item?.views?.length}
+                  </Text>
+                </View>
               </View>
             </View>
           </View>
-        </TouchableOpacity>
+        </TouchableWithoutFeedback>
       </View>
     );
   };
@@ -726,7 +725,7 @@ const styles = StyleSheet.create({
   },
   carImage: {
     position: 'absolute',
-    top: -hp(5),
+    top: -hp(4.5),
     right: wp(2),
     width: '50%',
     height: '50%',

@@ -12,6 +12,7 @@ import {
   Alert,
   Modal,
   TextInput,
+  ActivityIndicator,
 } from 'react-native';
 import {hp, wp} from '../../Helper/Responsive';
 import Colors from '../../Helper/Colors';
@@ -245,7 +246,11 @@ const Details = ({route, navigation}: {route: any; navigation: any}) => {
             <TouchableOpacity
               style={styles.sendButton}
               onPress={() => handleSendQoute()}>
-              <Text style={styles.sendButtonText}>Send a Quote</Text>
+              {qoute?.loading ? (
+                <ActivityIndicator color={Colors.white} /> // Show loader when loading
+              ) : (
+                <Text style={styles.sendButtonText}>Send a Quote</Text>
+              )}
             </TouchableOpacity>
           </View>
         )}

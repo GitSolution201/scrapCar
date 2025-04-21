@@ -13,7 +13,6 @@ const quoteSlice = createSlice({
   initialState,
   reducers: {
     sendQuoteRequest: state => {
-      console.log('request go');
       state.loading = true;
       state.error = null;
       state.success = false;

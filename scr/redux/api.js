@@ -4,7 +4,7 @@ import DeviceInfo from 'react-native-device-info';
 // Set up the base Axios instance
 const api = axios.create({
   baseURL: 'https://scrape4you.onrender.com', // Replace this with your actual API base URL
-  timeout: 10000, // Timeout in milliseconds
+  timeout: 30000, // Timeout in milliseconds
   headers: {
     'Content-Type': 'application/json',
   },
@@ -222,7 +222,7 @@ export const checkSubscription = async email => {
   } catch (error) {
     console.log(
       'Check Subscription Error:',
-      error.response?.data || error.message,
+      error.response?.data || error?.message,
     );
     // throw new Error(
     //   error.response?.data?.message || 'Failed to check subscription status',
@@ -247,7 +247,7 @@ export const cancelSubscription = async (subscriptionId, token) => {
   } catch (error) {
     console.log(
       'Cancel Subscription Error:',
-      error.response?.data || error.message,
+      error.response?.data || error?.message,
     );
     throw new Error(
       error.response?.data?.message || 'Failed to cancel subscription',

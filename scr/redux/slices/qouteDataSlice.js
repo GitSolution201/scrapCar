@@ -15,7 +15,6 @@ const getQuoteDataSlice = createSlice({
       state.error = null;
     },
     getQuoteSuccess: (state, action) => {
-      console.log('@@@', action?.payload);
       state.loading = false;
       state.quotes = action.payload;
     },
