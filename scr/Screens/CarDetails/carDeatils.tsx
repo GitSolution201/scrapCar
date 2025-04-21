@@ -38,31 +38,66 @@ const Details = ({route, navigation}: {route: any; navigation: any}) => {
   const [showWebView, setShowWebView] = useState(false);
   const [webViewUrl, setWebViewUrl] = useState('');
   const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
+  const [amount, setAmount] = useState('');
+  const [error, setError] = useState({
+    messageError: '',
+    amountError: '',
+  });
 
   useEffect(() => {
     if (qoute?.success) {
       Toast.show('Quote sent successfully!', Toast.SHORT);
       setMessage('');
+      setAmount('');
       dispatch(resetQuoteState());
     }
   }, [qoute?.success]);
+  const handleSendQoute = () => {
+    let hasError = false;
+    let newErrors = {messageError: '', amountError: ''};
 
-  const handleSendQoute = async () => {
-    if (!message) {
-      setError('Please enter a message');
-    } else {
-      dispatch(
-        sendQuoteRequest({
-          listingId: car?._id,
-          userId: userData?.userId,
-          amount: '800',
-          message,
-          token,
-        }),
-      );
+    if (!message.trim()) {
+      newErrors.messageError = 'Please enter a message';
+      hasError = true;
     }
+
+    if (!amount.trim()) {
+      newErrors.amountError = 'Please enter an amount';
+      hasError = true;
+    }
+
+    if (hasError) {
+      setError(newErrors);
+      return;
+    }
+    // Dispatch action
+    dispatch(
+      sendQuoteRequest({
+        listingId: car?._id,
+        userId: userData?.userId,
+        amount,
+        message,
+        token,
+      }),
+    );
   };
+  // const handleSendQoute = async () => {
+  //   if (!message) {
+  //     setError('Please enter a message');
+  //   } else if (!amount) {
+  //     setError('Please enter a amount');
+  //   } else {
+  //     dispatch(
+  //       sendQuoteRequest({
+  //         listingId: car?._id,
+  //         userId: userData?.userId,
+  //         amount: '800',
+  //         message,
+  //         token,
+  //       }),
+  //     );
+  //   }
+  // };
   const handleCall = (phoneNumber: any) => {
     if (!hasSubscription) {
       showSubscriptionAlert();
@@ -237,11 +272,27 @@ const Details = ({route, navigation}: {route: any; navigation: any}) => {
               textAlignVertical="top"
               value={message}
               onChangeText={text => {
-                setError('');
                 setMessage(text);
+                setError(prev => ({...prev, messageError: ''}));
               }}
             />
-            {error ? <Text style={styles.errorText}>{error}</Text> : null}
+            {error.messageError ? (
+              <Text style={styles.errorText}>{error.messageError}</Text>
+            ) : null}
+
+            <TextInput
+              placeholder="Write your amount..."
+              style={[styles.amountInput, {height: hp(7), marginTop: hp(2)}]}
+              keyboardType="numeric"
+              value={amount}
+              onChangeText={text => {
+                setAmount(text);
+                setError(prev => ({...prev, amountError: ''}));
+              }}
+            />
+            {error.amountError ? (
+              <Text style={styles.errorText}>{error.amountError}</Text>
+            ) : null}
 
             <TouchableOpacity
               style={styles.sendButton}
@@ -495,6 +546,16 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.regular,
     color: Colors.black,
     height: hp(15),
+    backgroundColor: '#f9f9f9',
+  },
+  amountInput: {
+    borderWidth: 1,
+    borderColor: Colors.lightGray,
+    borderRadius: wp(3),
+    padding: wp(3),
+    fontSize: wp(4),
+    fontFamily: Fonts.regular,
+    color: Colors.black,
     backgroundColor: '#f9f9f9',
   },
 
