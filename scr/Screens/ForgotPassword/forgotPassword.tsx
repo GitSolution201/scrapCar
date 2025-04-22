@@ -18,8 +18,6 @@ import {
 } from 'react-native-responsive-screen';
 import Toast from 'react-native-simple-toast';
 import CountryPicker from 'react-native-country-picker-modal';
-import Header from '../../Components/Header';
-import axios from 'axios';
 import api from '../../redux/api';
 
 const ForgotPassword = ({navigation}: {navigation: any}) => {
@@ -61,7 +59,7 @@ const ForgotPassword = ({navigation}: {navigation: any}) => {
           );
         }
       } catch (error) {
-        console.log('OTP request error:', error);
+        console.log('@@@@ OTP request error: ', error);
 
         const errorMessage =
           error?.response?.data?.message || // Server error message

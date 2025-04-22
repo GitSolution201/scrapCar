@@ -19,8 +19,10 @@ import {
 } from 'react-native-responsive-screen';
 import Toast from 'react-native-simple-toast';
 import api from '../../redux/api';
+import {useNavigation} from '@react-navigation/native';
 
-const ResetPassword = ({navigation, route}: {navigation: any; route: any}) => {
+const ResetPassword = ({route}: {route: any}) => {
+  const navigation = useNavigation();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [password, setPassword] = useState('');
@@ -41,15 +43,18 @@ const ResetPassword = ({navigation, route}: {navigation: any; route: any}) => {
       setError('');
       try {
         setLoading(true);
+
         const responce = await api.put('/auth/reset-password', {
           password: password,
           phone: route?.params?.phone,
         });
-        console.log('@RESPONCE', responce);
         if (responce?.data?.success) {
           setLoading(false);
-          Toast.show(responce?.data?.message, Toast.LONG);
-          navigation.navigate('Login');
+          Toast.show('Password reset successful', Toast.LONG);
+          navigation.reset({
+            index: 0,
+            routes: [{name: 'Login'}],
+          });
         } else {
           setLoading(false);
           Toast.show(

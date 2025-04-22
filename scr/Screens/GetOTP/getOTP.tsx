@@ -51,7 +51,7 @@ const GetOTP = ({navigation, route}: {navigation: any; route: any}) => {
     } catch (error) {
       setLoading(false);
 
-      console.log('OTP request error:', error);
+      console.log('@@asOTP request error:', error);
       const errorMessage =
         error?.response?.data?.message || // Server error message
         error?.message || // Fallback to Axios error message
