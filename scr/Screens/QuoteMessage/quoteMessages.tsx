@@ -133,7 +133,7 @@ const QuoteMessages = () => {
             style={styles.profileImage}
           />
           <View style={{flex: 1, marginLeft: wp(3)}}>
-            <Text style={styles.amount}>₹{item.amount.toLocaleString()}</Text>
+            <Text style={styles.amount}>£{item.amount.toLocaleString()}</Text>
             <Text style={styles.date}>
               {new Date(item.createdAt).toLocaleDateString('en-GB', {
                 day: '2-digit',
