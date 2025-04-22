@@ -86,7 +86,7 @@ const Details = ({route, navigation}: {route: any; navigation: any}) => {
       setError(prev => ({...prev, amountError: 'Please enter an amount'}));
       return;
     }
-  
+
     // You can optionally give feedback like toast or log
     console.log('Bid Placed with Amount:', amount);
     Toast.show(`Bid placed: ₹${amount}`, Toast.SHORT);
@@ -290,37 +290,31 @@ const Details = ({route, navigation}: {route: any; navigation: any}) => {
               <Text style={styles.errorText}>{error.messageError}</Text>
             ) : null}
 
-<View style={styles.amountRow}>
-      <TextInput
-        placeholder="Amount"
-        style={styles.amountInputCompact}
-        keyboardType="numeric"
-        value={amount}
-        onChangeText={text => {
-          setAmount(text);
-          setError(prev => ({...prev, amountError: ''}));
-        }}
-      />
+            <View style={styles.amountRow}>
+              <TextInput
+                placeholder="Amount"
+                style={styles.amountInputCompact}
+                keyboardType="numeric"
+                value={amount}
+                onChangeText={text => {
+                  setAmount(text);
+                  setError(prev => ({...prev, amountError: ''}));
+                }}
+              />
 
-      <TouchableOpacity
-        style={styles.bidButton}
-        onPress={() =>handlePlaceBid()}>
-        <Text style={styles.bidButtonText}>Place a Bid</Text>
-      </TouchableOpacity>
-    </View>
+              <TouchableOpacity
+                style={styles.bidButton}
+                onPress={() => handleSendQoute()}>
+                {/* {qoute?.loading ? (
+                  <ActivityIndicator color={Colors.primary} /> // Show loader when loading
+                ) : ( */}
+                <Text style={styles.bidButtonText}>Place a Bid</Text>
+                {/* )} */}
+              </TouchableOpacity>
+            </View>
             {error.amountError ? (
               <Text style={styles.errorText}>{error.amountError}</Text>
             ) : null}
-
-            <TouchableOpacity
-              style={styles.sendButton}
-              onPress={() => handleSendQoute()}>
-              {qoute?.loading ? (
-                <ActivityIndicator color={Colors.white} /> // Show loader when loading
-              ) : (
-                <Text style={styles.sendButtonText}>Send a Quote</Text>
-              )}
-            </TouchableOpacity>
           </View>
         )}
         <Modal
@@ -548,7 +542,7 @@ const styles = StyleSheet.create({
     marginTop: hp(2),
     gap: wp(3), // use if RN version supports it
   },
-  
+
   amountInputCompact: {
     width: wp(40), // 👈 Thoda aur chhota kar diya
     borderWidth: 1,
@@ -560,19 +554,18 @@ const styles = StyleSheet.create({
     color: Colors.black,
     backgroundColor: '#f9f9f9',
   },
-  
-  
+
   bidButton: {
     // backgroundColor: Colors.primary,
-    borderColor:Colors.primary,
-    borderWidth:wp(0.2),
+    borderColor: Colors.primary,
+    borderWidth: wp(0.2),
     paddingVertical: hp(1.5),
     paddingHorizontal: wp(8),
     borderRadius: wp(3),
     justifyContent: 'center',
     alignItems: 'center',
   },
-  
+
   bidButtonText: {
     color: Colors.primary,
     fontSize: wp(3.8),
@@ -615,8 +608,8 @@ const styles = StyleSheet.create({
 
   sendButton: {
     marginTop: hp(2),
-    borderWidth:wp(0.2),
-    borderColor:Colors.primary,
+    borderWidth: wp(0.2),
+    borderColor: Colors.primary,
     paddingVertical: hp(1.5),
     borderRadius: wp(5),
     alignItems: 'center',

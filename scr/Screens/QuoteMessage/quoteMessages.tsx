@@ -47,7 +47,6 @@ const QuoteMessages = () => {
 
       setCarListings(response.data);
 
-      // Match quotes with car listings and log displayImage
       quotes.forEach(quote => {
         const matchedListing = response.data.find(
           listing => listing._id === quote.listingId,
@@ -79,45 +78,6 @@ const QuoteMessages = () => {
     );
     return matchedListing?.displayImage;
   };
-
-  // const renderQuoteItem = ({item}) => (
-  //   <View style={styles.cardContainer}>
-  //     {/* Car Display Image at the top */}
-  //     {getDisplayImage(item.listingId) && (
-  //       <Image
-  //         source={{uri: getDisplayImage(item.listingId)}}
-  //         style={styles.displayImage}
-  //         resizeMode="contain"
-  //       />
-  //     )}
-
-  //     {/* Quote Content */}
-  //     <View style={styles.quoteContent}>
-  //       <View style={styles.quoteHeader}>
-  //         <Image
-  //           source={require('../../assets/profile.png')}
-  //           style={styles.profileImage}
-  //         />
-  //         <View style={styles.quoteInfo}>
-  //           <Text style={styles.amount}>₹{item.amount.toLocaleString()}</Text>
-  //           <Text style={styles.date}>
-  //             {new Date(item.createdAt).toLocaleDateString('en-GB', {
-  //               day: 'numeric',
-  //               month: 'short',
-  //               year: 'numeric',
-  //               hour: '2-digit',
-  //               minute: '2-digit',
-  //             })}
-  //           </Text>
-  //         </View>
-  //       </View>
-
-  //       <View style={styles.messageBubble}>
-  //         <Text style={styles.messageText}>{item.message}</Text>
-  //       </View>
-  //     </View>
-  //   </View>
-  // );
   const renderQuoteItem = ({item}) => (
     <View style={styles.cardContainer}>
       <Image
@@ -127,29 +87,21 @@ const QuoteMessages = () => {
       />
 
       <View style={styles.quoteDetails}>
-        <View style={styles.rowBetween}>
-          <Image
-            source={require('../../assets/profile.png')}
-            style={styles.profileImage}
-          />
-          <View style={{flex: 1, marginLeft: wp(3)}}>
-            <Text style={styles.amount}>£{item.amount.toLocaleString()}</Text>
-            <Text style={styles.date}>
-              {new Date(item.createdAt).toLocaleDateString('en-GB', {
-                day: '2-digit',
-                month: 'short',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-              })}
-            </Text>
-          </View>
+        <View style={styles.amountDateWrapper}>
+          <Text style={styles.amount}>£{item.amount.toLocaleString()}</Text>
+          <Text style={styles.date}>
+            {new Date(item.createdAt).toLocaleDateString('en-GB', {
+              day: '2-digit',
+              month: 'short',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+            })}
+          </Text>
         </View>
 
-        <View style={styles.messageContainer}>
-          <Text style={styles.messageText} numberOfLines={3}>
-            {item.message}
-          </Text>
+        <View style={styles.messageContainerLarge}>
+          <Text style={styles.messageText}>{item.message}</Text>
         </View>
       </View>
     </View>
@@ -161,19 +113,6 @@ const QuoteMessages = () => {
 
   return (
     <View style={styles.container}>
-      {/* <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-          activeOpacity={0.4}>
-          <Image
-            source={require('../../assets/left-arrow.png')}
-            style={styles.iconBack}
-            tintColor={Colors?.backIconColor}
-          />
-        </TouchableOpacity>
-        <Text style={styles.screenTitle}>Agent Quotes</Text>
-      </View> */}
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.backButton}
@@ -190,7 +129,6 @@ const QuoteMessages = () => {
           <Text style={styles.screenTitle}>Agent Quotes</Text>
         </View>
 
-        {/* Dummy View to balance space with back button */}
         <View style={styles.backButton} />
       </View>
 
@@ -241,79 +179,6 @@ const styles = StyleSheet.create({
   listContainer: {
     paddingBottom: hp(4),
   },
-  // cardContainer: {
-  //   backgroundColor: Colors.white,
-  //   borderRadius: wp(3),
-  //   marginBottom: hp(2.5),
-  //   shadowColor: '#000',
-  //   shadowOffset: {width: 0, height: 4},
-  //   shadowOpacity: 0.08,
-  //   shadowRadius: 6,
-  //   elevation: 4,
-  //   overflow: 'hidden',
-  //   borderWidth: 0.5,
-  //   borderColor: '#f0f0f0',
-  // },
-
-  // displayImage: {
-  //   width: '100%',
-  //   height: hp(18),
-  //   borderTopLeftRadius: wp(3),
-  //   borderTopRightRadius: wp(3),
-  //   backgroundColor: Colors.lightGray,
-  // },
-
-  // quoteContent: {
-  //   padding: wp(4),
-  //   backgroundColor: Colors.white,
-  // },
-
-  // quoteHeader: {
-  //   flexDirection: 'row',
-  //   alignItems: 'center',
-  //   marginBottom: hp(1),
-  // },
-
-  // profileImage: {
-  //   width: wp(10),
-  //   height: wp(10),
-  //   borderRadius: wp(5),
-  //   marginRight: wp(3),
-  // },
-
-  // quoteInfo: {
-  //   flex: 1,
-  //   justifyContent: 'center',
-  // },
-
-  // amount: {
-  //   fontSize: wp(4.2),
-  //   fontFamily: Fonts.bold,
-  //   color: Colors.primary,
-  // },
-
-  // date: {
-  //   fontSize: wp(3.3),
-  //   fontFamily: Fonts.medium,
-  //   color: Colors.textGray,
-  //   marginTop: hp(0.3),
-  // },
-
-  // messageBubble: {
-  //   marginTop: hp(1.5),
-  //   backgroundColor: '#f7f7f7',
-  //   borderRadius: wp(2),
-  //   padding: wp(3),
-  //   borderWidth: 0.5,
-  //   borderColor: '#e0e0e0',
-  // },
-
-  // messageText: {
-  //   fontSize: wp(3.8),
-  //   fontFamily: Fonts.regular,
-  //   color: Colors.black,
-  //   lineHeight: hp(2.6),
-  // },
   cardContainer: {
     backgroundColor: '#fff',
     borderRadius: wp(3),
@@ -327,7 +192,6 @@ const styles = StyleSheet.create({
     borderWidth: 0.5,
     borderColor: '#eaeaea',
   },
-
   displayImage: {
     width: '100%',
     height: hp(18),
@@ -335,54 +199,46 @@ const styles = StyleSheet.create({
     borderTopRightRadius: wp(3),
     backgroundColor: Colors.lightGray,
   },
-
   quoteDetails: {
     padding: wp(4),
   },
-
-  rowBetween: {
+  rowRightAligned: {
     flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginBottom: hp(1.5),
+  },
+  amountDateWrapper: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: hp(1.5),
   },
-
-  profileImage: {
-    width: wp(10),
-    height: wp(10),
-    borderRadius: wp(5),
-    borderWidth: 1,
-    borderColor: '#ddd',
-  },
-
   amount: {
     fontSize: wp(4.3),
     fontFamily: Fonts.bold,
     color: Colors.primary,
   },
-
   date: {
     fontSize: wp(3.2),
     fontFamily: Fonts.medium,
     color: '#888',
-    marginTop: hp(0.5),
   },
-
-  messageContainer: {
+  messageContainerLarge: {
     marginTop: hp(1),
     backgroundColor: '#f9f9f9',
     borderRadius: wp(2),
-    padding: wp(3),
+    padding: wp(4),
     borderWidth: 0.6,
     borderColor: '#efefef',
+    minHeight: hp(12),
+    alignItems: 'flex-start',
   },
-
   messageText: {
     fontSize: wp(3.8),
     fontFamily: Fonts.regular,
     color: Colors.black,
     lineHeight: hp(2.6),
   },
-
   loadingText: {
     textAlign: 'center',
     marginTop: hp(2),
