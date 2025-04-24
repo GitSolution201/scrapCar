@@ -13,6 +13,7 @@ import {
   Modal,
   TextInput,
   ActivityIndicator,
+  KeyboardAvoidingView,
 } from 'react-native';
 import {hp, wp} from '../../Helper/Responsive';
 import Colors from '../../Helper/Colors';
@@ -172,8 +173,10 @@ const Details = ({route, navigation}: {route: any; navigation: any}) => {
   };
 
   return (
-    <ScrollView showsVerticalScrollIndicator={false}>
-      <SafeAreaView
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={{flex: 1}}>
+      <ScrollView
         style={[
           styles.container,
           {paddingTop: Platform.OS === 'ios' ? hp(2) : 0},
@@ -346,8 +349,8 @@ const Details = ({route, navigation}: {route: any; navigation: any}) => {
             />
           </SafeAreaView>
         </Modal>
-      </SafeAreaView>
-    </ScrollView>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -355,7 +358,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: wp(5),
-    margin: Platform.OS === 'ios' ? 20 : 5,
+    // margin: Platform.OS === 'ios' ? 20 : 5,
     backgroundColor: Colors.gray,
   },
   detailsContainer: {

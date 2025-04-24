@@ -63,7 +63,11 @@ const GetOTP = ({navigation, route}: {navigation: any; route: any}) => {
     }
     // navigation.navigate('resetPassword');
   };
+  const inputRef = React.useRef(null);
 
+  const focusInput = () => {
+    inputRef.current?.focus();
+  };
   return (
     <ImageBackground
       source={require('../../assets/background.jpeg')}
@@ -100,13 +104,22 @@ const GetOTP = ({navigation, route}: {navigation: any; route: any}) => {
             </Text>
 
             <Text style={styles.label}>OTP</Text>
-            <View style={styles.otpBoxContainer}>
-              {[0, 1, 2, 3, 4, 5].map(i => (
-                <View key={i} style={styles.otpBox}>
-                  <Text style={styles.otpDigit}>{otp[i] || ''}</Text>
-                </View>
-              ))}
+            <View style={styles.container}>
+              {/* OTP Boxes */}
+              <View style={styles.otpBoxContainer} onTouchStart={focusInput}>
+                {[0, 1, 2, 3, 4, 5].map(i => (
+                  <View key={i} style={styles.otpBox}>
+                    <Text style={styles.otpDigit}>{otp[i] || ''}</Text>
+                    {i === otp.length && !otp[i] && (
+                      <View style={styles.cursor} />
+                    )}
+                  </View>
+                ))}
+              </View>
+
+              {/* Hidden TextInput */}
               <TextInput
+                ref={inputRef}
                 style={styles.hiddenInput}
                 keyboardType="number-pad"
                 maxLength={6}
@@ -120,7 +133,6 @@ const GetOTP = ({navigation, route}: {navigation: any; route: any}) => {
                 autoFocus
               />
             </View>
-
             {error && <Text style={styles.errorText}>{error}</Text>}
 
             <TouchableOpacity
@@ -150,7 +162,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'flex-start',
-    paddingHorizontal: wp(5),
+    // paddingHorizontal: wp(5),
     marginTop: hp(12),
   },
   backButton: {
@@ -160,6 +172,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     margin: wp(7),
+    marginTop: 60,
   },
   iconBack: {
     width: wp(5),
@@ -231,6 +244,7 @@ const styles = StyleSheet.create({
     marginTop: hp(4),
     borderRadius: wp(2),
     alignItems: 'center',
+    margin: 40,
   },
   verifyButtonText: {
     color: Colors?.white,

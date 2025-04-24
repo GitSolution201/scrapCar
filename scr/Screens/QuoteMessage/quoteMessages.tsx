@@ -151,6 +151,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.white,
     paddingHorizontal: wp(4),
+    marginTop: 40,
   },
   header: {
     flexDirection: 'row',
@@ -201,6 +202,7 @@ const styles = StyleSheet.create({
   },
   quoteDetails: {
     padding: wp(4),
+    // backgroundColor: 'red',
   },
   rowRightAligned: {
     flexDirection: 'row',
@@ -211,7 +213,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: hp(1.5),
+    // marginBottom: hp(1.5),
   },
   amount: {
     fontSize: wp(4.3),
@@ -225,13 +227,13 @@ const styles = StyleSheet.create({
   },
   messageContainerLarge: {
     marginTop: hp(1),
-    backgroundColor: '#f9f9f9',
-    borderRadius: wp(2),
-    padding: wp(4),
-    borderWidth: 0.6,
-    borderColor: '#efefef',
-    minHeight: hp(12),
-    alignItems: 'flex-start',
+    // backgroundColor: '#f9f9f9',
+    // borderRadius: wp(2),
+    // padding: wp(4),
+    // borderWidth: 0.6,
+    // borderColor: '#efefef',
+    maxHeight: hp(5),
+    // alignItems: 'flex-start',
   },
   messageText: {
     fontSize: wp(3.8),

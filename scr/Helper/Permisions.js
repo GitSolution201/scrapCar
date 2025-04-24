@@ -1,6 +1,5 @@
 import {Linking, Alert, Platform, PermissionsAndroid} from 'react-native';
 import {PERMISSIONS, request, RESULTS} from 'react-native-permissions';
-import messaging from '@react-native-firebase/messaging';
 
 export const RequestGalleryPermission = async () => {
   const openSettings = () => {
@@ -186,18 +185,6 @@ export const NOTIFICATION_PERMISSION = async () => {
         return 'granted';
       }
     } else if (Platform.OS === 'ios') {
-      // Request notification permission for iOS
-      const authStatus = await messaging().requestPermission();
-      const enabled =
-        authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-        authStatus === messaging.AuthorizationStatus.PROVISIONAL;
-
-      if (enabled) {
-        return 'granted';
-      } else {
-        console.log('Notification permission denied');
-        return 'denied';
-      }
     } else {
       console.warn('Unsupported platform');
       return 'unsupported_platform';

@@ -207,6 +207,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     margin: wp(7),
+    marginTop: 60,
   },
   passwordContainer: {
     flexDirection: 'row',
