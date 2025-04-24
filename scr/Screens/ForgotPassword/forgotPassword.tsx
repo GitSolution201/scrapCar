@@ -19,6 +19,7 @@ import {
 import Toast from 'react-native-simple-toast';
 import CountryPicker from 'react-native-country-picker-modal';
 import api from '../../redux/api';
+import {ScrollView} from 'react-native-gesture-handler';
 
 const ForgotPassword = ({navigation}: {navigation: any}) => {
   const dispatch = useDispatch();
@@ -77,71 +78,76 @@ const ForgotPassword = ({navigation}: {navigation: any}) => {
       source={require('../../assets/background.jpeg')}
       style={styles.background}
       resizeMode="cover">
-      <View style={styles.leftSection}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-          activeOpacity={0.4}>
-          <Image
-            source={require('../../assets/left-arrow.png')}
-            style={styles.iconBack}
-            tintColor={Colors?.backIconColor}
-          />
-        </TouchableOpacity>
-      </View>
-      <View style={styles.container}>
-        <Image source={require('../../assets/logo.png')} style={styles.logo} />
-        <Text style={styles.title}>Forgot Password?</Text>
-        <Text style={styles.subtitle}>
-          We will send you a
-          <Text style={{fontFamily: Fonts.bold}}> One Time Password</Text> on
-          your phone number
-        </Text>
-
-        <Text style={styles.label}>Phone Number</Text>
-        <View style={styles.phoneContainer}>
+      <ScrollView>
+        <View style={styles.leftSection}>
           <TouchableOpacity
-            onPress={() => setVisible(true)}
-            style={styles.countryPicker}>
-            <CountryPicker
-              withFilter
-              withFlag
-              withCallingCode
-              withModal
-              withAlphaFilter
-              countryCode={countryCode}
-              onSelect={country => {
-                setCountryCode(country.cca2);
-                setCallingCode(country.callingCode[0]);
-              }}
-              visible={visible}
-              onClose={() => setVisible(false)}
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}
+            activeOpacity={0.4}>
+            <Image
+              source={require('../../assets/left-arrow.png')}
+              style={styles.iconBack}
+              tintColor={Colors?.backIconColor}
             />
-            <Text style={styles.callingCode}>+{callingCode}</Text>
           </TouchableOpacity>
-
-          <TextInput
-            style={styles.phoneInput}
-            placeholder="Phone Number"
-            value={phone}
-            onChangeText={text => {
-              setPhone(text);
-              setError('');
-            }}
-            keyboardType="phone-pad"
-            placeholderTextColor="#9E9E9E"
-          />
         </View>
-        {error && <Text style={styles.errorText}>{error}</Text>}
-        <TouchableOpacity
-          style={[styles.resetButton, loading && styles.disabledButton]}
-          onPress={handleForgotPassword}
-          disabled={loading}>
-          <Text style={styles.resetButtonText}>
-            {loading ? 'Please wait...' : 'Get OTP'}
+        <View style={styles.container}>
+          <Image
+            source={require('../../assets/logo.png')}
+            style={styles.logo}
+          />
+          <Text style={styles.title}>Forgot Password?</Text>
+          <Text style={styles.subtitle}>
+            We will send you a
+            <Text style={{fontFamily: Fonts.bold}}> One Time Password</Text> on
+            your phone number
           </Text>
-        </TouchableOpacity>
-      </View>
+
+          <Text style={styles.label}>Phone Number</Text>
+          <View style={styles.phoneContainer}>
+            <TouchableOpacity
+              onPress={() => setVisible(true)}
+              style={styles.countryPicker}>
+              <CountryPicker
+                withFilter
+                withFlag
+                withCallingCode
+                withModal
+                withAlphaFilter
+                countryCode={countryCode}
+                onSelect={country => {
+                  setCountryCode(country.cca2);
+                  setCallingCode(country.callingCode[0]);
+                }}
+                visible={visible}
+                onClose={() => setVisible(false)}
+              />
+              <Text style={styles.callingCode}>+{callingCode}</Text>
+            </TouchableOpacity>
+
+            <TextInput
+              style={styles.phoneInput}
+              placeholder="Phone Number"
+              value={phone}
+              onChangeText={text => {
+                setPhone(text);
+                setError('');
+              }}
+              keyboardType="phone-pad"
+              placeholderTextColor="#9E9E9E"
+            />
+          </View>
+          {error && <Text style={styles.errorText}>{error}</Text>}
+          <TouchableOpacity
+            style={[styles.resetButton, loading && styles.disabledButton]}
+            onPress={handleForgotPassword}
+            disabled={loading}>
+            <Text style={styles.resetButtonText}>
+              {loading ? 'Please wait...' : 'Get OTP'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
     </ImageBackground>
   );
 };
@@ -164,6 +170,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     margin: wp(7),
+    marginTop: 60,
   },
 
   iconBack: {

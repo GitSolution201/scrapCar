@@ -11,6 +11,13 @@ node_require('react-native/scripts/react_native_pods.rb')
 node_require('react-native-permissions/scripts/setup.rb')
 platform :ios, min_ios_version_supported
 prepare_react_native_project!
+
+
+pod 'FirebaseCoreInternal', :modular_headers => true
+pod 'GoogleUtilities', :modular_headers => true
+pod 'Firebase', :modular_headers => true
+pod 'FirebaseCore', :modular_headers => true
+
 setup_permissions([
    'Camera',
    'LocationAccuracy',
@@ -28,15 +35,16 @@ end
 # Main target
 target 'scrap4yourMobile' do
   config = use_native_modules!
-  
+    pod 'Firebase/CoreOnly' # Required for FirebaseCore
+    pod 'Firebase/Messaging'
+    pod 'GoogleMaps'
   use_react_native!(
     :path => config[:reactNativePath],
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
   # Include Google Maps
-  pod 'react-native-google-maps', :path => '../node_modules/react-native-maps'
-
+  pod 'react-native-maps-generated', :path => '../node_modules/react-native-maps'
   # Tests target
   target 'scrap4yourMobileTests' do
     inherit! :complete
