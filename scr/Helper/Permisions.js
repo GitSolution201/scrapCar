@@ -1,6 +1,5 @@
 import {Linking, Alert, Platform, PermissionsAndroid} from 'react-native';
 import {PERMISSIONS, request, RESULTS} from 'react-native-permissions';
-import messaging from '@react-native-firebase/messaging';
 
 export const RequestGalleryPermission = async () => {
   const openSettings = () => {
@@ -160,53 +159,6 @@ export const RequestLocationPermission = async () => {
     return 'unknown';
   } catch (error) {
     console.error('Error while requesting location permission:', error);
-    return 'error';
-  }
-};
-
-export const NOTIFICATION_PERMISSION = async () => {
-  try {
-    if (Platform.OS === 'android') {
-      if (Platform.Version >= 33) {
-        // Request notification permission for Android 13+
-        const result = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
-          {
-            title: 'Notification Permission',
-            message: 'Allow DAUD TRANSPORT to send you notifications.',
-            buttonPositive: 'OK',
-            buttonNeutral: 'Ask Me Later',
-            buttonNegative: 'Cancel',
-          },
-        );
-
-        return result;
-      } else {
-        // Automatically granted on older versions of Android
-        return 'granted';
-      }
-    } else if (Platform.OS === 'ios') {
-      // Request notification permission for iOS
-      const authStatus = await messaging().requestPermission();
-      const enabled =
-        authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-        authStatus === messaging.AuthorizationStatus.PROVISIONAL;
-
-      if (enabled) {
-        return 'granted';
-      } else {
-        console.log('Notification permission denied');
-        return 'denied';
-      }
-    } else {
-      console.warn('Unsupported platform');
-      return 'unsupported_platform';
-    }
-  } catch (err) {
-    console.warn('Permission request failed', err);
-    Error_Toaster(
-      'An error occurred while requesting notification permissions.',
-    );
     return 'error';
   }
 };

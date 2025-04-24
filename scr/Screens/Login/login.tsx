@@ -24,8 +24,6 @@ import {axiosHeader} from '../../Services/apiHeader';
 import {Fonts} from '../../Helper/Fonts';
 import DeviceInfo from 'react-native-device-info';
 import {checkSubscription} from '../../redux/api';
-import {NOTIFICATION_PERMISSION} from '../../Helper/Permisions';
-import messaging from '@react-native-firebase/messaging';
 
 const Login = ({navigation}: {navigation: any}) => {
   const dispatch = useDispatch();
