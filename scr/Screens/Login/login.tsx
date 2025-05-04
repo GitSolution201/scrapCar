@@ -24,6 +24,8 @@ import {axiosHeader} from '../../Services/apiHeader';
 import {Fonts} from '../../Helper/Fonts';
 import DeviceInfo from 'react-native-device-info';
 import {checkSubscription} from '../../redux/api';
+import {NOTIFICATION_PERMISSION} from '../../Helper/Permisions';
+import messaging from '@react-native-firebase/messaging';
 
 const Login = ({navigation}: {navigation: any}) => {
   const dispatch = useDispatch();
@@ -46,20 +48,20 @@ const Login = ({navigation}: {navigation: any}) => {
   const [showRateLimitModal, setShowRateLimitModal] = useState(false);
   const [rateLimitMessage, setRateLimitMessage] = useState('');
 
-  // useEffect(() => {
-  //   const checkPermission = async () => {
-  //     const result = await NOTIFICATION_PERMISSION();
-  //     if (result !== 'granted') {
-  //       console.log('object');
-  //       // Linking.openSettings();
-  //     } else {
-  //       const token = await messaging().getToken();
-  //       console.log('@TOssKEN', token);
-  //     }
-  //   };
+  useEffect(() => {
+    const checkPermission = async () => {
+      const result = await NOTIFICATION_PERMISSION();
+      if (result !== 'granted') {
+        console.log('object');
+        // Linking.openSettings();
+      } else {
+        const token = await messaging().getToken();
+        console.log('@TOssKEN', token);
+      }
+    };
 
-  //   checkPermission();
-  // }, []);
+    checkPermission();
+  }, []);
 
   useEffect(() => {
     if (loginResponse) {
