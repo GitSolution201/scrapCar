@@ -15,7 +15,6 @@
 		561A82D5DA8443B6B58F3C93 /* PublicSans-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8BEE18EC4EF047DC8B2A1E5F /* PublicSans-Medium.ttf */; };
 		5739ECA9CF6842D582119465 /* PublicSans-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BFEB9516707445909DF85559 /* PublicSans-SemiBold.ttf */; };
 		5AF16B4F2C7E076547B7A22B /* libPods-scrap4yourMobile-scrap4yourMobileTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BE03165EA9AEE0D8989C75EA /* libPods-scrap4yourMobile-scrap4yourMobileTests.a */; };
-		7410423E2DB8F26A00CB8383 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 7410423D2DB8F26A00CB8383 /* GoogleService-Info.plist */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		97917AE25B8D471F82E5F008 /* PublicSans-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7E1CEFE178D04E42A1B794D2 /* PublicSans-Bold.ttf */; };
 		B55E1A1517270D1DA8777D62 /* libPods-scrap4yourMobile.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D9AEDCEA77A85AE9E7DA96B /* libPods-scrap4yourMobile.a */; };
@@ -47,7 +46,6 @@
 		36514EC60CBFC270FBDE6942 /* Pods-scrap4yourMobile.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-scrap4yourMobile.release.xcconfig"; path = "Target Support Files/Pods-scrap4yourMobile/Pods-scrap4yourMobile.release.xcconfig"; sourceTree = "<group>"; };
 		6D383AD55A7BB459163A0190 /* Pods-scrap4yourMobile-scrap4yourMobileTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-scrap4yourMobile-scrap4yourMobileTests.release.xcconfig"; path = "Target Support Files/Pods-scrap4yourMobile-scrap4yourMobileTests/Pods-scrap4yourMobile-scrap4yourMobileTests.release.xcconfig"; sourceTree = "<group>"; };
 		6D9AEDCEA77A85AE9E7DA96B /* libPods-scrap4yourMobile.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-scrap4yourMobile.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		7410423D2DB8F26A00CB8383 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		7E1CEFE178D04E42A1B794D2 /* PublicSans-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "PublicSans-Bold.ttf"; path = "../assets/fonts/PublicSans-Bold.ttf"; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = scrap4yourMobile/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		8BEE18EC4EF047DC8B2A1E5F /* PublicSans-Medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "PublicSans-Medium.ttf"; path = "../assets/fonts/PublicSans-Medium.ttf"; sourceTree = "<group>"; };
@@ -142,7 +140,6 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
-				7410423D2DB8F26A00CB8383 /* GoogleService-Info.plist */,
 				13B07FAE1A68108700A75B9A /* scrap4yourMobile */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				00E356EF1AD99517003FC87E /* scrap4yourMobileTests */,
@@ -271,7 +268,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
-				7410423E2DB8F26A00CB8383 /* GoogleService-Info.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				D535EC0AC5464217E38879CA /* PrivacyInfo.xcprivacy in Resources */,
 				97917AE25B8D471F82E5F008 /* PublicSans-Bold.ttf in Resources */,
