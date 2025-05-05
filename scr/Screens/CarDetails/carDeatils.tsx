@@ -1,179 +1,475 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
   Image,
   TouchableOpacity,
   StyleSheet,
-  ViewBase,
+  ScrollView,
+  Linking,
+  SafeAreaView,
+  Platform,
+  Alert,
+  Modal,
+  TextInput,
+  ActivityIndicator,
+  KeyboardAvoidingView,
 } from 'react-native';
-import {ScrollView} from 'react-native-gesture-handler';
+import {hp, wp} from '../../Helper/Responsive';
+import Colors from '../../Helper/Colors';
+import Header from '../../Components/Header';
+import Banner from '../../Components/Banner';
+import {Fonts} from '../../Helper/Fonts';
+import {useDispatch, useSelector} from 'react-redux';
+import WebView from 'react-native-webview';
+import {resetQuoteState, sendQuoteRequest} from '../../redux/slices/qouteSlice';
+import Toast from 'react-native-simple-toast';
 
-const Details = ({navigation}: {navigation: any}) => {
+const defaultCarImage = require('../../assets/car2.png');
+
+const Details = ({route, navigation}: {route: any; navigation: any}) => {
+  const dispatch = useDispatch();
+  const {car} = route.params;
+  const {hasSubscription} = useSelector(
+    state => state?.subscription?.subscriptionData,
+  );
+  const {userData} = useSelector((state: any) => state.user);
+  const token = useSelector((state: any) => state.auth?.token);
+  const qoute = useSelector((state: any) => state?.quote);
+  const [showWebView, setShowWebView] = useState(false);
+  const [webViewUrl, setWebViewUrl] = useState('');
+  const [message, setMessage] = useState('');
+  const [amount, setAmount] = useState('');
+  const [error, setError] = useState({
+    messageError: '',
+    amountError: '',
+  });
+
+  useEffect(() => {
+    if (qoute?.success) {
+      Toast.show('Quote sent successfully!', Toast.SHORT);
+      setMessage('');
+      setAmount('');
+      dispatch(resetQuoteState());
+    }
+  }, [qoute?.success]);
+  const handleSendQoute = () => {
+    let hasError = false;
+    let newErrors = {messageError: '', amountError: ''};
+
+    if (!message.trim()) {
+      newErrors.messageError = 'Please enter a message';
+      hasError = true;
+    }
+
+    if (!amount.trim()) {
+      newErrors.amountError = 'Please enter an amount';
+      hasError = true;
+    }
+
+    if (hasError) {
+      setError(newErrors);
+      return;
+    }
+    // Dispatch action
+    dispatch(
+      sendQuoteRequest({
+        listingId: car?._id,
+        userId: userData?.userId,
+        amount,
+        message,
+        token,
+      }),
+    );
+  };
+  const handlePlaceBid = () => {
+    if (!amount.trim()) {
+      setError(prev => ({...prev, amountError: 'Please enter an amount'}));
+      return;
+    }
+
+    // You can optionally give feedback like toast or log
+    console.log('Bid Placed with Amount:', amount);
+    Toast.show(`Bid placed: ₹${amount}`, Toast.SHORT);
+  };
+  // const handleSendQoute = async () => {
+  //   if (!message) {
+  //     setError('Please enter a message');
+  //   } else if (!amount) {
+  //     setError('Please enter a amount');
+  //   } else {
+  //     dispatch(
+  //       sendQuoteRequest({
+  //         listingId: car?._id,
+  //         userId: userData?.userId,
+  //         amount: '800',
+  //         message,
+  //         token,
+  //       }),
+  //     );
+  //   }
+  // };
+  const handleCall = (phoneNumber: any) => {
+    if (!hasSubscription) {
+      showSubscriptionAlert();
+      return;
+    }
+    Linking.openURL(`tel:${phoneNumber}`);
+  };
+
+  const handleTextMessage = (phoneNumber: any) => {
+    if (!hasSubscription) {
+      showSubscriptionAlert();
+      return;
+    }
+    Linking.openURL(`sms:${phoneNumber}`);
+  };
+
+  const handleWhatsApp = (phoneNumber: any) => {
+    if (!hasSubscription) {
+      showSubscriptionAlert();
+      return;
+    }
+    Linking.openURL(`https://wa.me/${phoneNumber}`);
+  };
+
+  const handleMotHistory = () => {
+    if (!hasSubscription) {
+      showSubscriptionAlert();
+      return;
+    }
+    setWebViewUrl(
+      `https://www.check-mot.service.gov.uk/results?registration=${car?.registrationNumber}`,
+    );
+    setShowWebView(true);
+  };
+
+  const showSubscriptionAlert = () => {
+    Alert.alert(
+      'Premium Feature 🔒',
+      'To access MOT history and contact details, please upgrade to our premium subscription. Enjoy unlimited access to all features!',
+      [
+        {
+          text: 'Maybe Later',
+          style: 'cancel',
+        },
+        {
+          text: 'Subscribe Now',
+          onPress: () => navigation.navigate('Subscriptions'),
+          style: 'default',
+        },
+      ],
+      {cancelable: true},
+    );
+  };
+
+  const formatDate = dateString => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+    });
+  };
+
   return (
-    <ScrollView style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.backButton}>
-          <Text style={styles.backText}>←</Text>
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Details</Text>
-        <View></View>
-      </View>
-
-      {/* Car Image */}
-      <Image source={require('../../assets/car.png')} style={styles.carImage} />
-
-      {/* Car Info */}
-      <View style={styles.detailsContainer}>
-        <Text style={styles.carTitle}>S 500 Sedan</Text>
-        <Text style={styles.scrapText}>Scrap</Text>
-        <View style={styles.infoRow}>
-          <Text style={styles.label}>Registration:</Text>
-          <Text style={styles.value}>DN63WPZ</Text>
-        </View>
-        <View style={styles.infoRow}>
-          <Text style={styles.label}>Post Code:</Text>
-          <Text style={styles.value}>S63</Text>
-        </View>
-        <View style={styles.infoRow}>
-          <Text style={styles.label}>Weight:</Text>
-          <Text style={styles.value}>1320 KG</Text>
-        </View>
-        <View style={styles.infoRow}>
-          <Text style={styles.label}>Engine Code:</Text>
-          <Text style={styles.value}>M472D20C</Text>
-        </View>
-        <View style={styles.infoRow}>
-          <Text style={styles.label}>Year of the car:</Text>
-          <Text style={styles.value}>1995</Text>
-        </View>
-        <View style={styles.infoRow}>
-          <Text style={styles.label}>Transmission:</Text>
-          <Text style={styles.value}>MANUAL 6 Gears</Text>
-        </View>
-        <View style={styles.infoRow}>
-          <Text style={styles.label}>Quoted Price:</Text>
-          <Text style={styles.value}>$548</Text>
-        </View>
-        <View style={styles.infoRow}>
-          <Text style={styles.label}>Color:</Text>
-          <Text style={styles.value}>Black</Text>
-        </View>
-      </View>
-
-      {/* Contact Seller */}
-      <View style={styles.contactContainer}>
-        <Text style={styles.contactTitle}>Contact Seller Via</Text>
-        <View style={styles.contactIcons}>
-          <View>
-            <TouchableOpacity style={[styles.contactButton, styles.callButton]}>
-              <Image
-                source={require('../../assets/telephone.png')}
-                style={styles.icon}
-              />
-            </TouchableOpacity>
-            <Text style={styles.contactText}>Call</Text>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={{flex: 1}}>
+      <ScrollView
+        style={[
+          styles.container,
+          {paddingTop: Platform.OS === 'ios' ? hp(2) : 0},
+        ]}>
+        <Header navigation={navigation} showNotification={false} />
+        <View style={styles.detailsContainer}>
+          <Image
+            source={
+              car?.displayImage && car?.displayImage !== 'N/A'
+                ? {uri: car?.displayImage}
+                : defaultCarImage
+            }
+            style={styles.carImage}
+            resizeMode={'contain'}
+          />
+          <View style={styles.carTagContainer}>
+            <Text style={styles.scrapText}>{car.tag || 'Unknown'}</Text>
           </View>
-          <View>
-            <TouchableOpacity
-              style={[styles.contactButton, styles.whatsappButton]}>
-              <Image
-                source={require('../../assets/whatsapp.png')}
-                style={styles.icon}
-              />
-            </TouchableOpacity>
-            <Text style={styles.contactText}>WhatsApp</Text>
+          <Text style={styles.carTitle}>
+            {car.make || 'Model Not Available'}
+          </Text>
+
+          {[
+            ['Registration:', car.registrationNumber],
+            ['Year:', car.yearOfManufacture],
+            ['Postcode:', car.postcode],
+            ['Colour:', car.color],
+            ['Model:', car.model],
+            ['Fuel Type:', car.fuelType],
+          ].map(([label, value], index) => (
+            <View key={index} style={styles.infoRow}>
+              <Text style={styles.label}>{label}</Text>
+              <Text style={styles.value} numberOfLines={1} ellipsizeMode="tail">
+                {value?.toString().toUpperCase() || 'N/A'}
+              </Text>
+            </View>
+          ))}
+          <View style={styles.motContainer}>
+            <Image
+              source={require('../../assets/Union.png')}
+              style={styles.motImage}
+            />
+            <View style={styles.textContainer}>
+              <View style={styles.rowText}>
+                <Text style={styles.title}>MOT Status: {car?.motStatus}</Text>
+                <TouchableOpacity
+                  style={styles.motHistoryButton}
+                  onPress={() => handleMotHistory()}>
+                  <Text style={styles.motHistoryText}>MOT history</Text>
+                </TouchableOpacity>
+              </View>
+              <Text style={styles.expiry}>
+                Expiry: {formatDate(car?.date_added)}
+              </Text>
+            </View>
           </View>
-          <View>
-            <TouchableOpacity style={[styles.contactButton, styles.textButton]}>
-              <Image
-                source={require('../../assets/messenger.png')}
-                style={styles.icon}
-              />
-            </TouchableOpacity>
-            <Text style={styles.contactText}>Text</Text>
+          <Banner navigation={navigation} />
+        </View>
+
+        <View style={styles.contactContainer}>
+          <Text style={styles.contactTitle}>Contact Seller Via</Text>
+          <View style={styles.contactIcons}>
+            {[
+              ['Call', require('../../assets/apple.png'), handleCall],
+              [
+                'WhatsApp',
+                require('../../assets/whatsapp.png'),
+                handleWhatsApp,
+              ],
+              ['Text', require('../../assets/messages.png'), handleTextMessage],
+            ].map(([text, icon, action], index) => {
+              const isSold = car?.isSold;
+              const opacityStyle = {opacity: isSold ? 0.3 : 1};
+
+              return (
+                <View key={index}>
+                  <TouchableOpacity
+                    style={[
+                      styles.contactButton,
+                      styles[`${text.toLowerCase()}Button`],
+                      opacityStyle,
+                    ]}
+                    onPress={() => {
+                      if (!isSold) {
+                        action('+' + car?.phoneNumber);
+                      }
+                    }}
+                    activeOpacity={isSold ? 1 : 0.7}
+                    disabled={isSold}>
+                    <Image source={icon} style={[styles.icon, opacityStyle]} />
+                  </TouchableOpacity>
+                  <Text style={[styles.contactText, opacityStyle]}>{text}</Text>
+                </View>
+              );
+            })}
           </View>
         </View>
-      </View>
-    </ScrollView>
+
+        {!car?.isSold && (
+          <View style={styles.messageBox}>
+            <TextInput
+              placeholder="Write your message..."
+              style={[styles.textArea, {height: hp(15), marginTop: hp(2)}]}
+              multiline
+              numberOfLines={4}
+              textAlignVertical="top"
+              value={message}
+              onChangeText={text => {
+                setMessage(text);
+                setError(prev => ({...prev, messageError: ''}));
+              }}
+            />
+            {error.messageError ? (
+              <Text style={styles.errorText}>{error.messageError}</Text>
+            ) : null}
+
+            <View style={styles.amountRow}>
+              <TextInput
+                placeholder="Amount"
+                style={styles.amountInputCompact}
+                keyboardType="numeric"
+                value={amount}
+                onChangeText={text => {
+                  setAmount(text);
+                  setError(prev => ({...prev, amountError: ''}));
+                }}
+              />
+
+              <TouchableOpacity
+                style={styles.bidButton}
+                onPress={() => handleSendQoute()}>
+                {/* {qoute?.loading ? (
+                  <ActivityIndicator color={Colors.primary} /> // Show loader when loading
+                ) : ( */}
+                <Text style={styles.bidButtonText}>Place a Bid</Text>
+                {/* )} */}
+              </TouchableOpacity>
+            </View>
+            {error.amountError ? (
+              <Text style={styles.errorText}>{error.amountError}</Text>
+            ) : null}
+          </View>
+        )}
+        <Modal
+          visible={showWebView}
+          animationType="slide"
+          onRequestClose={() => setShowWebView(false)}>
+          <SafeAreaView style={styles.webViewContainer}>
+            <View
+              style={[
+                styles.webViewHeader,
+                Platform.OS === 'ios' && styles.webViewHeaderIOS,
+              ]}>
+              <TouchableOpacity
+                onPress={() => setShowWebView(false)}
+                style={[
+                  styles.closeButton,
+                  Platform.OS === 'ios' && styles.closeButtonIOS,
+                ]}>
+                <Text style={styles.closeButtonText}>Close</Text>
+              </TouchableOpacity>
+            </View>
+            <WebView
+              source={{uri: webViewUrl}}
+              style={styles.webView}
+              startInLoadingState={true}
+              onError={syntheticEvent => {
+                console.error('WebView error:', syntheticEvent.nativeEvent);
+              }}
+            />
+          </SafeAreaView>
+        </Modal>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: '#F5F5F5',
+    padding: wp(5),
+    // margin: Platform.OS === 'ios' ? 20 : 5,
+    backgroundColor: Colors.gray,
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 40,
-  },
-  backButton: {
-    marginRight: 10,
-  },
-  backText: {
-    fontSize: 24,
-    color: '#007BFF',
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
+  detailsContainer: {
+    backgroundColor: Colors.white,
+    padding: wp(5),
+    borderRadius: wp(3),
+    marginVertical: hp(2),
   },
   carImage: {
     width: '100%',
-    height: 120,
-    resizeMode: 'contain',
-    marginBottom: 20,
-  },
-  detailsContainer: {
-    backgroundColor: '#FFF',
-    padding: 20,
-    borderRadius: 8,
-    marginBottom: 20,
+    height: hp(20),
+    marginTop: hp(2),
   },
   carTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 10,
+    fontSize: wp(6),
+    fontFamily: Fonts.bold,
+    color: Colors.primary,
+    marginBottom: hp(1),
     textAlign: 'center',
   },
+  carTagContainer: {
+    backgroundColor: Colors.gradientEnd,
+    borderRadius: wp(10),
+    marginVertical: hp(2),
+    alignSelf: 'center',
+  },
   scrapText: {
+    textTransform: 'capitalize',
+    paddingHorizontal: wp(3),
+    paddingVertical: wp(1.5),
     textAlign: 'center',
-    color: '#007BFF',
-    fontWeight: 'bold',
-    marginBottom: 20,
+    fontFamily: Fonts.regular,
+    color: Colors.primary,
   },
   infoRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 10,
+    alignItems: 'center',
+    width: '90%',
+    alignSelf: 'center',
+    marginBottom: hp(1),
   },
   label: {
-    fontSize: 16,
-    color: '#555',
+    fontSize: wp(4),
+    fontFamily: Fonts.regular,
+    color: Colors.darkGray,
+    minWidth: wp(30),
+    textAlign: 'right',
+    paddingRight: wp(3),
   },
   value: {
-    fontSize: 16,
-    color: '#333',
+    fontSize: wp(4),
+    fontFamily: Fonts.semiBold,
+    color: Colors.darkGray,
+    width: '65%',
   },
+  motContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'center',
+    backgroundColor: '#f5f5f5',
+    paddingVertical: hp(1.5),
+    paddingHorizontal: wp(4),
+    borderRadius: wp(3),
+    marginBottom: hp(2),
+    width: wp(80),
+  },
+  motImage: {
+    width: wp(6),
+    height: wp(6),
+    // tintColor: '#3A5179',
+    resizeMode: 'contain',
+  },
+  textContainer: {
+    flex: 1,
+    marginLeft: wp(2),
+  },
+  rowText: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  title: {
+    fontSize: wp(3.5),
+    fontFamily: Fonts.semiBold,
+    color: '#3b4d6c',
+    flex: 1,
+  },
+  viewText: {
+    fontFamily: Fonts.semiBold,
+    fontSize: wp(3.2),
+    color: '#3b4d6c',
+    marginLeft: wp(2),
+  },
+  expiry: {
+    fontSize: wp(3),
+    fontFamily: Fonts.regular,
+    color: '#3b4d6c',
+  },
+
   contactContainer: {
-    backgroundColor: '#FFF',
-    padding: 20,
-    borderRadius: 8,
-    marginBottom: 70,
+    backgroundColor: Colors.white,
+    padding: wp(5),
+    borderRadius: wp(3),
+    marginBottom: hp(2),
   },
   contactTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 20,
+    fontSize: wp(5),
+    fontFamily: Fonts.bold,
+    color: Colors.darkGray,
+    marginBottom: hp(2),
     textAlign: 'center',
   },
   contactIcons: {
@@ -181,33 +477,151 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
   },
   contactButton: {
-    borderRadius: 50,
-    padding: 10,
     alignItems: 'center',
-    width: 60,
-    height: 60,
     justifyContent: 'center',
   },
-  callButton: {
-    backgroundColor: '#3A58E84A', // Blue color
-  },
-  whatsappButton: {
-    backgroundColor: '#49CAA34A', // Green color
-  },
-  textButton: {
-    backgroundColor: '#FF4B4A3B', // Red color
-  },
+
   icon: {
-    width: 30,
-    height: 30,
+    width: wp(12),
+    height: wp(12),
     resizeMode: 'contain',
   },
   contactText: {
-    marginTop: 5,
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#333',
+    marginTop: hp(1),
+    fontSize: wp(3.5),
+    fontFamily: Fonts.regular,
+    color: Colors.black,
     textAlign: 'center',
+  },
+  motHistoryButton: {
+    backgroundColor: Colors.primary,
+    paddingHorizontal: wp(3),
+    paddingVertical: wp(1),
+    borderRadius: wp(5),
+    marginLeft: wp(2),
+  },
+  motHistoryText: {
+    color: Colors.white,
+    fontSize: wp(3),
+    fontFamily: Fonts.semiBold,
+  },
+  webViewContainer: {
+    flex: 1,
+    backgroundColor: Colors.white,
+  },
+  webViewHeader: {
+    padding: wp(4),
+    backgroundColor: Colors.primary,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+  webViewHeaderIOS: {
+    paddingTop: hp(2),
+  },
+  closeButton: {
+    paddingHorizontal: wp(4),
+    paddingVertical: wp(2),
+  },
+  closeButtonIOS: {
+    paddingVertical: wp(3),
+  },
+  closeButtonText: {
+    color: Colors.white,
+    fontSize: wp(4),
+    fontFamily: Fonts.semiBold,
+  },
+  webView: {
+    flex: 1,
+  },
+  messageBox: {
+    backgroundColor: Colors.white,
+    padding: wp(4),
+    borderRadius: wp(3),
+    marginBottom: hp(2),
+  },
+  amountRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: hp(2),
+    gap: wp(3), // use if RN version supports it
+  },
+
+  amountInputCompact: {
+    width: wp(40), // 👈 Thoda aur chhota kar diya
+    borderWidth: 1,
+    borderColor: Colors.lightGray,
+    borderRadius: wp(3),
+    padding: wp(3),
+    fontSize: wp(4),
+    fontFamily: Fonts.regular,
+    color: Colors.black,
+    backgroundColor: '#f9f9f9',
+  },
+
+  bidButton: {
+    // backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
+    borderWidth: wp(0.2),
+    paddingVertical: hp(1.5),
+    paddingHorizontal: wp(8),
+    borderRadius: wp(3),
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  bidButtonText: {
+    color: Colors.primary,
+    fontSize: wp(3.8),
+    fontFamily: Fonts.bold,
+  },
+  errorText: {
+    color: 'red',
+    fontSize: wp(3.2),
+    marginTop: hp(0.5),
+    marginBottom: hp(1),
+  },
+  messageLabel: {
+    fontSize: wp(4.5),
+    fontFamily: Fonts.semiBold,
+    color: Colors.darkGray,
+    marginBottom: hp(1),
+  },
+
+  textArea: {
+    borderWidth: 1,
+    borderColor: Colors.lightGray,
+    borderRadius: wp(3),
+    padding: wp(3),
+    fontSize: wp(4),
+    fontFamily: Fonts.regular,
+    color: Colors.black,
+    height: hp(15),
+    backgroundColor: '#f9f9f9',
+  },
+  amountInput: {
+    borderWidth: 1,
+    borderColor: Colors.lightGray,
+    borderRadius: wp(3),
+    padding: wp(3),
+    fontSize: wp(4),
+    fontFamily: Fonts.regular,
+    color: Colors.black,
+    backgroundColor: '#f9f9f9',
+  },
+
+  sendButton: {
+    marginTop: hp(2),
+    borderWidth: wp(0.2),
+    borderColor: Colors.primary,
+    paddingVertical: hp(1.5),
+    borderRadius: wp(5),
+    alignItems: 'center',
+  },
+
+  sendButtonText: {
+    color: Colors.primary,
+    fontSize: wp(4),
+    fontFamily: Fonts.bold,
   },
 });
 

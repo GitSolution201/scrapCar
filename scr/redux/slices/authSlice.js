@@ -1,38 +1,84 @@
 import {createSlice} from '@reduxjs/toolkit';
 
 const initialState = {
-  loading: false,
-  user: null,
-  error: null,
+  loading: false, // Loading state for both login and register
+  user: null, // User data after successful login or register
+  error: null, // Error for both login and register
+  registerResponse: null, // Response for register
+  loginResponse: null, // Response for login
+  token: null, // Token after successful login
+  deviceId: null, // Add deviceId to state if needed
 };
 
 const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
+    // Login Actions
     loginRequest: state => {
       state.loading = true;
+      state.loginResponse = null;
       state.error = null;
     },
     loginSuccess: (state, action) => {
+      console.log('@ACTIOn', action.payload);
       state.loading = false;
-      state.user = action.payload;
+      // Handle both cases (confirmation required or actual login)
+      if (action.payload.requires_confirmation) {
+        state.loginResponse = {
+          requires_confirmation: true,
+          message: action.payload.message,
+        };
+      } else {
+        state.token = action.payload.access_token;
+        state.deviceId = action.payload.active_devices;
+        state.loginResponse = {
+          success: true,
+          message: action.payload.message,
+        };
+      }
     },
     loginFailure: (state, action) => {
       state.loading = false;
-      state.error = action.payload;
+      state.error = action.payload; // Save error message
+      state.loginResponse = {success: false, error: action.payload};
     },
+
+    // Register Actions
     registerRequest: state => {
       state.loading = true;
+      state.registerResponse = null;
       state.error = null;
     },
     registerSuccess: (state, action) => {
       state.loading = false;
-      state.user = action.payload;
+      state.registerResponse = {
+        success: true,
+        message: action.payload.message,
+        user: action.payload.user, // Save user data
+      };
     },
     registerFailure: (state, action) => {
       state.loading = false;
-      state.error = action.payload;
+      state.registerResponse = {
+        success: false,
+        error: action.payload,
+      };
+    },
+
+    // Logout Action
+    logout: state => {
+      state.loading = false;
+      state.user = null;
+      state.token = null;
+      state.loginResponse = null;
+      state.registerResponse = null;
+      state.error = null;
+    },
+
+    // Reset Register Response
+    resetRegisterResponse: state => {
+      state.registerResponse = null;
     },
   },
 });
@@ -44,6 +90,8 @@ export const {
   registerRequest,
   registerSuccess,
   registerFailure,
+  logout,
+  resetRegisterResponse,
 } = authSlice.actions;
 
 export default authSlice.reducer;

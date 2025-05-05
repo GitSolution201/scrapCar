@@ -1,5 +1,5 @@
-import React from 'react';
-import {Image} from 'react-native';
+import React, {useEffect} from 'react';
+import {Image, Platform} from 'react-native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {NavigationContainer} from '@react-navigation/native';
@@ -12,6 +12,17 @@ import CarListings from './Screens/carListings/carListings';
 import CarDeatils from './Screens/CarDetails/carDeatils';
 import Dashboard from './Screens/Dashboard/dashboard';
 import SubscriptionScreen from './Screens/Subscriptions/subscriptions';
+import {useDispatch, useSelector} from 'react-redux';
+import Savage from './Screens/Savage/Savage';
+import {axiosHeader} from './Services/apiHeader';
+import {fetchUserRequest} from './redux/slices/userDetail';
+import {checkSubscriptionRequest} from './redux/slices/subcriptionsSlice';
+import DeviceInfo from 'react-native-device-info';
+import {logout} from './redux/slices/authSlice';
+import forgotPassword from './Screens/ForgotPassword/forgotPassword';
+import getOTP from './Screens/GetOTP/getOTP';
+import resetPassword from './Screens/ResetPassword/resetPassword';
+import quoteMessages from './Screens/QuoteMessage/quoteMessages';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -29,7 +40,9 @@ const AuthStack = () => (
   <Stack.Navigator screenOptions={{headerShown: false}}>
     <Stack.Screen name="Login" component={Login} />
     <Stack.Screen name="Register" component={Register} />
-    <Stack.Screen name="MainTabs" component={MainStack} />
+    <Stack.Screen name="forgotPassword" component={forgotPassword} />
+    <Stack.Screen name="getOTP" component={getOTP} />
+    <Stack.Screen name="resetPassword" component={resetPassword} />
   </Stack.Navigator>
 );
 
@@ -69,16 +82,64 @@ const MainStack = () => (
     <Stack.Screen name="MainTabs" component={MainTabs} />
     <Stack.Screen name="CarDeatils" component={CarDeatils} />
     <Stack.Screen name="Subscriptions" component={SubscriptionScreen} />
+    <Stack.Screen name="Savage" component={Savage} />
+    <Stack.Screen name="Notifications" component={Notifications} />
+    <Stack.Screen name="QuoteMessages" component={quoteMessages} />
   </Stack.Navigator>
 );
 
 /* App Navigation */
 const AppNavigation = () => {
-  const isAuthenticated = false; // Replace with your actual authentication logic
+  const token = useSelector(state => state.auth.token);
+  const dispatch = useDispatch();
+  const {userData} = useSelector(state => state?.user);
+  const {deviceId} = useSelector(state => state?.auth);
+
+  // Check device ID and active devices
+  useEffect(() => {
+    const checkActiveDevice = async () => {
+      try {
+        // Get current device ID based on platform
+        const currentDeviceId =
+          Platform.OS === 'android'
+            ? await DeviceInfo.getAndroidId()
+            : await DeviceInfo.getUniqueId();
+        if (userData?.active_devices && currentDeviceId) {
+          // Check if current device ID exists in active devices
+          const isDeviceActive =
+            userData.active_devices.includes(currentDeviceId);
+
+          // If device is not in active devices, logout user
+          if (!isDeviceActive) {
+            console.log('Device not authorized, logging out...');
+
+            dispatch(logout());
+          }
+        }
+      } catch (error) {
+        console.error('Device check error:', error);
+      }
+    };
+
+    if (userData && token) {
+      checkActiveDevice();
+    }
+  }, [userData, token]);
+
+  // Existing useEffect for subscription check
+  useEffect(() => {
+    if (token) {
+      axiosHeader(token);
+      dispatch(fetchUserRequest(token));
+      if (userData?.email) {
+        dispatch(checkSubscriptionRequest({email: userData.email}));
+      }
+    }
+  }, [token]);
 
   return (
     <NavigationContainer>
-      {isAuthenticated ? <MainStack /> : <AuthStack />}
+      {token ? <MainStack /> : <AuthStack />}
     </NavigationContainer>
   );
 };

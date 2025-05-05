@@ -1,5 +1,5 @@
 import {takeLatest, put, call} from 'redux-saga/effects';
-import {login, register} from '../api'; // Import the APIs
+import {attemptLogin, login, register} from '../api'; // Import the APIs
 import {
   loginRequest,
   loginSuccess,
@@ -8,24 +8,44 @@ import {
   registerSuccess,
   registerFailure,
 } from '../slices/authSlice'; // Import actions from authSlice
+import {checkSubscriptionRequest} from '../slices/subcriptionsSlice';
 
 // Worker saga for login
 function* handleLogin(action) {
   try {
-    const response = yield call(login, action.payload); // Call the login API
-    yield put(loginSuccess(response)); // Dispatch success action with API response
+    // Only call attemptLogin if this is NOT a confirmed attempt
+    if (!action.payload.isConfirmed) {
+      const attemptResponse = yield call(attemptLogin, action.payload);
+
+      if (attemptResponse.requires_confirmation) {
+        yield put(loginSuccess(attemptResponse));
+        return; // Exit early since we're showing confirmation modal
+      }
+    }
+
+    // Proceed with normal login (either no confirmation needed or this is a confirmed attempt)
+    const loginResponse = yield call(login, action.payload);
+
+    yield put(loginSuccess(loginResponse));
+
+    yield put(checkSubscriptionRequest({email: action.payload.email}));
   } catch (error) {
-    yield put(loginFailure(error.message || 'Login failed')); // Dispatch failure action
+    console.log('@error in saga in login', error);
+    yield put(
+      loginFailure(
+        error.response?.data?.message || error.message || 'Login failed',
+      ),
+    );
   }
 }
-
 // Worker saga for register
 function* handleRegister(action) {
   try {
-    const response = yield call(register, action.payload); // Call the register API
-    yield put(registerSuccess(response)); // Dispatch success action with API response
+    const response = yield call(register, action.payload);
+    yield put(registerSuccess(response));
   } catch (error) {
-    yield put(registerFailure(error.message || 'Register failed')); // Dispatch failure action
+    console.log('@EERRR', error);
+    yield put(registerFailure(error.message || 'Registration failed'));
   }
 }
 
