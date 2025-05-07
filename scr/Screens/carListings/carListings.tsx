@@ -26,7 +26,10 @@ import {
 import Banner from '../../Components/Banner';
 import {Fonts} from '../../Helper/Fonts';
 import {toggleFavoriteRequest} from '../../redux/slices/favouriteSlice';
-import {RequestLocationPermission} from '../../Helper/Permisions';
+import {
+  NOTIFICATION_PERMISSION,
+  RequestLocationPermission,
+} from '../../Helper/Permisions';
 import Geolocation from 'react-native-geolocation-service';
 import Toast from 'react-native-simple-toast';
 import {getDistance} from 'geolib'; // Import geolib for distance calculation
@@ -36,6 +39,7 @@ import {axiosHeader} from '../../Services/apiHeader';
 import api from '../../redux/api';
 import Slider from '@react-native-community/slider';
 import {fetchUserRequest} from '../../redux/slices/userDetail';
+import {getMessaging} from '@react-native-firebase/messaging';
 
 // Local images
 const localImages = {
@@ -134,6 +138,20 @@ const Listings = () => {
     }
   };
 
+  useEffect(() => {
+    const checkPermission = async () => {
+      const result = await NOTIFICATION_PERMISSION();
+      if (result !== 'granted') {
+        console.log('object');
+        // Linking.openSettings();
+      } else {
+        const token = await messaging().getToken();
+        console.log('@TOssKEN', token);
+      }
+    };
+
+    checkPermission();
+  }, []);
   const getLocation = async () => {
     const hasLocationPermission = await RequestLocationPermission();
     if (hasLocationPermission === 'granted') {
