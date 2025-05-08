@@ -23,6 +23,7 @@ setup_permissions([
    'LocationAccuracy',
    'LocationAlways',
    'LocationWhenInUse',
+   'Notifications',
  ])
 
 # React Native and framework linkage
@@ -44,7 +45,7 @@ target 'scrap4yourMobile' do
   )
 
   # Include Google Maps
-  pod 'react-native-maps-generated', :path => '../node_modules/react-native-maps'
+  # pod 'react-native-maps-generated', :path => '../node_modules/react-native-maps'
   # Tests target
   target 'scrap4yourMobileTests' do
     inherit! :complete

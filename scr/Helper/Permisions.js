@@ -1,3 +1,4 @@
+import {getMessaging} from '@react-native-firebase/messaging';
 import {Linking, Alert, Platform, PermissionsAndroid} from 'react-native';
 import {PERMISSIONS, request, RESULTS} from 'react-native-permissions';
 
@@ -186,12 +187,8 @@ export const NOTIFICATION_PERMISSION = async () => {
       }
     } else if (Platform.OS === 'ios') {
       // Request notification permission for iOS
-      const authStatus = await messaging().requestPermission();
-      const enabled =
-        authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-        authStatus === messaging.AuthorizationStatus.PROVISIONAL;
-
-      if (enabled) {
+      const authStatus = await getMessaging().requestPermission();
+      if (authStatus == 1) {
         return 'granted';
       } else {
         console.log('Notification permission denied');
@@ -203,9 +200,7 @@ export const NOTIFICATION_PERMISSION = async () => {
     }
   } catch (err) {
     console.warn('Permission request failed', err);
-    Error_Toaster(
-      'An error occurred while requesting notification permissions.',
-    );
+
     return 'error';
   }
 };

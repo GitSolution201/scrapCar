@@ -145,7 +145,7 @@ const Listings = () => {
         console.log('object');
         // Linking.openSettings();
       } else {
-        const token = await messaging().getToken();
+        const token = await getMessaging().getToken();
         console.log('@TOssKEN', token);
       }
     };
