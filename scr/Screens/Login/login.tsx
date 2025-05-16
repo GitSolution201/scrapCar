@@ -25,6 +25,7 @@ import {Fonts} from '../../Helper/Fonts';
 import DeviceInfo from 'react-native-device-info';
 import {checkSubscription} from '../../redux/api';
 import {NOTIFICATION_PERMISSION} from '../../Helper/Permisions';
+import {checkSubscriptionRequest} from '../../redux/slices/subcriptionsSlice';
 
 const Login = ({navigation}: {navigation: any}) => {
   const dispatch = useDispatch();
@@ -60,7 +61,7 @@ const Login = ({navigation}: {navigation: any}) => {
           navigation.replace('MainTabs');
         };
         setupHeaders();
-        dispatch(checkSubscription({email: email}));
+        dispatch(checkSubscriptionRequest({email: email}));
       } else if (loginResponse?.error) {
         setApiError(loginResponse?.error);
       }

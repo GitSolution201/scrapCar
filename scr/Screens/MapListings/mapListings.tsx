@@ -19,11 +19,11 @@ import {Fonts} from '../../Helper/Fonts';
 import {RequestLocationPermission} from '../../Helper/Permisions';
 import Geolocation from 'react-native-geolocation-service';
 import {getDistance} from 'geolib'; // Import geolib for distance calculation
-import { getUserRequest } from '../../redux/slices/carListingsSlice';
+import {getUserRequest} from '../../redux/slices/carListingsSlice';
 
 const MapListings = () => {
-  const navigation = useNavigation(); 
-   const dispatch = useDispatch();
+  const navigation = useNavigation();
+  const dispatch = useDispatch();
   const isFocused = useIsFocused();
   const token = useSelector((state: any) => state.auth?.token);
   const [selectedCar, setSelectedCar] = useState(null);
@@ -33,13 +33,11 @@ const MapListings = () => {
     latitude: null,
     longitude: null,
   });
+  useEffect(() => {}, []);
   useEffect(() => {
-  }, []);
- useEffect(() => {
     if (isFocused) {
       dispatch(getUserRequest(token));
-    getLocation();
-
+      getLocation();
     }
   }, [isFocused]);
 
@@ -96,7 +94,6 @@ const MapListings = () => {
   };
 
   const handleModalContentPress = () => {
-   
     // Navigate to CarDetails when modal content is pressed
     navigation.navigate('CarDeatils', {car: selectedCar});
     setSelectedCar(null); // Close the modal
@@ -115,15 +112,22 @@ const MapListings = () => {
   };
 
   // Update the map region based on the distance
+  // const updateRegion = distance => {
+  //   const delta = distance / 50; // Adjust the delta based on distance
+  //   setRegion({
+  //     ...region,
+  //     latitudeDelta: delta,
+  //     longitudeDelta: delta,
+  //   });
+  // };
   const updateRegion = distance => {
-    const delta = distance / 50; // Adjust the delta based on distance
-    setRegion({
-      ...region,
+    const delta = distance / 50;
+    setRegion(prev => ({
+      ...prev,
       latitudeDelta: delta,
       longitudeDelta: delta,
-    });
+    }));
   };
-
   // Handle slider value change
   const handleSliderComplete = value => {
     setDistance(value);
@@ -140,12 +144,13 @@ const MapListings = () => {
       <View style={styles.sliderContainer} pointerEvents="box-none">
         <Text style={styles.label}>Distance</Text>
         <Text style={styles.distanceText}>
-          {kilometersToMiles(distance).toFixed(0)} miles
+          {Math.min(kilometersToMiles(distance), 100).toFixed(0)} miles
+          {/* {kilometersToMiles(distance).toFixed(0)} miles */}
         </Text>
         <Slider
           style={styles.slider}
           minimumValue={1}
-          maximumValue={80}
+          maximumValue={1000}
           step={1}
           value={distance}
           minimumTrackTintColor="blue"
