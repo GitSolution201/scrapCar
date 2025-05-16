@@ -24,10 +24,11 @@ import {useDispatch, useSelector} from 'react-redux';
 import WebView from 'react-native-webview';
 import {resetQuoteState, sendQuoteRequest} from '../../redux/slices/qouteSlice';
 import Toast from 'react-native-simple-toast';
+import {navigationRef} from '../../navigationRef';
 
 const defaultCarImage = require('../../assets/car2.png');
 
-const Details = ({route, navigation}: {route: any; navigation: any}) => {
+const Details = ({route}: {route: any}) => {
   const dispatch = useDispatch();
   const {car} = route.params;
   const {hasSubscription} = useSelector(
@@ -155,7 +156,7 @@ const Details = ({route, navigation}: {route: any; navigation: any}) => {
         },
         {
           text: 'Subscribe Now',
-          onPress: () => navigation.navigate('Subscriptions'),
+          onPress: () => navigationRef.navigate('Subscriptions'),
           style: 'default',
         },
       ],
@@ -181,7 +182,7 @@ const Details = ({route, navigation}: {route: any; navigation: any}) => {
           styles.container,
           {paddingTop: Platform.OS === 'ios' ? hp(2) : 0},
         ]}>
-        <Header navigation={navigation} showNotification={false} />
+        <Header navigation={navigationRef} showNotification={false} />
         <View style={styles.detailsContainer}>
           <Image
             source={
@@ -193,19 +194,19 @@ const Details = ({route, navigation}: {route: any; navigation: any}) => {
             resizeMode={'contain'}
           />
           <View style={styles.carTagContainer}>
-            <Text style={styles.scrapText}>{car.tag || 'Unknown'}</Text>
+            <Text style={styles.scrapText}>{car?.tag || 'Unknown'}</Text>
           </View>
           <Text style={styles.carTitle}>
-            {car.make || 'Model Not Available'}
+            {car?.make || 'Model Not Available'}
           </Text>
 
           {[
-            ['Registration:', car.registrationNumber],
-            ['Year:', car.yearOfManufacture],
-            ['Postcode:', car.postcode],
-            ['Colour:', car.color],
-            ['Model:', car.model],
-            ['Fuel Type:', car.fuelType],
+            ['Registration:', car?.registrationNumber],
+            ['Year:', car?.yearOfManufacture],
+            ['Postcode:', car?.postcode],
+            ['Colour:', car?.color],
+            ['Model:', car?.model],
+            ['Fuel Type:', car?.fuelType],
           ].map(([label, value], index) => (
             <View key={index} style={styles.infoRow}>
               <Text style={styles.label}>{label}</Text>
@@ -233,7 +234,7 @@ const Details = ({route, navigation}: {route: any; navigation: any}) => {
               </Text>
             </View>
           </View>
-          <Banner navigation={navigation} />
+          <Banner navigation={navigationRef} />
         </View>
 
         <View style={styles.contactContainer}>

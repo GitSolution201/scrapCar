@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import {Image, Platform} from 'react-native';
+import {Image, Linking, Platform} from 'react-native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {NavigationContainer} from '@react-navigation/native';
@@ -23,6 +23,10 @@ import forgotPassword from './Screens/ForgotPassword/forgotPassword';
 import getOTP from './Screens/GetOTP/getOTP';
 import resetPassword from './Screens/ResetPassword/resetPassword';
 import quoteMessages from './Screens/QuoteMessage/quoteMessages';
+import {getMessaging} from '@react-native-firebase/messaging';
+import {DeepLinkingRoute} from './Components/DeepLinkingRoute';
+import Details from './Screens/CarDetails/carDeatils';
+import {navigationRef} from './navigationRef';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -77,16 +81,18 @@ const MainTabs = () => (
 );
 
 /* Main Stack */
-const MainStack = () => (
-  <Stack.Navigator screenOptions={{headerShown: false}}>
-    <Stack.Screen name="MainTabs" component={MainTabs} />
-    <Stack.Screen name="CarDeatils" component={CarDeatils} />
-    <Stack.Screen name="Subscriptions" component={SubscriptionScreen} />
-    <Stack.Screen name="Savage" component={Savage} />
-    <Stack.Screen name="Notifications" component={Notifications} />
-    <Stack.Screen name="QuoteMessages" component={quoteMessages} />
-  </Stack.Navigator>
-);
+const MainStack = () => {
+  return (
+    <Stack.Navigator screenOptions={{headerShown: false}}>
+      <Stack.Screen name="MainTabs" component={MainTabs} />
+      <Stack.Screen name="CarDeatils" component={Details} />
+      <Stack.Screen name="Subscriptions" component={SubscriptionScreen} />
+      <Stack.Screen name="Savage" component={Savage} />
+      <Stack.Screen name="Notifications" component={Notifications} />
+      <Stack.Screen name="QuoteMessages" component={quoteMessages} />
+    </Stack.Navigator>
+  );
+};
 
 /* App Navigation */
 const AppNavigation = () => {
@@ -137,9 +143,79 @@ const AppNavigation = () => {
     }
   }, [token]);
 
+  // const linking = {
+  //   prefixes: ['carscrape://'],
+  //   config: {
+  //     screens: {
+  //       MainStack: {
+  //         screens: {
+  //           CarDeatils: {
+  //             path: 'CarDeatils/:carId',
+  //             parse: {
+  //               carId: id => id,
+  //             },
+  //           },
+  //           MainTabs: {
+  //             screens: {
+  //               CarListings: 'carListings',
+  //               MapListings: 'mapListings',
+  //               Dashboard: 'dashboard',
+  //               Profile: 'profile',
+  //             },
+  //           },
+  //         },
+  //       },
+  //       Notifications: 'notifications',
+  //       Login: 'login',
+  //     },
+  //   },
+  //   async getInitialURL() {
+  //     const url = await Linking.getInitialURL();
+  //     if (typeof url === 'string') {
+  //       console.log('Initial URL:', url);
+  //       return url;
+  //     }
+  //     return null;
+  //   },
+
+  //   subscribe(listener) {
+  //     const onReceiveURL = ({url}) => {
+  //       console.log('URL received:', url);
+  //       listener(url);
+  //     };
+
+  //     const linkingSubscription = Linking.addEventListener('url', onReceiveURL);
+
+  //     const unsubscribe = getMessaging().onNotificationOpenedApp(
+  //       remoteMessage => {
+  //         console.log('Notification clicked:', remoteMessage);
+  //         const url = DeepLinkingRoute(remoteMessage);
+  //         if (url === 'blockaccount') {
+  //           console.log('Logout user');
+  //           dispatch(logout());
+  //         } else if (typeof url === 'string') {
+  //           console.log('Opening URL:', url);
+  //           listener(url);
+  //         }
+  //       },
+  //     );
+
+  //     return () => {
+  //       linkingSubscription.remove();
+  //       unsubscribe();
+  //     };
+  //   },
+  // };
+
   return (
-    <NavigationContainer>
-      {token ? <MainStack /> : <AuthStack />}
+    <NavigationContainer ref={navigationRef}>
+      <Stack.Navigator screenOptions={{headerShown: false}}>
+        {token ? (
+          <Stack.Screen name="MainStack" component={MainStack} />
+        ) : (
+          <Stack.Screen name="AuthStack" component={AuthStack} />
+        )}
+      </Stack.Navigator>
     </NavigationContainer>
   );
 };
