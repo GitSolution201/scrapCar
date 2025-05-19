@@ -86,28 +86,39 @@ export default function App() {
   } | null>(null);
 
   useEffect(() => {
-    const token = getMessaging().getToken();
-    console.log('KKKK', token);
-    const unsubscribe = getMessaging().onMessage(async remoteMessage => {
-      console.log('Foreground Notification:', remoteMessage);
+    let unsubscribeFn = () => {};
 
-      setNotificationData({
-        title: remoteMessage.notification?.title || 'Notification',
-        body: remoteMessage.notification?.body || '',
-        onPress: () => {
-          const id = remoteMessage?.data?.id;
-          if (navigationRef.isReady() && id) {
-            navigationRef.navigate('MainStack', {
-              screen: 'CarListings',
-              // params: {carId: id},
-            });
-          }
-          setNotificationData(null);
-        },
+    const fetchTokenAndSetupListener = async () => {
+      const token = await getMessaging().getToken();
+      console.log('KKKK', token);
+
+      const unsubscribe = getMessaging().onMessage(async remoteMessage => {
+        console.log('Foreground Notification:', remoteMessage);
+
+        setNotificationData({
+          title: remoteMessage.notification?.title || 'Notification',
+          body: remoteMessage.notification?.body || '',
+          onPress: () => {
+            const id = remoteMessage?.data?.id;
+            if (navigationRef.isReady() && id) {
+              navigationRef.navigate('MainStack', {
+                screen: 'CarListings',
+              });
+            }
+            setNotificationData(null);
+          },
+        });
       });
-    });
 
-    return unsubscribe;
+      // Assign to outer variable for cleanup
+      unsubscribeFn = unsubscribe;
+    };
+
+    fetchTokenAndSetupListener();
+
+    return () => {
+      unsubscribeFn?.();
+    };
   }, []);
 
   useNotifications();

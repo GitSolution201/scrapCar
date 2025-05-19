@@ -1,5 +1,5 @@
 import {useEffect, useState} from 'react';
-import messaging from '@react-native-firebase/messaging';
+import messaging, {getMessaging} from '@react-native-firebase/messaging';
 import {PermissionsAndroid, Platform, Alert} from 'react-native';
 import {Linking} from 'react-native';
 import {DeepLinkingRoute} from '../Components/DeepLinkingRoute';
@@ -15,23 +15,21 @@ const useNotifications = () => {
     try {
       // iOS Permission
       if (Platform.OS === 'ios') {
-        const authStatus = await messaging().requestPermission();
+        const authStatus = await getMessaging().requestPermission();
         const enabled =
           authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
           authStatus === messaging.AuthorizationStatus.PROVISIONAL;
-
         if (!enabled) {
           console.log('User declined notification permissions');
           return false;
         }
 
         // Get APNs token (only works on real device)
-        const apnsToken = await messaging().getAPNSToken();
+        const apnsToken = await getMessaging().getAPNSToken();
         if (apnsToken) {
           setApnsToken(apnsToken);
-          console.log('APNs Token:', apnsToken);
           if (__DEV__) {
-            await messaging().setAPNSToken(apnsToken, 'sandbox');
+            await getMessaging().setAPNSToken(apnsToken, 'sandbox');
           }
         }
       }
@@ -54,7 +52,7 @@ const useNotifications = () => {
   // 2. Get FCM Token
   const getFCMToken = async () => {
     try {
-      const token = await messaging().getToken();
+      const token = await getMessaging().getToken();
       setFcmToken(token);
       console.log('FCM Token:', token);
 
@@ -83,20 +81,22 @@ const useNotifications = () => {
   // 3. Notification handlers
   const setupNotificationHandlers = () => {
     // Foreground messages
-    const unsubscribeForeground = messaging().onMessage(async remoteMessage => {
-      console.log('Foreground Notification:', remoteMessage);
-      setNotification(remoteMessage);
-      // showAlert(remoteMessage);
-    });
+    const unsubscribeForeground = getMessaging().onMessage(
+      async remoteMessage => {
+        console.log('Foreground Notification:', remoteMessage);
+        setNotification(remoteMessage);
+        // showAlert(remoteMessage);
+      },
+    );
 
     // Background/Quit state messages
-    messaging().setBackgroundMessageHandler(async remoteMessage => {
+    getMessaging().setBackgroundMessageHandler(async remoteMessage => {
       console.log('Background Notification:', remoteMessage);
       setNotification(remoteMessage);
     });
 
     // Notification opened from quit state
-    messaging()
+    getMessaging()
       .getInitialNotification()
       .then(remoteMessage => {
         if (remoteMessage) {
@@ -107,7 +107,7 @@ const useNotifications = () => {
       });
 
     // Notification opened in background
-    const unsubscribeBackground = messaging().onNotificationOpenedApp(
+    const unsubscribeBackground = getMessaging().onNotificationOpenedApp(
       remoteMessage => {
         console.log('Notification clicked:', remoteMessage);
         setNotification(remoteMessage);
@@ -116,7 +116,7 @@ const useNotifications = () => {
     );
 
     // Token refresh
-    const unsubscribeTokenRefresh = messaging().onTokenRefresh(token => {
+    const unsubscribeTokenRefresh = getMessaging().onTokenRefresh(token => {
       console.log('FCM Token refreshed:', token);
       setFcmToken(token);
       registerTokenWithBackend(token);
@@ -146,17 +146,15 @@ const useNotifications = () => {
     console.log('Navigate based on:', remoteMessage.data);
     if (!remoteMessage?.data) return;
 
-    const {id} = remoteMessage.data;
     // const url = DeepLinkingRoute(remoteMessage);
 
     // if (url === 'blockaccount') {
     //   return;
     // }
 
-    if (navigationRef.isReady() && id) {
+    if (navigationRef.isReady()) {
       navigationRef.navigate('MainStack', {
         screen: 'CarListings',
-        params: {carId: id},
       });
     }
   };
