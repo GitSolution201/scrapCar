@@ -26,6 +26,7 @@ import DeviceInfo from 'react-native-device-info';
 import {checkSubscription} from '../../redux/api';
 import {NOTIFICATION_PERMISSION} from '../../Helper/Permisions';
 import {checkSubscriptionRequest} from '../../redux/slices/subcriptionsSlice';
+import {getMessaging} from '@react-native-firebase/messaging';
 
 const Login = ({navigation}: {navigation: any}) => {
   const dispatch = useDispatch();
@@ -58,7 +59,7 @@ const Login = ({navigation}: {navigation: any}) => {
         const setupHeaders = async () => {
           await axiosHeader(token);
           Toast.show(loginResponse?.message, Toast.LONG);
-          navigation.replace('MainTabs');
+          navigation.replace('MainStack');
         };
         setupHeaders();
         dispatch(checkSubscriptionRequest({email: email}));
@@ -104,12 +105,15 @@ const Login = ({navigation}: {navigation: any}) => {
     setShowConfirmationModal(false);
     try {
       const deviceId = await DeviceInfo.getUniqueId();
+      const token = await getMessaging().getToken();
+      console.log('KKKK', token);
       // Dispatch loginRequest with a flag indicating this is a confirmed attempt
       dispatch(
         loginRequest({
           email,
           password,
           deviceId,
+          token,
           // isConfirmed: true,
         }),
       );
@@ -134,11 +138,14 @@ const Login = ({navigation}: {navigation: any}) => {
     if (validateForm()) {
       setApiError('');
       const deviceId = await DeviceInfo.getUniqueId();
+      const token = await getMessaging().getToken();
+      console.log('KKKK', token);
       dispatch(
         loginRequest({
           email,
           password,
           deviceId,
+          token,
         }),
       );
     }

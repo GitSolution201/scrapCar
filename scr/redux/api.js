@@ -27,9 +27,10 @@ export const login = async userData => {
         email: userData.email,
         password: userData.password,
         deviceId: userData.deviceId,
+        fcm_token: userData?.token,
       }),
     );
-
+    console.log('#@@##RESPONCE', response?.data);
     if (response.data?.message === 'Login successful') {
       return response.data;
     } else {
