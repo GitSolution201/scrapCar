@@ -28,6 +28,7 @@ import {updateViewCountRequest} from '../../redux/slices/viewCount';
 import api from '../../redux/api';
 import Slider from '@react-native-community/slider';
 import {fetchUserRequest} from '../../redux/slices/userDetail';
+import axios, {AxiosError} from 'axios';
 
 const Listings = () => {
   const navigation = useNavigation();
@@ -128,7 +129,7 @@ const Listings = () => {
       );
     }
   };
-  const handleFilterPress = filter => {
+  const handleFilterPress = (filter: any) => {
     if (filter === 'Saved') {
       navigation.navigate('Savage');
     } else {
@@ -140,14 +141,46 @@ const Listings = () => {
     }
   };
 
-  const handleLocationSelect = location => {
+  const handleLocationSelect = (location: any) => {
+    const numericDistance = parseFloat(location);
+    saveAgentLocation(numericDistance);
     setSelectedLocation(location);
     setIsLocationModalVisible(false);
+  };
+  const saveAgentLocation = async (distanceFilter: number | null) => {
+    const body = {
+      latitude: currentLocation?.latitude || '0.0',
+      longitude: currentLocation?.longitude || '0.0',
+      distance_filter: distanceFilter,
+    };
+
+    try {
+      const response = await api.put('/auth/save-agent-location', body, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response?.status === 200) {
+        Toast.show('Location updated successfully', Toast.LONG);
+        return response.data;
+      }
+    } catch (error) {
+      const err = error as AxiosError<any>;
+      console.log(
+        'Update User Profile Error:',
+        err.response?.data || err.message,
+      );
+      throw new Error(
+        err.response?.data?.message || 'Failed to update user profile',
+      );
+    }
   };
 
   const resetFilter = () => {
     setSelectedLocation(null); // Reset the selected location filter
     setIsLocationModalVisible(false);
+    saveAgentLocation(null); // 👈 send null when "None" is pressed
   };
 
   const calculateDistance = (lat1, lon1, lat2, lon2) => {
@@ -209,7 +242,7 @@ const Listings = () => {
       Toast.show(`${item.make} added to Favorites`);
     }
   };
-  const handleCarDetailsNavigation = car => {
+  const handleCarDetailsNavigation = (car: any) => {
     dispatch(updateViewCountRequest({carId: car._id, token}));
     navigation.navigate('CarDeatils', {car});
   };
@@ -445,7 +478,7 @@ const Listings = () => {
             ))}
             {/* Reset Filter Button */}
             <TouchableOpacity style={styles.resetButton} onPress={resetFilter}>
-              <Text style={styles.resetButtonText}>Reset Filter</Text>
+              <Text style={styles.resetButtonText}>None</Text>
             </TouchableOpacity>
           </View>
         </TouchableOpacity>
