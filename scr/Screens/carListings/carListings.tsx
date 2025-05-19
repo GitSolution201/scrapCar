@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -7,7 +7,6 @@ import {
   StyleSheet,
   Image,
   ActivityIndicator,
-  TextInput,
   Modal,
   SafeAreaView,
   Platform,
@@ -16,42 +15,25 @@ import {
 } from 'react-native';
 import Colors from '../../Helper/Colors';
 import {useDispatch, useSelector} from 'react-redux';
-import {getUserRequest} from '../../redux/slices/carListingsSlice';
 import {hp, wp} from '../../Helper/Responsive';
-import {
-  useFocusEffect,
-  useIsFocused,
-  useNavigation,
-} from '@react-navigation/native';
+import {useIsFocused, useNavigation} from '@react-navigation/native';
 import Banner from '../../Components/Banner';
 import {Fonts} from '../../Helper/Fonts';
 import {toggleFavoriteRequest} from '../../redux/slices/favouriteSlice';
 import {RequestLocationPermission} from '../../Helper/Permisions';
 import Geolocation from 'react-native-geolocation-service';
 import Toast from 'react-native-simple-toast';
-import {getDistance} from 'geolib'; // Import geolib for distance calculation
-import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
+import {getDistance} from 'geolib';
 import {updateViewCountRequest} from '../../redux/slices/viewCount';
-import {axiosHeader} from '../../Services/apiHeader';
 import api from '../../redux/api';
 import Slider from '@react-native-community/slider';
 import {fetchUserRequest} from '../../redux/slices/userDetail';
-
-// Local images
-const localImages = {
-  car1: require('../../assets/car.png'),
-  car2: require('../../assets/car2.png'),
-};
 
 const Listings = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const isFocused = useIsFocused();
   const token = useSelector((state: any) => state.auth?.token);
-  const subscriptionData = useSelector(
-    state => state?.subscription?.subscriptionData,
-  );
-  // const {loading, error, carListings} = useSelector((state: any) => state.carListings);
   const [loading, setLoading] = useState(false); // Loading state
   const [error, setError] = useState(null); // Error state
   const [carListings, setCarListings] = useState([]); // Data state
@@ -63,11 +45,8 @@ const Listings = () => {
     latitude: null,
     longitude: null,
   });
-  // const [distance, setDistance] = useState(5); // Distance in kilometers
   const [distance, setDistance] = useState(null); // Start with null (no filtering)
   const [activeDistanceFilter, setActiveDistanceFilter] = useState(null); // Tracks if user is fil
-  const [adress, setAddress] = useState('');
-  const [location, setLocation] = useState('');
   const locationOptions = [
     '5 miles',
     '10 miles',
@@ -417,7 +396,7 @@ const Listings = () => {
             minimumValue={1}
             maximumValue={80}
             step={1}
-            value={distance || 10} // Show 10 miles as default visual
+            value={distance || 10}
             onValueChange={handleSliderChange}
             onSlidingComplete={handleSliderComplete}
             minimumTrackTintColor="blue"
@@ -426,19 +405,7 @@ const Listings = () => {
             // onSlidingComplete={handleSliderComplete}
           />
         </View>
-        {/* <View style={styles.searchContainer}>
-          <Image
-            source={require('../../assets/search.png')}
-            style={styles.searchIcon}
-          />
-          <TextInput
-            style={styles.searchBar}
-            placeholder="Search by location..."
-            placeholderTextColor={Colors.textGray}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-          />
-        </View> */}
+
         <TouchableOpacity onPress={() => setIsLocationModalVisible(true)}>
           <Image
             source={require('../../assets/location.png')}
@@ -537,7 +504,7 @@ const styles = StyleSheet.create({
         marginTop: 20,
       },
       ios: {
-        margin: 20, // Apply margin to all sides for iOS
+        margin: 20,
       },
     }),
     backgroundColor: Colors.gray,
@@ -641,35 +608,7 @@ const styles = StyleSheet.create({
     marginBottom: hp(3.5),
     position: 'relative',
   },
-  purchasedContainer: {
-    position: 'absolute',
-    top: hp(15),
-    left: wp(2),
-    right: wp(2),
-    zIndex: 2,
-    backgroundColor: Colors.white,
-    paddingVertical: hp(6.8),
-    borderTopLeftRadius: wp(4),
-    borderTopRightRadius: wp(4),
-    borderBottomLeftRadius: wp(4),
-    borderBottomRightRadius: wp(4),
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  purchasedText: {
-    color: Colors.black,
-    fontSize: wp(4),
-    fontFamily: Fonts.bold,
-    letterSpacing: 1,
-  },
+
   listingCard: {
     backgroundColor: Colors.white,
     borderRadius: wp(4),
@@ -685,13 +624,7 @@ const styles = StyleSheet.create({
     elevation: 3,
     overflow: 'hidden',
   },
-  listingCardBlurred: {
-    opacity: 0.7,
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-  },
-  blurredContent: {
-    opacity: 0.7,
-  },
+
   heartIconContainer: {
     position: 'absolute',
     top: hp(2),
