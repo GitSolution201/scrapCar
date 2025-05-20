@@ -27,6 +27,7 @@ import CountryPicker from 'react-native-country-picker-modal';
 import {useIsFocused, useNavigation} from '@react-navigation/native';
 import Header from '../../Components/Header';
 import {Fonts} from '../../Helper/Fonts';
+import {navigationRef} from '../../navigationRef';
 
 const Profile = () => {
   const navigation = useNavigation();
@@ -139,6 +140,7 @@ const Profile = () => {
   const handleLogout = () => {
     setModalVisible(false);
     dispatch(logout());
+    navigationRef.current.navigate('AuthStack');
     Toast.show('You have been logged out successfully.', Toast.LONG);
   };
 

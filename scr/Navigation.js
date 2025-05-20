@@ -27,6 +27,7 @@ import {getMessaging} from '@react-native-firebase/messaging';
 import {DeepLinkingRoute} from './Components/DeepLinkingRoute';
 import Details from './Screens/CarDetails/carDeatils';
 import {navigationRef} from './navigationRef';
+import Splash from './Screens/Splash/splash';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -209,12 +210,12 @@ const AppNavigation = () => {
 
   return (
     <NavigationContainer ref={navigationRef}>
-      <Stack.Navigator screenOptions={{headerShown: false}}>
-        {token ? (
-          <Stack.Screen name="MainStack" component={MainStack} />
-        ) : (
-          <Stack.Screen name="AuthStack" component={AuthStack} />
-        )}
+      <Stack.Navigator
+        screenOptions={{headerShown: false}}
+        initialRouteName="Splash">
+        <Stack.Screen name="Splash" component={Splash} />
+        <Stack.Screen name="MainStack" component={MainStack} />
+        <Stack.Screen name="AuthStack" component={AuthStack} />
       </Stack.Navigator>
     </NavigationContainer>
   );
