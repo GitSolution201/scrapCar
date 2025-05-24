@@ -32,7 +32,7 @@ const Details = ({route}: {route: any}) => {
   const dispatch = useDispatch();
   const {car} = route.params;
   const {hasSubscription} = useSelector(
-    state => state?.subscription?.subscriptionData,
+    (state: any) => state?.subscription?.subscriptionData,
   );
   const {userData} = useSelector((state: any) => state.user);
   const token = useSelector((state: any) => state.auth?.token);
@@ -164,7 +164,7 @@ const Details = ({route}: {route: any}) => {
     );
   };
 
-  const formatDate = dateString => {
+  const formatDate = (dateString: any) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-GB', {
       day: '2-digit',
@@ -180,7 +180,7 @@ const Details = ({route}: {route: any}) => {
       <ScrollView
         style={[
           styles.container,
-          {paddingTop: Platform.OS === 'ios' ? hp(2) : 0},
+          {paddingTop: Platform.OS === 'ios' ? hp(5) : 0},
         ]}>
         <Header navigation={navigationRef} showNotification={false} />
         <View style={styles.detailsContainer}>
@@ -359,7 +359,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: wp(5),
-    // margin: Platform.OS === 'ios' ? 20 : 5,
     backgroundColor: Colors.gray,
   },
   detailsContainer: {
@@ -429,7 +428,6 @@ const styles = StyleSheet.create({
   motImage: {
     width: wp(6),
     height: wp(6),
-    // tintColor: '#3A5179',
     resizeMode: 'contain',
   },
   textContainer: {
@@ -544,11 +542,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: hp(2),
-    gap: wp(3), // use if RN version supports it
+    gap: wp(3),
   },
 
   amountInputCompact: {
-    width: wp(40), // 👈 Thoda aur chhota kar diya
+    width: wp(40),
     borderWidth: 1,
     borderColor: Colors.lightGray,
     borderRadius: wp(3),
@@ -560,7 +558,6 @@ const styles = StyleSheet.create({
   },
 
   bidButton: {
-    // backgroundColor: Colors.primary,
     borderColor: Colors.primary,
     borderWidth: wp(0.2),
     paddingVertical: hp(1.5),
