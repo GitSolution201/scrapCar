@@ -33,6 +33,7 @@ import {
   isGooglePaySupported,
   confirmPlatformPayPayment,
   confirmPayment,
+  confirmPlatformPaySetupIntent,
 } from '@stripe/stripe-react-native';
 
 import {useDispatch, useSelector} from 'react-redux';
@@ -308,7 +309,10 @@ const SubscriptionScreen = () => {
 
     const {publishedKey, merchantIdentifier, urlScheme} = await response.json();
     setPublishedKey(publishedKey);
-    setMerchantIdentifier(merchantIdentifier);
+    console.log('====================================');
+    console.log(merchantIdentifier);
+    console.log('====================================');
+    setMerchantIdentifier('merchant.com.carscrap');
     setUrlScheme('https://scrape4you.onrender.com');
   };
   useEffect(() => {
@@ -448,72 +452,142 @@ const SubscriptionScreen = () => {
         return null;
     }
   };
-  const handleApplePay = async () => {
-    try {
-      if (selectedActiveSubscription) {
-        Alert.alert('Error', 'This subscription is already active');
-        return;
-      }
-      const amount =
-        products.find(p => p.id === subscriptionSelected)?.price || 0;
-      const response = await axios.post(
-        'https://scrape4you.onrender.com/stripe/create-customer-and-subscription',
-        {
-          email: email,
-          priceId: subscriptionSelected,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        },
-      );
-      // Successful response (status 2xx)
+  // const handleApplePay = async () => {
+  //   if (selectedActiveSubscription) {
+  //     Alert.alert('Error', 'This subscription is already active');
+  //     return;
+  //   }
+  //   const amount =
+  //     products.find(p => p.id === subscriptionSelected)?.price || 0;
+  //   const response = await axios.post(
+  //     'https://scrape4you.onrender.com/stripe/create-customer-and-subscription',
+  //     {
+  //       email: email,
+  //       priceId: subscriptionSelected,
+  //     },
+  //     {
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //         'Content-Type': 'application/json',
+  //       },
+  //     },
+  //   );
+  //   // Successful response (status 2xx)
+  //   console.log('====================================');
+  //   console.log(response.data);
+  //   console.log('====================================');
 
-      const {error, paymentIntent} = await confirmPlatformPayPayment(
-        response.data.clientSecret,
-        {
-          applePay: {
-            cartItems: [
-              {
-                label: 'Total',
-                amount: amount * 100,
-                // amount: '180', // Pence for GBP
-                paymentType: PlatformPay.PaymentType.Immediate,
-              },
-            ],
-            currencyCode: 'GBP',
-            merchantCountryCode: 'US',
-          },
-        },
-      );
+  //   try {
+  //     const {error, paymentIntent} = await confirmPlatformPayPayment(
+  //       response.data.clientSecret,
+  //       {
+  //         applePay: {
+  //           cartItems: [
+  //             {
+  //               label: 'Total',
+  //               amount: amount, // This should already be in correct currency format (in pence for GBP)
+  //               paymentType: PlatformPay.PaymentType.Immediate,
+  //             },
+  //           ],
+  //           currencyCode: 'GBP',
+  //           merchantCountryCode: 'GBP', // 'US' is incorrect for GBP
+  //         },
+  //       },
+  //     );
 
-      navigation.goBack();
-      return response.data;
-    } catch (error) {
-      // Axios error handling
-      if (error.response) {
-        // Server responded with error status (4xx/5xx)
-        console.error(
-          'Server error:',
-          error.response.status,
-          error.response.data,
-        );
-        throw new Error(error.response.data.message || 'Subscription failed');
-      } else if (error.request) {
-        // Request was made but no response received
-        console.error('Network error:', error.request);
-        throw new Error('Network error - no server response');
-      } else {
-        // Setup error
-        console.error('Request setup error:', error.message);
-        throw new Error('Failed to create subscription request');
-      }
-    }
-  };
+  //     console.log('Apple Pay Result:', {error, paymentIntent});
+
+  //     if (error) {
+  //       Alert.alert('Payment failed', error.message);
+  //       return;
+  //     }
+
+  //     if (
+  //       paymentIntent?.status === 'Succeeded' ||
+  //       paymentIntent?.status === 'succeeded'
+  //     ) {
+  //       Alert.alert('Success', 'Payment completed successfully!');
+  //     } else {
+  //       Alert.alert('Info', `Payment status: ${paymentIntent?.status}`);
+  //     }
+
+  //     navigation.goBack();
+  //     return response.data;
+  //   } catch (err) {
+  //     console.log('Apple Pay Error:', err);
+  //     Alert.alert('Error', 'Something went wrong during Apple Pay');
+  //   }
+
+  //   navigation.goBack();
+  //   return response.data;
+  // };
   // };
 
+  const fetchPaymentIntentClientSecret = async () => {
+    if (selectedActiveSubscription) {
+      Alert.alert('Error', 'This subscription is already active');
+      return;
+    }
+    const amount =
+      products.find(p => p.id === subscriptionSelected)?.price || 0;
+    const response = await axios.post(
+      'https://scrape4you.onrender.com/stripe/create-customer-and-subscription',
+      {
+        email: email,
+        priceId: subscriptionSelected,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      },
+    );
+    return response.data.clientSecret;
+    // Successful response (status 2xx)
+  };
+  const handleApplePay = async () => {
+    const amount =
+      products.find(p => p.id === subscriptionSelected)?.price || 0;
+    console.log('====================================');
+    console.log(amount);
+    console.log('====================================');
+    const clientSecret = await fetchPaymentIntentClientSecret();
+    const {error} = await confirmPlatformPayPayment(clientSecret, {
+      applePay: {
+        cartItems: [
+          {
+            label: 'Example item name',
+            amount: JSON.stringify(amount),
+            paymentType: PlatformPay.PaymentType.Immediate,
+          },
+        ],
+        merchantCountryCode: 'GB',
+        currencyCode: 'GBP',
+        requiredShippingAddressFields: [PlatformPay.ContactField.PostalAddress],
+        requiredBillingContactFields: [PlatformPay.ContactField.PhoneNumber],
+      },
+    });
+    if (error) {
+      // handle error
+    } else {
+      Alert.alert(
+        'Congratulations! 🎉',
+        'Your subscription has been successfully activated. Welcome to our premium services. You now have access to all features.',
+        [
+          {
+            text: 'Continue',
+            onPress: () => {
+              dispatch(checkSubscriptionRequest({email: userData.email})),
+                navigation.goBack();
+            },
+          },
+        ],
+        {cancelable: false},
+      );
+      console.log(JSON.stringify(paymentIntent, null, 2));
+    }
+  };
   const renderPaymentButton = () => {
     if (!isPlatformPayAvailable) return null;
 
@@ -555,7 +629,7 @@ const SubscriptionScreen = () => {
   return (
     <StripeProvider
       publishableKey={publishableKey}
-      merchantIdentifier="merchant.com.carscrap">
+      merchantIdentifier={merchantIdentifier}>
       <SafeAreaView style={styles.container}>
         <SubcriptionsHeader
           navigation={navigation}
