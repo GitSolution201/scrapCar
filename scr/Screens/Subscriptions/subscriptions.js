@@ -111,7 +111,9 @@ const SubscriptionScreen = () => {
     },
   ]);
   const [loading, setLoading] = useState(false);
-  const [merchantIdentifier, setMerchantIdentifier] = useState('');
+  const [merchantIdentifier, setMerchantIdentifier] = useState(
+    'merchant.com.carscrap',
+  );
 
   const {
     loading: userLoading,
@@ -155,9 +157,12 @@ const SubscriptionScreen = () => {
   };
   useEffect(() => {
     const initializeApplePay = async () => {
-      if (Platform.OS === 'ios') {
+      if (Platform.OS == 'ios') {
         try {
           const supported = await isPlatformPaySupported();
+          console.log('====================================');
+          console.log(supported);
+          console.log('====================================');
           setIsApplePaySupported(supported);
         } catch (error) {
           console.log('Apple Pay support check error:', error);
@@ -549,10 +554,11 @@ const SubscriptionScreen = () => {
   const handleApplePay = async () => {
     const amount =
       products.find(p => p.id === subscriptionSelected)?.price || 0;
-    console.log('====================================');
-    console.log(amount);
-    console.log('====================================');
     const clientSecret = await fetchPaymentIntentClientSecret();
+    console.log('====================================');
+    console.log(clientSecret);
+    console.log('====================================');
+
     const {error} = await confirmPlatformPayPayment(clientSecret, {
       applePay: {
         cartItems: [
@@ -570,6 +576,9 @@ const SubscriptionScreen = () => {
     });
     if (error) {
       // handle error
+      console.log('====================================');
+      console.log(error);
+      console.log('====================================');
     } else {
       Alert.alert(
         'Congratulations! 🎉',
