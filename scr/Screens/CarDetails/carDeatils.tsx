@@ -55,6 +55,10 @@ const Details = ({route}: {route: any}) => {
     }
   }, [qoute?.success]);
   const handleSendQoute = () => {
+    if (!hasSubscription) {
+      showSubscriptionAlert();
+      return;
+    }
     let hasError = false;
     let newErrors = {messageError: '', amountError: ''};
 

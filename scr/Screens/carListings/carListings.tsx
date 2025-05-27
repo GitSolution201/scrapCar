@@ -402,10 +402,15 @@ const Listings = () => {
     setActiveDistanceFilter(true); // User is actively filtering
   };
 
-  const handleSliderComplete = () => {
-    if (distance === null) {
-      setActiveDistanceFilter(false); // Reset if user slides to minimum
-    }
+  const handleSliderComplete = (value: any) => {
+    // if (distance === null) {
+    setDistance(value);
+
+    setActiveDistanceFilter(false); // Reset if user slides to minimum
+    // }
+  };
+  const kilometersToMiles = km => {
+    return km * 0.621371;
   };
   return (
     <SafeAreaView style={styles.container}>
@@ -421,13 +426,14 @@ const Listings = () => {
       <View style={styles.locationContainer}>
         <View style={styles.sliderContainer} pointerEvents="box-none">
           <Text style={styles.distanceText}>
-            {/* {kilometersToMiles(distance).toFixed(0)} miles */}
-            {distance || 10} miles
+            {Math.min(kilometersToMiles(distance || 10), 100).toFixed(0)} miles
+            {/* {Math.min(kilometersToMiles(distance), 100).toFixed(0)} miles */}
+            {/* {distance || 10} miles */}
           </Text>
           <Slider
             style={styles.slider}
             minimumValue={1}
-            maximumValue={80}
+            maximumValue={1000}
             step={1}
             value={distance || 10}
             onValueChange={handleSliderChange}
@@ -478,7 +484,7 @@ const Listings = () => {
             ))}
             {/* Reset Filter Button */}
             <TouchableOpacity style={styles.resetButton} onPress={resetFilter}>
-              <Text style={styles.resetButtonText}>None</Text>
+              <Text style={styles.resetButtonText}>Reset Filtertr</Text>
             </TouchableOpacity>
           </View>
         </TouchableOpacity>
