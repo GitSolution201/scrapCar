@@ -6,6 +6,8 @@ const {getDefaultConfig, mergeConfig} = require('@react-native/metro-config');
  *
  * @type {import('metro-config').MetroConfig}
  */
-const config = {};
+const defaultConfig = getDefaultConfig(__dirname);
 
-module.exports = mergeConfig(getDefaultConfig(__dirname), config);
+defaultConfig.resolver.assetExts.push('mp3');
+
+module.exports = mergeConfig(defaultConfig, {});
