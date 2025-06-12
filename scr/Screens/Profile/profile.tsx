@@ -28,6 +28,7 @@ import {useIsFocused, useNavigation} from '@react-navigation/native';
 import Header from '../../Components/Header';
 import {Fonts} from '../../Helper/Fonts';
 import {navigationRef} from '../../navigationRef';
+import axios from 'axios';
 
 const Profile = () => {
   const navigation = useNavigation();
@@ -54,6 +55,8 @@ const Profile = () => {
   const [countryCode, setCountryCode] = useState('GB');
   const [callingCode, setCallingCode] = useState('44');
   const [visible, setVisible] = useState(false);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+
   useEffect(() => {
     if (isFocused) {
       dispatch(fetchUserRequest(token));
@@ -140,8 +143,34 @@ const Profile = () => {
   const handleLogout = () => {
     setModalVisible(false);
     dispatch(logout());
-    navigationRef.current.navigate('AuthStack');
+    navigationRef.current?.reset({
+      index: 0,
+      routes: [{name: 'AuthStack'}],
+    });
     Toast.show('You have been logged out successfully.', Toast.LONG);
+  };
+
+  const deleteProfile = async () => {
+    try {
+      const response = await axios.delete(
+        `https://scrape4you.onrender.com/auth/delete-agent/${userData?.userId}`,
+      );
+      if (response.status === 200) {
+        setDeleteModalVisible(false);
+        dispatch(logout());
+        navigationRef.current?.reset({
+          index: 0,
+          routes: [{name: 'AuthStack'}],
+        });
+        // navigationRef.current.navigate('AuthStack');
+        Toast.show('Profile deleted successfully', Toast.LONG);
+      } else {
+        Toast.show('Failed to delete profile', Toast.LONG);
+      }
+    } catch (error) {
+      console.log('Delete error:', error);
+      Toast.show('Something went wrong while deleting profile', Toast.LONG);
+    }
   };
 
   if (userLoading || updateLoading) {
@@ -274,6 +303,44 @@ const Profile = () => {
         </View>
 
         {/* Save Button */}
+        <TouchableOpacity
+          style={styles.deleteButton}
+          onPress={() => setDeleteModalVisible(true)}>
+          <Text style={styles.deleteButtonText}>Delete Profile</Text>
+        </TouchableOpacity>
+
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={deleteModalVisible}
+          onRequestClose={() => setDeleteModalVisible(false)}>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTopText}>Confirm Deletion</Text>
+              <Text style={styles.modalText}>
+                Are you sure you want to delete your profile?
+              </Text>
+              <View style={styles.buttonRow}>
+                <Pressable
+                  style={[styles.button, styles.cancelButton]}
+                  onPress={() => setDeleteModalVisible(false)}>
+                  <Text style={[styles.buttonText, styles.cancelButtonText]}>
+                    No, Cancel
+                  </Text>
+                </Pressable>
+                <Pressable
+                  style={[styles.button, styles.confirmDeleteButton]}
+                  onPress={() => {
+                    deleteProfile();
+                  }}>
+                  <Text style={styles.confirmDeleteButtonText}>
+                    Yes, Delete
+                  </Text>
+                </Pressable>
+              </View>
+            </View>
+          </View>
+        </Modal>
 
         <TouchableOpacity
           style={styles.logout}
@@ -446,7 +513,7 @@ const styles = StyleSheet.create({
   },
   saveButton: {
     backgroundColor: '#007BFF',
-    padding: wp(3),
+    // padding: wp(3),
     borderRadius: 8,
     marginTop: wp(4),
     alignItems: 'center',
@@ -466,6 +533,7 @@ const styles = StyleSheet.create({
   saveButtonText: {
     color: '#FFF',
     fontSize: 16,
+    padding: wp(3),
     fontFamily: Fonts.bold,
   },
 
@@ -501,7 +569,7 @@ const styles = StyleSheet.create({
   buttonRow: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 10,
+    marginTop: wp(4),
     width: '100%',
     borderTopWidth: 1,
     borderColor: '#D3D3D3',
@@ -546,6 +614,30 @@ const styles = StyleSheet.create({
     color: '#000000AB',
     paddingBottom: hp(1),
     fontFamily: Fonts.semiBold,
+  },
+  deleteButton: {
+    backgroundColor: '#fff',
+    padding: wp(3),
+    borderRadius: 8,
+    borderWidth: 1,
+    marginTop: wp(-2),
+    marginBottom: wp(3),
+    borderColor: '#FF3B30',
+    alignItems: 'center',
+  },
+  deleteButtonText: {
+    fontSize: 14,
+    color: '#FF3B30',
+    fontFamily: Fonts.semiBold,
+  },
+
+  confirmDeleteButton: {
+    borderRadius: 5,
+    marginLeft: 5,
+  },
+  confirmDeleteButtonText: {
+    color: '#FF3B30',
+    fontFamily: Fonts.bold,
   },
 });
 

@@ -106,7 +106,6 @@ const Login = ({navigation}: {navigation: any}) => {
     try {
       const deviceId = await DeviceInfo.getUniqueId();
       const token = await getMessaging().getToken();
-      console.log('KKKK', token);
       // Dispatch loginRequest with a flag indicating this is a confirmed attempt
       dispatch(
         loginRequest({
