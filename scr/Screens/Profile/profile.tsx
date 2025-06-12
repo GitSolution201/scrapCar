@@ -162,7 +162,6 @@ const Profile = () => {
           index: 0,
           routes: [{name: 'AuthStack'}],
         });
-        // navigationRef.current.navigate('AuthStack');
         Toast.show('Profile deleted successfully', Toast.LONG);
       } else {
         Toast.show('Failed to delete profile', Toast.LONG);
