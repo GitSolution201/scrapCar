@@ -14,14 +14,14 @@ import {checkSubscriptionRequest} from '../slices/subcriptionsSlice';
 function* handleLogin(action) {
   try {
     // Only call attemptLogin if this is NOT a confirmed attempt
-    if (!action.payload.isConfirmed) {
-      const attemptResponse = yield call(attemptLogin, action.payload);
+    // if (!action.payload.isConfirmed) {
+    //   const attemptResponse = yield call(attemptLogin, action.payload);
 
-      if (attemptResponse.requires_confirmation) {
-        yield put(loginSuccess(attemptResponse));
-        return; // Exit early since we're showing confirmation modal
-      }
-    }
+    //   if (attemptResponse.requires_confirmation) {
+    //     yield put(loginSuccess(attemptResponse));
+    //     return; // Exit early since we're showing confirmation modal
+    //   }
+    // }
 
     // Proceed with normal login (either no confirmation needed or this is a confirmed attempt)
     const loginResponse = yield call(login, action.payload);
