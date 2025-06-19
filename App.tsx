@@ -104,7 +104,7 @@ export default function App() {
 
         // 🔊 Play custom sound manually
         const soundFile =
-          Platform.OS === 'ios' ? 'notif_sound' : 'notif_sound.mp3';
+          Platform.OS === 'ios' ? 'notif_sound.wav' : 'notif_sound.mp3';
 
         const notifSound = new Sound(soundFile, Sound.MAIN_BUNDLE, error => {
           if (error) {
