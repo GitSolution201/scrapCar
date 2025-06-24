@@ -204,9 +204,9 @@ const Profile = () => {
               source={require('../../assets/user(2).png')}
               style={styles.profileImage}
             />
-            <TouchableOpacity style={styles.editIcon}>
+            {/* <TouchableOpacity style={styles.editIcon}>
               <Text style={styles.editIconText}>✎</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
         </View>
 
