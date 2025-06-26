@@ -29,6 +29,7 @@ import Header from '../../Components/Header';
 import {Fonts} from '../../Helper/Fonts';
 import {navigationRef} from '../../navigationRef';
 import axios from 'axios';
+import {selectImage} from '../../Functions/MediaManager';
 
 const Profile = () => {
   const navigation = useNavigation();
@@ -46,6 +47,7 @@ const Profile = () => {
     message,
   } = useSelector((state: any) => state.profileUpdate);
   const dispatch = useDispatch();
+  const [showImage, setShowImage] = useState<{uri: string} | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -58,6 +60,8 @@ const Profile = () => {
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
 
   useEffect(() => {
+    setErrors({});
+
     if (isFocused) {
       dispatch(fetchUserRequest(token));
     }
@@ -69,6 +73,7 @@ const Profile = () => {
       setLastName(userData.last_name || '');
       setEmail(userData.email || '');
       setPhoneNumber(userData.phone_number || '');
+      setShowImage(userData.profile_image || '');
     }
   }, [userData]);
 
@@ -104,6 +109,9 @@ const Profile = () => {
     } else if (!/^\d{10}$/.test(phoneNumber)) {
       newErrors.phoneNumber = 'Phone number must be 10 digits';
     }
+    if (!showImage) {
+      newErrors.showImage = 'Profile picture is required';
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -135,6 +143,7 @@ const Profile = () => {
         first_name: firstName,
         last_name: lastName,
         phone: phoneNumber,
+        profile_image: showImage?.uri,
       };
       dispatch(updateProfileRequest({token, updatedData}));
     }
@@ -181,13 +190,17 @@ const Profile = () => {
     );
   }
 
-  if (userError || updateError) {
-    return (
-      <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>Error: {userError || updateError}</Text>
-      </View>
-    );
-  }
+  // if (userError || updateError) {
+  //   return (
+  //     <View style={styles.errorContainer}>
+  //       <Text style={styles.errorText}>Error: {userError || updateError}</Text>
+  //     </View>
+  //   );
+  // }
+  const handleImageSelection = async document => {
+    console.log('@DOCUMENT', document);
+    setShowImage(document);
+  };
   return (
     <ScrollView
       showsVerticalScrollIndicator={false}
@@ -201,14 +214,49 @@ const Profile = () => {
         <View style={styles.profileSection}>
           <View style={styles.profileContainer}>
             <Image
-              source={require('../../assets/user(2).png')}
+              source={
+                showImage?.uri && !showImage.uri.startsWith('https')
+                  ? {uri: showImage.uri}
+                  : require('../../assets/user(2).png')
+              }
               style={styles.profileImage}
             />
-            {/* <TouchableOpacity style={styles.editIcon}>
-              <Text style={styles.editIconText}>✎</Text>
-            </TouchableOpacity> */}
+
+            <TouchableOpacity
+              style={styles.editIcon}
+              onPress={() => selectImage(handleImageSelection)}>
+              <Image
+                source={require('../../assets/camera.png')}
+                style={styles.icon}
+              />
+            </TouchableOpacity>
           </View>
         </View>
+
+        {/* <View style={styles.profileSection}>
+          <View style={styles.profileContainer}>
+            <Image
+              source={
+                showImage
+                  ? {uri: showImage?.uri}
+                  : require('../../assets/user(2).png')
+              }
+              resizeMode="contain"
+              style={styles.profileImage}
+            />
+
+            <TouchableOpacity
+              style={styles.editIcon}
+              onPress={() => selectImage(handleImageSelection)}>
+              <Image
+                source={require('../../assets/camera.png')}
+                style={styles.icon}
+              />
+
+              {/* <Text style={styles.editIconText}>✎</Text> */}
+        {/* </TouchableOpacity>
+          </View>
+        </View> */}
 
         {/* Input Fields */}
         <View style={styles.inputContainer}>
@@ -432,29 +480,27 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderWidth: 0.4,
+    borderColor: Colors.darkGray,
     borderRadius: 60,
   },
   profileImage: {
-    width: 80,
-    height: 80,
+    width: wp(32),
+    height: wp(32),
+    borderRadius: wp(16),
     resizeMode: 'contain',
   },
   editIcon: {
     position: 'absolute',
     bottom: 10,
     right: 5,
-    backgroundColor: Colors.gradientStart,
+    backgroundColor: Colors.primary,
     borderRadius: 20,
     width: 30,
     height: 30,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  editIconText: {
-    color: '#FFF',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
+
   inputContainer: {
     marginBottom: 20,
   },
@@ -637,6 +683,12 @@ const styles = StyleSheet.create({
   confirmDeleteButtonText: {
     color: '#FF3B30',
     fontFamily: Fonts.bold,
+  },
+  icon: {
+    width: wp(4),
+    resizeMode: 'contain',
+    height: wp(4),
+    tintColor: Colors.white,
   },
 });
 

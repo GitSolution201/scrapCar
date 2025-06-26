@@ -130,6 +130,7 @@ export const fetchUserDetails = async token => {
         'device-id': deviceId,
       },
     });
+
     return response.data; // Return the data
   } catch (error) {
     console.log(
@@ -143,12 +144,12 @@ export const fetchUserDetails = async token => {
 };
 //User Profile Update
 export const updateUserProfile = async (token, updatedData) => {
-  const deviceId = await DeviceInfo.getUniqueId();
+  console.log('@UPDATE DATAA SEND IN API', updatedData);
   try {
     const response = await api.put('/auth/update-user-profile', updatedData, {
       headers: {
         Authorization: `Bearer ${token}`,
-        'device-id': deviceId,
+        'Content-Type': 'multipart/form-data',
       },
     });
     return response.data; // Return the data

@@ -30,6 +30,7 @@
     "react-native-gesture-handler": "^2.21.2",
     "react-native-get-random-values": "^1.11.0",
     "react-native-google-places-autocomplete": "^2.5.7",
+    "react-native-image-crop-picker": "^0.50.1",
     "react-native-keyboard-aware-scroll-view": "^0.9.5",
     "react-native-maps": "^1.20.1",
     "react-native-pager-view": "^6.7.0",
