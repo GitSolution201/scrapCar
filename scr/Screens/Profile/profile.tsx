@@ -139,13 +139,22 @@ const Profile = () => {
 
   const handleSave = () => {
     if (validateForm()) {
-      const updatedData = {
-        first_name: firstName,
-        last_name: lastName,
-        phone: phoneNumber,
-        profile_image: showImage?.uri,
-      };
-      dispatch(updateProfileRequest({token, updatedData}));
+      const formData = new FormData();
+
+      formData.append('first_name', firstName);
+      formData.append('last_name', lastName);
+      formData.append('phone', phoneNumber);
+
+      // Profile image ko alag file ke tarah append karo
+      if (showImage?.uri) {
+        formData.append('profile_image', {
+          uri: showImage.uri,
+          name: 'profile.jpg',
+          type: 'image/jpeg',
+        });
+      }
+
+      dispatch(updateProfileRequest({token, updatedData: formData}));
     }
   };
 
@@ -198,7 +207,6 @@ const Profile = () => {
   //   );
   // }
   const handleImageSelection = async document => {
-    console.log('@DOCUMENT', document);
     setShowImage(document);
   };
   return (
@@ -215,8 +223,10 @@ const Profile = () => {
           <View style={styles.profileContainer}>
             <Image
               source={
-                showImage?.uri && !showImage.uri.startsWith('https')
-                  ? {uri: showImage.uri}
+                showImage && showImage?.uri
+                  ? {uri: showImage?.uri}
+                  : showImage?.includes('https')
+                  ? {uri: showImage} // local image (e.g., file://...)
                   : require('../../assets/user(2).png')
               }
               style={styles.profileImage}
