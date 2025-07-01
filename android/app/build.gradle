@@ -80,6 +80,7 @@ android {
 
     namespace "com.scrap4yourmobile"
     defaultConfig {
+        missingDimensionStrategy 'react-native-purchases', 'play'
         applicationId "com.scrap4yourmobile"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion

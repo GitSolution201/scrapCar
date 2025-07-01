@@ -2057,17 +2057,17 @@
   resolved "https://registry.yarnpkg.com/@react-native-community/slider/-/slider-4.5.6.tgz#dfbfdd6a582b160d41719ad42a7b524794b06dd5"
   integrity sha512-UhLPFeqx0YfPLrEz8ffT3uqAyXWu6iqFjohNsbp4cOU7hnJwg2RXtDnYHoHMr7MOkZDVdlLMdrSrAuzY6KGqrg==
 
-"@react-native-firebase/app@^22.1.0":
-  version "22.1.0"
-  resolved "https://registry.yarnpkg.com/@react-native-firebase/app/-/app-22.1.0.tgz#d30f05414805716108a0b3b2709a3d3d37428ed9"
-  integrity sha512-s01yjF92Fpre7Ff5UzNpVE4q25x2eF+nD8SGzZzBp7nTQjK+4U+VllJ3ajvbjJkfIyMYNBowM135iK/DO5cwDA==
+"@react-native-firebase/app@22.2.1":
+  version "22.2.1"
+  resolved "https://registry.yarnpkg.com/@react-native-firebase/app/-/app-22.2.1.tgz#640f84c5bda89c58503bfdde376853eb3ac47ced"
+  integrity sha512-FNekjZgvLLBWLNMGKfKUHR4TTu8OY1YnvlQV9HaNboF5U5+CvTcK8IKycXKdhVP8YfcILTaM3AFraoQsQsy3/w==
   dependencies:
     firebase "11.3.1"
 
-"@react-native-firebase/messaging@^22.1.0":
-  version "22.1.0"
-  resolved "https://registry.yarnpkg.com/@react-native-firebase/messaging/-/messaging-22.1.0.tgz#08e5a4e858542f7b9e320a8bc38c27737c8b9188"
-  integrity sha512-5sAacO4ZnGC0REa7u7SUtZqHEzNm+pud5V8H60nAoTY+3mUrPKB9Bv11R0nM8KNsIqCb/bpbObdfn5yn8RVQ1A==
+"@react-native-firebase/messaging@22.2.1":
+  version "22.2.1"
+  resolved "https://registry.yarnpkg.com/@react-native-firebase/messaging/-/messaging-22.2.1.tgz#2d2915747e054bfc438dedc5a2e94a1bacf657b1"
+  integrity sha512-gSl171dIeLwKgJYZVHeRHBW8vw61qlsLobimOaW1fjX5rrN8llMUB5FJ8Gbd+00w9uaUTn02eWODcV6ZOjn/9g==
 
 "@react-native/assets-registry@0.76.3":
   version "0.76.3"
@@ -2370,6 +2370,11 @@
     redux "^5.0.1"
     redux-thunk "^3.1.0"
     reselect "^5.1.0"
+
+"@revenuecat/purchases-typescript-internal@13.38.1":
+  version "13.38.1"
+  resolved "https://registry.yarnpkg.com/@revenuecat/purchases-typescript-internal/-/purchases-typescript-internal-13.38.1.tgz#91cb3d4e309933386916a69604b16f6e36e12b4e"
+  integrity sha512-Z+08KPBHgHsVUE46/SwraoI04NIZz7kOzl8dCXe8ZLckQIyXQOkz5RfhXFHTbVWlYf0f7fPD4aNDfDX3Kn9gVQ==
 
 "@sideway/address@^4.1.5":
   version "4.1.5"
@@ -6532,6 +6537,11 @@ react-native-google-places-autocomplete@^2.5.7:
     qs "~6.9.1"
     uuid "^10.0.0"
 
+react-native-image-crop-picker@^0.50.1:
+  version "0.50.1"
+  resolved "https://registry.yarnpkg.com/react-native-image-crop-picker/-/react-native-image-crop-picker-0.50.1.tgz#db627a378daa7cfc7500a6bc6188510bb2325f5a"
+  integrity sha512-2xtyKLU08AFqjRb1hUsSanO2OK9aCtfjggKzVhq/GDSfOI+WRGhoElcMuKeQEi3ey6mivz7UNFOOvNCqGjzKBA==
+
 react-native-iphone-x-helper@^1.0.3:
   version "1.3.1"
   resolved "https://registry.yarnpkg.com/react-native-iphone-x-helper/-/react-native-iphone-x-helper-1.3.1.tgz#20c603e9a0e765fd6f97396638bdeb0e5a60b010"
@@ -6566,6 +6576,13 @@ react-native-permissions@^5.2.5:
   version "5.4.0"
   resolved "https://registry.yarnpkg.com/react-native-permissions/-/react-native-permissions-5.4.0.tgz#04427be8897625ba5af29c3f1dc81b7bec48fd12"
   integrity sha512-D+YOIss+aKXi/VuZvm7hAq4WSugYyif58AIAWsT2/uLh9pz9ukOttGzPttjrv617J3bOEnt7C6cJBWoXmj/QRw==
+
+react-native-purchases@^8.11.7:
+  version "8.11.7"
+  resolved "https://registry.yarnpkg.com/react-native-purchases/-/react-native-purchases-8.11.7.tgz#36a401e1ed0a2b2d1d8271a20ff579797ebfc421"
+  integrity sha512-hcCI155cHTxZYkDLTvB1Bpk2Z1eOXm7A1n8Iqx4qrTk6wZAFG7cyBreiCz12+aKzld6iX9audZT5npiY9VoE6A==
+  dependencies:
+    "@revenuecat/purchases-typescript-internal" "13.38.1"
 
 react-native-reanimated@^3.16.5:
   version "3.17.5"
@@ -6607,6 +6624,11 @@ react-native-simple-toast@^3.3.2:
   version "3.3.2"
   resolved "https://registry.yarnpkg.com/react-native-simple-toast/-/react-native-simple-toast-3.3.2.tgz#9f1c3a92bb56424d3e5d3bc7caf3f29dee819d9b"
   integrity sha512-jtZa5VXLDc3Rr+1a2eYyviakxOXP8U9AFYp1VWlslApi0wkiNeyAQ4yLZbIY8nayrbHTUSkERiDzKoCsy9v7Dw==
+
+react-native-sound@^0.11.2:
+  version "0.11.2"
+  resolved "https://registry.yarnpkg.com/react-native-sound/-/react-native-sound-0.11.2.tgz#e542dc5b9e16ab4b3ac7e6eaddb1fc8d98da9038"
+  integrity sha512-LmGc8lgOK3qecYMVQpyHvww/C+wgT6sWeMpVbOe4NCRGC2yKd4fo4U0KBUo9PO7AqKESO3I/2GZg1/C0+bwiiA==
 
 react-native-switch@^1.5.1:
   version "1.5.1"

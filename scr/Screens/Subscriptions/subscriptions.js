@@ -41,6 +41,7 @@ import axios from 'axios';
 import {checkSubscriptionRequest} from '../../redux/slices/subcriptionsSlice';
 import {cancelSubscriptionRequest} from '../../redux/slices/canceleSubcriptionsSlice';
 import {updateSubscriptionRequest} from '../../redux/slices/updateSubcriptionSlice';
+import Purchases from 'react-native-purchases';
 
 const {width: wp, height: hp} = Dimensions.get('window');
 const api = axios.create({
@@ -155,24 +156,24 @@ const SubscriptionScreen = () => {
       await initGooglePay();
     }
   };
-  useEffect(() => {
-    const initializeApplePay = async () => {
-      if (Platform.OS == 'ios') {
-        try {
-          const supported = await isPlatformPaySupported();
-          console.log('====================================');
-          console.log(supported);
-          console.log('====================================');
-          setIsApplePaySupported(supported);
-        } catch (error) {
-          console.log('Apple Pay support check error:', error);
-          setIsApplePaySupported(false);
-        }
-      }
-    };
+  // useEffect(() => {
+  //   const initializeApplePay = async () => {
+  //     if (Platform.OS == 'ios') {
+  //       try {
+  //         const supported = await isPlatformPaySupported();
+  //         // console.log('====================================');
+  //         // console.log(supported);
+  //         // console.log('====================================');
+  //         setIsApplePaySupported(supported);
+  //       } catch (error) {
+  //         console.log('Apple Pay support check error:', error);
+  //         setIsApplePaySupported(false);
+  //       }
+  //     }
+  //   };
 
-    initializeApplePay();
-  }, [isPlatformPaySupported]);
+  //   initializeApplePay();
+  // }, [isPlatformPaySupported]);
 
   useEffect(() => {
     const checkPlatformPaySupport = async () => {
@@ -301,24 +302,24 @@ const SubscriptionScreen = () => {
   };
 
   const getPublishedKeys = async () => {
-    const response = await fetch(
-      `https://scrape4you.onrender.com/stripe/keys`,
-      {
-        method: 'GET',
+    // const response = await fetch(
+    //   `https://scrape4you.onrender.com/stripe/keys`,
+    //   {
+    //     method: 'GET',
 
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      },
-    );
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //     },
+    //   },
+    // );
 
-    const {publishedKey, merchantIdentifier, urlScheme} = await response.json();
-    setPublishedKey(publishedKey);
-    console.log('====================================');
-    console.log(merchantIdentifier);
-    console.log('====================================');
-    setMerchantIdentifier('merchant.com.carscrap');
-    setUrlScheme('https://scrape4you.onrender.com');
+    // const {publishedKey, merchantIdentifier, urlScheme} = await response.json();
+    // setPublishedKey(publishedKey);
+    // console.log('====================================');
+    // console.log(merchantIdentifier);
+    // console.log('====================================');
+    // setMerchantIdentifier('merchant.com.carscrap');
+    // setUrlScheme('https://scrape4you.onrender.com');
   };
   useEffect(() => {
     const fetchProducts = async () => {
@@ -635,6 +636,27 @@ const SubscriptionScreen = () => {
     }
     dispatch(cancelSubscriptionRequest({subscriptionId, token}));
   };
+  const fetchRevenueCatProducts = async () => {
+    try {
+      // Replace 'your_offering_id' with your actual offering identifier if needed, or leave blank for default
+      console.log('====================================1');
+     
+      const offerings = await Purchases.getOfferings();
+      console.log(offerings);
+      console.log('====================================');
+      if (offerings.current && offerings.current.availablePackages.length > 0) {
+        console.log('RevenueCat Products:', offerings.current.availablePackages);
+      } else {
+        console.log('No available products found in RevenueCat.');
+      }
+    } catch (error) {
+      console.log('Error fetching RevenueCat products:', error);
+    }
+  };
+ 
+  useEffect(() => {
+    fetchRevenueCatProducts();
+  }, []);
   return (
     <StripeProvider
       publishableKey={publishableKey}

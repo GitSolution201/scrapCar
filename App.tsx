@@ -10,6 +10,7 @@ import {getMessaging} from '@react-native-firebase/messaging';
 import ForegroundNotification from './scr/Components/ForgroundNotification';
 import {navigationRef} from './scr/navigationRef';
 import Sound from 'react-native-sound';
+import Purchases from 'react-native-purchases';
 
 export default function App() {
   const [notificationData, setNotificationData] = useState<{
@@ -17,6 +18,16 @@ export default function App() {
     body: string;
     onPress: () => void;
   } | null>(null);
+
+
+const API_KEY = Platform.select({
+  ios: 'appl_ddZHtOMnsNUHTMWzjGfiSlKHzVL',
+  // android: 'your_revenuecat_android_api_key',
+});
+
+useEffect(() => {
+  Purchases.configure({ apiKey: API_KEY});
+}, []);
 
   useEffect(() => {
     let unsubscribeFn = () => {};
