@@ -23,12 +23,14 @@ const authSlice = createSlice({
     loginSuccess: (state, action) => {
       state.loading = false;
       // Handle both cases (confirmation required or actual login)
-      if (action.payload.requires_confirmation) {
-        state.loginResponse = {
-          requires_confirmation: true,
-          message: action.payload.message,
-        };
-      } else {
+      // if (action.payload.requires_confirmation) {
+      //   state.loginResponse = {
+      //     requires_confirmation: true,
+      //     message: action.payload.message,
+      //   };
+      // } else {
+      if (action.payload) {
+        console.log('object', action?.payload);
         state.token = action.payload.access_token;
         state.deviceId = action.payload.active_devices;
         state.loginResponse = {

@@ -414,7 +414,7 @@ const Listings = () => {
   };
   return (
     <SafeAreaView style={styles.container}>
-      <Banner navigation={navigation} />
+      {/* <Banner navigation={navigation} /> */}
 
       {/* <TouchableOpacity onPress={() => setIsLocationModalVisible(true)}>
           <Image

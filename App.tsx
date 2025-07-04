@@ -19,15 +19,14 @@ export default function App() {
     onPress: () => void;
   } | null>(null);
 
+  // const API_KEY = Platform.select({
+  //   ios: 'appl_TXZGrdgdMhSiZsEQZibKveQQwtQ',
+  //   // android: 'your_revenuecat_android_api_key',
+  // });
 
-const API_KEY = Platform.select({
-  ios: 'appl_ddZHtOMnsNUHTMWzjGfiSlKHzVL',
-  // android: 'your_revenuecat_android_api_key',
-});
-
-useEffect(() => {
-  Purchases.configure({ apiKey: API_KEY});
-}, []);
+  // useEffect(() => {
+  //   Purchases.configure({apiKey: API_KEY});
+  // }, []);
 
   useEffect(() => {
     let unsubscribeFn = () => {};

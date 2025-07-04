@@ -80,7 +80,7 @@ const Banner = ({navigation}: {navigation: any}) => {
       {/* Right Section: Button always rendered to maintain width */}
       <TouchableOpacity
         style={styles.getNowButton}
-        onPress={() => navigation.navigate('Subscriptions')}
+        // onPress={() => navigation.navigate('Subscriptions')}
         disabled={loading}>
         <Text style={styles.getNowText}>
           {loading ? '...' : subscription ? 'Manage' : 'Get Now'}

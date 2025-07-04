@@ -28,7 +28,7 @@ function* handleLogin(action) {
 
     yield put(loginSuccess(loginResponse));
 
-    yield put(checkSubscriptionRequest({email: action.payload.email}));
+    // yield put(checkSubscriptionRequest({email: action.payload.email}));
   } catch (error) {
     console.log('@error in saga in login', error);
     yield put(

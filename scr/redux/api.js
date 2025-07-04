@@ -39,7 +39,7 @@ export const login = async userData => {
   } catch (error) {
     console.log('API Error:', error.response?.data || error.message);
     // Re-throw the error so saga can handle it
-    throw error;
+    // throw new Error('Something went wrong');
   }
 };
 //Atempt login
