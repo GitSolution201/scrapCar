@@ -32,9 +32,6 @@ export default function App() {
     let unsubscribeFn = () => {};
 
     const fetchTokenAndSetupListener = async () => {
-      const token = await getMessaging().getToken();
-      console.log('KKKK', token);
-
       const unsubscribe = getMessaging().onMessage(async remoteMessage => {
         console.log('Foreground Notification:', remoteMessage);
 

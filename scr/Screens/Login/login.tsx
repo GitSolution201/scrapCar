@@ -30,9 +30,12 @@ import {getMessaging} from '@react-native-firebase/messaging';
 
 const Login = ({navigation}: {navigation: any}) => {
   const dispatch = useDispatch();
-  const {loading, loginResponse, token, loginSuccess} = useSelector(
-    (state: any) => state.auth,
-  );
+  // const {loading, loginResponse, token, loginSuccess} = useSelector(
+  //   (state: any) => state.auth,
+  // );
+  const authState = useSelector((state: any) => state.auth);
+
+  const {loading, loginResponse, token} = authState;
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [formErrors, setFormErrors] = useState<{
@@ -68,7 +71,11 @@ const Login = ({navigation}: {navigation: any}) => {
       }
     }
   }, [loginResponse]);
-
+  useEffect(() => {
+    if (token) {
+      console.log('✅ Token available:', token);
+    }
+  }, [token]);
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       setFormErrors({
@@ -138,7 +145,6 @@ const Login = ({navigation}: {navigation: any}) => {
       setApiError('');
       const deviceId = await DeviceInfo.getUniqueId();
       const token = await getMessaging().getToken();
-      console.log('KKKK', token);
       dispatch(
         loginRequest({
           email,

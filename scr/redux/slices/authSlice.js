@@ -21,24 +21,37 @@ const authSlice = createSlice({
       state.error = null;
     },
     loginSuccess: (state, action) => {
-      state.loading = false;
-      // Handle both cases (confirmation required or actual login)
-      // if (action.payload.requires_confirmation) {
-      //   state.loginResponse = {
-      //     requires_confirmation: true,
-      //     message: action.payload.message,
-      //   };
-      // } else {
-      if (action.payload) {
-        console.log('object', action?.payload);
-        state.token = action.payload.access_token;
-        state.deviceId = action.payload.active_devices;
-        state.loginResponse = {
-          success: true,
-          message: action.payload.message,
-        };
+      if (action?.payload && action?.payload?.access_token) {
+        state.token = action?.payload?.access_token;
+      } else {
+        console.log('🚨 access_token not found in payload');
       }
+      state.loading = false;
+      state.loginResponse = {
+        success: true,
+        message: action.payload?.message || '',
+      };
     },
+
+    // loginSuccess: (state, action) => {
+    //   state.loading = false;
+    //   // Handle both cases (confirmation required or actual login)
+    //   // if (action.payload.requires_confirmation) {
+    //   //   state.loginResponse = {
+    //   //     requires_confirmation: true,
+    //   //     message: action.payload.message,
+    //   //   };
+    //   // } else {
+    //   if (action.payload) {
+    //     console.log('object', action?.payload);
+    //     state.token = action.payload.access_token;
+    //     // state.deviceId = action.payload.active_devices;
+    //     state.loginResponse = {
+    //       success: true,
+    //       message: action.payload.message,
+    //     };
+    //   }
+    // },
     loginFailure: (state, action) => {
       state.loading = false;
       state.error = action.payload; // Save error message

@@ -35,6 +35,7 @@ const Listings = () => {
   const dispatch = useDispatch();
   const isFocused = useIsFocused();
   const token = useSelector((state: any) => state.auth?.token);
+
   const [loading, setLoading] = useState(false); // Loading state
   const [error, setError] = useState(null); // Error state
   const [carListings, setCarListings] = useState([]); // Data state
@@ -81,8 +82,6 @@ const Listings = () => {
       if (!token) {
         throw new Error('Token not found');
       }
-
-      console.log('Token:', token);
 
       const response = await api.get('/car/get-all-listing', {
         headers: {

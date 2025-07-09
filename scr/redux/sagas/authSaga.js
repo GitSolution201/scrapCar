@@ -25,7 +25,6 @@ function* handleLogin(action) {
 
     // Proceed with normal login (either no confirmation needed or this is a confirmed attempt)
     const loginResponse = yield call(login, action.payload);
-
     yield put(loginSuccess(loginResponse));
 
     // yield put(checkSubscriptionRequest({email: action.payload.email}));
