@@ -76,8 +76,7 @@ const Dashboard = ({navigation}: {navigation: any}) => {
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.card}
-          // onPress={() => navigation.navigate('Subscriptions')}
-        >
+          onPress={() => navigation.navigate('Subscriptions')}>
           <Image
             source={require('../../assets/loyalty.png')}
             style={styles.loyalty}

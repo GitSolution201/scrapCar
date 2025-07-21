@@ -13,6 +13,7 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   Alert,
+  Linking,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {
@@ -29,6 +30,7 @@ const Register = ({navigation}: {navigation: any}) => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
+  const [title, setTitle] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -92,12 +94,14 @@ const Register = ({navigation}: {navigation: any}) => {
         ...prev,
         emailError: 'Please enter a valid email',
       }));
-    } else if (!phone) {
-      setErrorMessages((prev: any) => ({
-        ...prev,
-        phoneError: 'Please enter your phone number',
-      }));
-    } else if (!password) {
+    }
+    //  else if (!phone) {
+    //   setErrorMessages((prev: any) => ({
+    //     ...prev,
+    //     phoneError: 'Please enter your phone number',
+    //   }));
+    // }
+    else if (!password) {
       setErrorMessages((prev: any) => ({
         ...prev,
         passwordError: 'Please enter your password',
@@ -111,8 +115,14 @@ const Register = ({navigation}: {navigation: any}) => {
       apiCall();
     }
   };
+  const generateRandomPhone = () => {
+    const randomNumber = Math.floor(1000000000 + Math.random() * 9000000000); // 10 digit
+    return `${callingCode}${randomNumber}`;
+  };
   const apiCall = () => {
-    const phoneNumber = `${callingCode}${phone}`;
+    const phoneNumber = phone
+      ? `${callingCode}${phone}`
+      : generateRandomPhone();
 
     const userData = {
       first_name: firstName,
@@ -121,7 +131,7 @@ const Register = ({navigation}: {navigation: any}) => {
       phone: phoneNumber,
       password,
     };
-    console.log('@USER regisetr', userData);
+    console.log('@USER register', userData);
     dispatch(registerRequest(userData));
   };
 
@@ -147,6 +157,7 @@ const Register = ({navigation}: {navigation: any}) => {
               <Text style={styles.subtitle}>
                 Create an account to continue!
               </Text>
+
               <Text style={styles.label}>First Name</Text>
               <TextInput
                 style={styles.input}
@@ -243,9 +254,9 @@ const Register = ({navigation}: {navigation: any}) => {
                   placeholderTextColor="#9E9E9E"
                 />
               </View>
-              {errorMessage.phoneError && (
+              {/* {errorMessage.phoneError && (
                 <Text style={styles.errorText}>{errorMessage.phoneError}</Text>
-              )}
+              )} */}
               <Text style={styles.label}>Password</Text>
               <View style={styles.passwordContainer}>
                 <TextInput
@@ -284,6 +295,23 @@ const Register = ({navigation}: {navigation: any}) => {
                   {errorMessage.passwordError}
                 </Text>
               )}
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  marginTop: 15,
+                }}>
+                <Text
+                  style={{color: '#0062FF', textDecorationLine: 'underline'}}
+                  onPress={() =>
+                    Linking.openURL(
+                      'https://scrape4you.onrender.com/privacy-policy',
+                    )
+                  }>
+                  Privacy Policy
+                </Text>
+              </View>
+
               {/* Register Button */}
               <TouchableOpacity
                 style={[styles.button, loading && styles.disabledButton]}

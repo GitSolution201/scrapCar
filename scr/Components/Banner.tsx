@@ -53,6 +53,11 @@ const Banner = ({navigation}: {navigation: any}) => {
             </Text>
           </View>
         ) : (
+          // <TouchableOpacity
+          //   onPress={() => navigation.navigate('Subscriptions')}>
+          //   <Text style={{textAlign: 'center'}}>Subcriptions</Text>
+          // </TouchableOpacity>
+
           <>
             <View style={styles.priceContainer}>
               <Text style={styles.discountedPrice}>
@@ -80,7 +85,7 @@ const Banner = ({navigation}: {navigation: any}) => {
       {/* Right Section: Button always rendered to maintain width */}
       <TouchableOpacity
         style={styles.getNowButton}
-        // onPress={() => navigation.navigate('Subscriptions')}
+        onPress={() => navigation.navigate('Subscriptions')}
         disabled={loading}>
         <Text style={styles.getNowText}>
           {loading ? '...' : subscription ? 'Manage' : 'Get Now'}

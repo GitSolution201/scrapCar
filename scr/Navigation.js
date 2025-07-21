@@ -100,6 +100,7 @@ const AppNavigation = () => {
   const authState = useSelector((state: any) => state.auth);
 
   const {token} = authState;
+  console.log(token);
   // const token = useSelector(state => state.auth.token);
   const dispatch = useDispatch();
   const {userData} = useSelector(state => state?.user);

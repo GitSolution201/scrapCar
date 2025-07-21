@@ -1,5 +1,5 @@
 import {takeLatest, put, call} from 'redux-saga/effects';
-import {attemptLogin, login, register} from '../api'; // Import the APIs
+import {attemptLogin, guestLoginApi, login, register} from '../api'; // Import the APIs
 import {
   loginRequest,
   loginSuccess,
@@ -7,6 +7,9 @@ import {
   registerRequest,
   registerSuccess,
   registerFailure,
+  guestLoginRequest,
+  guestLoginSuccess,
+  guestLoginFailure,
 } from '../slices/authSlice'; // Import actions from authSlice
 import {checkSubscriptionRequest} from '../slices/subcriptionsSlice';
 
@@ -37,6 +40,20 @@ function* handleLogin(action) {
     );
   }
 }
+
+function* handleGuestLogin(action) {
+  try {
+    const response = yield call(guestLoginApi, action.payload);
+    yield put(guestLoginSuccess(response));
+  } catch (error) {
+    console.log('@GuestLogin Error:', error);
+    yield put(
+      guestLoginFailure(
+        error.response?.data?.message || error.message || 'Guest login failed',
+      ),
+    );
+  }
+}
 // Worker saga for register
 function* handleRegister(action) {
   try {
@@ -50,6 +67,7 @@ function* handleRegister(action) {
 
 // Watcher saga
 export default function* authSaga() {
+  yield takeLatest(guestLoginRequest.type, handleGuestLogin);
   yield takeLatest(loginRequest.type, handleLogin); // Watch for login actions
   yield takeLatest(registerRequest.type, handleRegister); // Watch for register actions
 }

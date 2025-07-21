@@ -8,6 +8,7 @@ const initialState = {
   loginResponse: null, // Response for login
   token: null, // Token after successful login
   deviceId: null, // Add deviceId to state if needed
+  guestLoading: false, // 👈 Add this
 };
 
 const authSlice = createSlice({
@@ -57,6 +58,30 @@ const authSlice = createSlice({
       state.error = action.payload; // Save error message
       state.loginResponse = {success: false, error: action.payload};
     },
+    // Inside authSlice
+
+    guestLoginRequest: state => {
+      state.guestLoading = true;
+      state.error = null;
+      state.loginResponse = null;
+    },
+
+    guestLoginSuccess: (state, action) => {
+      state.guestLoading = false;
+      state.token = action.payload.access_token;
+      state.loginResponse = {
+        success: true,
+        message: action.payload.message,
+      };
+    },
+
+    guestLoginFailure: (state, action) => {
+      state.guestLoading = false;
+      state.loginResponse = {
+        success: false,
+        error: action.payload,
+      };
+    },
 
     // Register Actions
     registerRequest: state => {
@@ -88,6 +113,7 @@ const authSlice = createSlice({
       state.loginResponse = null;
       state.registerResponse = null;
       state.error = null;
+      state.guestLoading = false; // 👈 reset this
     },
 
     // Reset Register Response
@@ -106,6 +132,9 @@ export const {
   registerFailure,
   logout,
   resetRegisterResponse,
+  guestLoginRequest,
+  guestLoginSuccess,
+  guestLoginFailure,
 } = authSlice.actions;
 
 export default authSlice.reducer;

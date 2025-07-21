@@ -111,6 +111,9 @@ const SubscriptionScreen = () => {
       type: 'corporate',
     },
   ]);
+  const [offerings, setOfferings] = useState(null);
+  const [isPurchasing, setIsPurchasing] = useState(false);
+
   const [loading, setLoading] = useState(false);
   const [merchantIdentifier, setMerchantIdentifier] = useState(
     // 'merchant.com.carscrap',
@@ -637,30 +640,50 @@ const SubscriptionScreen = () => {
     }
     dispatch(cancelSubscriptionRequest({subscriptionId, token}));
   };
-  const fetchRevenueCatProducts = async () => {
-    try {
-      // Replace 'your_offering_id' with your actual offering identifier if needed, or leave blank for default
-      console.log('====================================1');
-
-      const offerings = await Purchases.getOfferings();
-      console.log(offerings);
-      console.log('====================================');
-      if (offerings.current && offerings.current.availablePackages.length > 0) {
-        console.log(
-          'RevenueCat Products:',
-          offerings.current.availablePackages,
-        );
-      } else {
-        console.log('No available products found in RevenueCat.');
-      }
-    } catch (error) {
-      console.log('Error fetching RevenueCat products:', error);
-    }
-  };
-
   useEffect(() => {
+    const fetchRevenueCatProducts = async () => {
+      try {
+        const offeringsData = await Purchases.getOfferings();
+        console.log('@ofering', offeringsData);
+        if (
+          offeringsData.current &&
+          offeringsData.current.availablePackages.length > 0
+        ) {
+          console.log(
+            '🟢 Available Packages:',
+            offeringsData.current.availablePackages,
+          );
+          setOfferings(offeringsData.current);
+        } else {
+          console.log('🔴 No available products found in RevenueCat.');
+        }
+      } catch (error) {
+        console.log('❌ Error fetching RevenueCat products:', error);
+      }
+    };
+
     fetchRevenueCatProducts();
   }, []);
+
+  const handleSubscribe = async () => {
+    if (!offerings) return;
+
+    try {
+      setIsPurchasing(true);
+      const purchase = await Purchases.purchasePackage(
+        offerings.availablePackages[0],
+      );
+      console.log('🎉 Purchase successful:', purchase);
+    } catch (e) {
+      if (!e.userCancelled) {
+        console.log('❌ Purchase error:', e);
+      } else {
+        console.log('⚠️ User cancelled purchase.');
+      }
+    } finally {
+      setIsPurchasing(false);
+    }
+  };
   return (
     <StripeProvider
       publishableKey={publishableKey}
@@ -821,11 +844,30 @@ const SubscriptionScreen = () => {
           //     <Text style={styles.continueText}>Pay By Card</Text>
           //   </TouchableOpacity> */}
         {/* // </View> */}
-        {loading && (
+        <Text style={{textAlign: 'center', marginBottom: 20}}>
+          In app purchase in Review
+        </Text>
+        {offerings ? (
+          <View
+            style={{
+              alignItems: 'center',
+            }}>
+            <Button
+              title={isPurchasing ? 'Processing...' : 'Subscribe Now'}
+              onPress={() => handleSubscribe()}
+              disabled={isPurchasing}
+            />
+          </View>
+        ) : (
+          <Text style={{textAlign: 'center', marginBottom: 10}}>
+            Loading products...
+          </Text>
+        )}
+        {/* {loading && (
           <View style={styles.loaderOverlay}>
             <ActivityIndicator size="large" color={Colors.primary} />
           </View>
-        )}
+        )} */}
       </SafeAreaView>
     </StripeProvider>
   );
@@ -912,49 +954,30 @@ const SalvageRoute = ({
         </Text>
         <View style={styles.tabContainer}>
           <TouchableOpacity
-            onPress={
-              () => console.log('object')
-              // handleSubscriptionSelect('price_1R57DZDnmorUxClnRG48rfKZ')
-            }
-            style={[
-              styles.optionSelected,
-              // selectedSubscription === 'price_1R57DZDnmorUxClnRG48rfKZ'
-              //   ? styles.optionFocused
-              //   : styles.optionDisabled,
-            ]}>
+            onPress={() => console.log('object')}
+            style={[styles.optionSelected]}>
             <Image
               source={require('../../assets/loyalty.png')}
               style={styles.optionImage}
               resizeMode="contain"
             />
             <Text style={styles.optionText}>Weekly</Text>
-
             <View style={styles.sharingRow}>
               <Text style={styles.sharingText}>Use 1 Device</Text>
               <Image
-                source={require('../../assets/iphone.png')} // your icon here
+                source={require('../../assets/iphone.png')}
                 style={styles.phoneIcon}
                 resizeMode="contain"
               />
             </View>
             <Text style={styles.optionSubText}>50 GBP</Text>
-            {/* {isSubscriptionActive('price_1R57DZDnmorUxClnRG48rfKZ') && (
-              <View style={styles.activeOverlay}>
-                <Text style={styles.activeText}>Active</Text>
-              </View>
-            )} */}
+            <Text style={styles.helperText}>7 days access</Text>
+            {/* ✅ added */}
           </TouchableOpacity>
+
           <TouchableOpacity
-            onPress={
-              () => console.log('object')
-              // handleSubscriptionSelect('price_1R15A1DnmorUxCln7W0DslGy')
-            }
-            style={[
-              styles.optionSelected,
-              // selectedSubscription === 'price_1R15A1DnmorUxCln7W0DslGy'
-              //   ? styles.optionFocused
-              //   : styles.optionDisabled,
-            ]}>
+            onPress={() => console.log('object')}
+            style={[styles.optionSelected]}>
             <Image
               source={require('../../assets/loyalty.png')}
               style={styles.optionImage}
@@ -964,17 +987,14 @@ const SalvageRoute = ({
             <View style={styles.sharingRow}>
               <Text style={styles.sharingText}>Use 1 Device</Text>
               <Image
-                source={require('../../assets/iphone.png')} // your icon here
+                source={require('../../assets/iphone.png')}
                 style={styles.phoneIcon}
                 resizeMode="contain"
               />
             </View>
             <Text style={styles.optionSubText}>180 GBP</Text>
-            {/* {isSubscriptionActive('price_1R15A1DnmorUxCln7W0DslGy') && (
-              <View style={styles.activeOverlay}>
-                <Text style={styles.activeText}>Active</Text>
-              </View>
-            )} */}
+            <Text style={styles.helperText}>1 month access</Text>
+            {/* ✅ added */}
           </TouchableOpacity>
         </View>
 
@@ -988,16 +1008,8 @@ const SalvageRoute = ({
             },
           ]}>
           <TouchableOpacity
-            onPress={
-              () => console.log('object')
-              // handleSubscriptionSelect('price_1R9a3xDnmorUxClnuwyFYx1B')
-            }
-            style={[
-              styles.corporateBox,
-              // selectedSubscription === 'price_1R9a3xDnmorUxClnuwyFYx1B'
-              //   ? styles.optionFocused
-              //   : styles.optionDisabled,
-            ]}>
+            onPress={() => console.log('object')}
+            style={[styles.corporateBox]}>
             <Image
               source={require('../../assets/loyalty.png')}
               style={styles.optionImage}
@@ -1008,22 +1020,19 @@ const SalvageRoute = ({
             <View style={styles.sharingRow}>
               <Text style={styles.sharingText}>Use 2 Devices</Text>
               <Image
-                source={require('../../assets/iphone.png')} // your icon here
+                source={require('../../assets/iphone.png')}
                 style={styles.phoneIcon}
                 resizeMode="contain"
               />
               <Image
-                source={require('../../assets/iphone.png')} // your icon here
+                source={require('../../assets/iphone.png')}
                 style={styles.phoneIcon}
                 resizeMode="contain"
               />
             </View>
             <Text style={styles.optionSubText}>300 GBP</Text>
-            {/* {isSubscriptionActive('price_1R9a3xDnmorUxClnuwyFYx1B') && (
-              <View style={styles.activeOverlay}>
-                <Text style={styles.activeText}>Active</Text>
-              </View>
-            )} */}
+            <Text style={styles.helperText}>1 month access</Text>
+            {/* ✅ added */}
           </TouchableOpacity>
         </View>
       </View>
@@ -1112,16 +1121,8 @@ const ScrapRoute = ({
         </Text>
         <View style={styles.tabContainer}>
           <TouchableOpacity
-            onPress={
-              () => console.log('ooo')
-              // handleSubscriptionSelect('price_1R57CnDnmorUxClnS97UhVMT')
-            }
-            style={[
-              styles.optionSelected,
-              // selectedSubscription === 'price_1R57CnDnmorUxClnS97UhVMT'
-              //   ? styles.optionFocused
-              //   : styles.optionDisabled,
-            ]}>
+            onPress={() => console.log('ooo')}
+            style={[styles.optionSelected]}>
             <Image
               source={require('../../assets/loyalty.png')}
               style={styles.optionImage}
@@ -1131,29 +1132,19 @@ const ScrapRoute = ({
             <View style={styles.sharingRow}>
               <Text style={styles.sharingText}>Use 1 Device</Text>
               <Image
-                source={require('../../assets/iphone.png')} // your icon here
+                source={require('../../assets/iphone.png')}
                 style={styles.phoneIcon}
                 resizeMode="contain"
               />
             </View>
             <Text style={styles.optionSubText}>50 GBP</Text>
-            {/* {isSubscriptionActive('price_1R57CnDnmorUxClnS97UhVMT') && (
-              <View style={styles.activeOverlay}>
-                <Text style={styles.activeText}>Active</Text>
-              </View>
-            )} */}
+            <Text style={styles.helperText}>7 days access</Text>
+            {/* ✅ added */}
           </TouchableOpacity>
+
           <TouchableOpacity
-            onPress={
-              () => console.log('hj')
-              // handleSubscriptionSelect('price_1R573DDnmorUxClnp4X4Imki')
-            }
-            style={[
-              styles.optionSelected,
-              // selectedSubscription === 'price_1R573DDnmorUxClnp4X4Imki'
-              //   ? styles.optionFocused
-              //   : styles.optionDisabled,
-            ]}>
+            onPress={() => console.log('hj')}
+            style={[styles.optionSelected]}>
             <Image
               source={require('../../assets/loyalty.png')}
               style={styles.optionImage}
@@ -1163,17 +1154,14 @@ const ScrapRoute = ({
             <View style={styles.sharingRow}>
               <Text style={styles.sharingText}>Use 1 Device</Text>
               <Image
-                source={require('../../assets/iphone.png')} // your icon here
+                source={require('../../assets/iphone.png')}
                 style={styles.phoneIcon}
                 resizeMode="contain"
               />
             </View>
             <Text style={styles.optionSubText}>180 GBP</Text>
-            {/* {isSubscriptionActive('price_1R573DDnmorUxClnp4X4Imki') && (
-              <View style={styles.activeOverlay}>
-                <Text style={styles.activeText}>Active</Text>
-              </View>
-            )} */}
+            <Text style={styles.helperText}>1 month access</Text>
+            {/* ✅ added */}
           </TouchableOpacity>
         </View>
 
@@ -1187,16 +1175,8 @@ const ScrapRoute = ({
             },
           ]}>
           <TouchableOpacity
-            onPress={
-              () => console.log('ii')
-              // handleSubscriptionSelect('price_1R9a2eDnmorUxCln8q94c9Xg')
-            }
-            style={[
-              styles.corporateBox,
-              // selectedSubscription === 'price_1R9a2eDnmorUxCln8q94c9Xg'
-              //   ? styles.optionFocused
-              //   : styles.optionDisabled,
-            ]}>
+            onPress={() => console.log('ii')}
+            style={[styles.corporateBox]}>
             <Image
               source={require('../../assets/loyalty.png')}
               style={styles.optionImage}
@@ -1207,23 +1187,19 @@ const ScrapRoute = ({
             <View style={styles.sharingRow}>
               <Text style={styles.sharingText}>Use 2 Devices</Text>
               <Image
-                source={require('../../assets/iphone.png')} // your icon here
+                source={require('../../assets/iphone.png')}
                 style={styles.phoneIcon}
                 resizeMode="contain"
               />
               <Image
-                source={require('../../assets/iphone.png')} // your icon here
+                source={require('../../assets/iphone.png')}
                 style={styles.phoneIcon}
                 resizeMode="contain"
               />
             </View>
             <Text style={styles.optionSubText}>300 GBP</Text>
-
-            {/* {isSubscriptionActive('price_1R9a2eDnmorUxCln8q94c9Xg') && (
-              <View style={styles.activeOverlay}>
-                <Text style={styles.activeText}>Active</Text>
-              </View>
-            )} */}
+            <Text style={styles.helperText}>1 month access</Text>
+            {/* ✅ added */}
           </TouchableOpacity>
         </View>
       </View>
@@ -1446,6 +1422,13 @@ const styles = StyleSheet.create({
     padding: 10,
     position: 'relative',
   },
+  helperText: {
+    fontSize: wp * 0.03,
+    fontFamily: Fonts.regular,
+    color: Colors.footerGray,
+    marginTop: wp * 0.005,
+  },
+
   actionButtonsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
