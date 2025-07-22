@@ -97,41 +97,43 @@ const MainStack = () => {
 
 /* App Navigation */
 const AppNavigation = () => {
-  const token = useSelector(state => state.auth.token);
+  const authState = useSelector((state: any) => state.auth);
+
+  const {token} = authState;
+  console.log(token);
+  // const token = useSelector(state => state.auth.token);
   const dispatch = useDispatch();
   const {userData} = useSelector(state => state?.user);
-  const {deviceId} = useSelector(state => state?.auth);
-
   // Check device ID and active devices
-  useEffect(() => {
-    const checkActiveDevice = async () => {
-      try {
-        // Get current device ID based on platform
-        const currentDeviceId =
-          Platform.OS === 'android'
-            ? await DeviceInfo.getAndroidId()
-            : await DeviceInfo.getUniqueId();
-        if (userData?.active_devices && currentDeviceId) {
-          // Check if current device ID exists in active devices
-          const isDeviceActive =
-            userData.active_devices.includes(currentDeviceId);
+  // useEffect(() => {
+  //   const checkActiveDevice = async () => {
+  //     try {
+  //       // Get current device ID based on platform
+  //       const currentDeviceId =
+  //         Platform.OS === 'android'
+  //           ? await DeviceInfo.getAndroidId()
+  //           : await DeviceInfo.getUniqueId();
+  //       if (userData?.active_devices && currentDeviceId) {
+  //         // Check if current device ID exists in active devices
+  //         const isDeviceActive =
+  //           userData.active_devices.includes(currentDeviceId);
 
-          // If device is not in active devices, logout user
-          if (!isDeviceActive) {
-            console.log('Device not authorized, logging out...');
+  //         // If device is not in active devices, logout user
+  //         if (!isDeviceActive) {
+  //           console.log('Device not authorized, logging out...');
 
-            dispatch(logout());
-          }
-        }
-      } catch (error) {
-        console.error('Device check error:', error);
-      }
-    };
+  //           dispatch(logout());
+  //         }
+  //       }
+  //     } catch (error) {
+  //       console.error('Device check error:', error);
+  //     }
+  //   };
 
-    if (userData && token) {
-      checkActiveDevice();
-    }
-  }, [userData, token]);
+  //   if (userData && token) {
+  //     checkActiveDevice();
+  //   }
+  // }, [userData, token]);
 
   // Existing useEffect for subscription check
   useEffect(() => {

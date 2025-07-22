@@ -35,6 +35,11 @@ const Listings = () => {
   const dispatch = useDispatch();
   const isFocused = useIsFocused();
   const token = useSelector((state: any) => state.auth?.token);
+  const {
+    // loading: userLoading,
+    userData,
+    // error: userError,
+  } = useSelector((state: any) => state.user);
   const [loading, setLoading] = useState(false); // Loading state
   const [error, setError] = useState(null); // Error state
   const [carListings, setCarListings] = useState([]); // Data state
@@ -63,6 +68,7 @@ const Listings = () => {
   // }, [isFocused]);
 
   // Fetch carListings when the screen is focused
+  console.log('@token', token);
   useEffect(() => {
     if (isFocused) {
       fetchCarListings();
@@ -81,8 +87,6 @@ const Listings = () => {
       if (!token) {
         throw new Error('Token not found');
       }
-
-      console.log('Token:', token);
 
       const response = await api.get('/car/get-all-listing', {
         headers: {
@@ -235,13 +239,24 @@ const Listings = () => {
   });
 
   const handleToggleFavorite = (item: any, isFavorite: boolean) => {
+    if (userData?.is_guest) {
+      Toast.show(
+        'Subscribe to favorite cars and unlock all features.',
+        Toast.LONG,
+      );
+
+      return;
+    }
+
     dispatch(toggleFavoriteRequest({carId: item?._id, token}));
+
     if (isFavorite) {
       Toast.show(`${item.make} removed from Favorites`);
     } else {
       Toast.show(`${item.make} added to Favorites`);
     }
   };
+
   const handleCarDetailsNavigation = (car: any) => {
     dispatch(updateViewCountRequest({carId: car._id, token}));
     navigation.navigate('CarDeatils', {car});
@@ -414,7 +429,7 @@ const Listings = () => {
   };
   return (
     <SafeAreaView style={styles.container}>
-      {/* <Banner navigation={navigation} /> */}
+      <Banner navigation={navigation} />
 
       {/* <TouchableOpacity onPress={() => setIsLocationModalVisible(true)}>
           <Image

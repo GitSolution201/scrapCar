@@ -34,6 +34,7 @@ export const login = async userData => {
     if (response.data?.message === 'Login successful') {
       return response.data;
     } else {
+      console.log('Error ress', response?.data?.message);
       throw new Error(response.data?.message || 'Login failed');
     }
   } catch (error) {
@@ -61,6 +62,19 @@ export const attemptLogin = async userData => {
       error.response?.data || error.message,
     );
     throw error; // Re-throw the error for saga to handle
+  }
+};
+
+//Guest Login
+export const guestLoginApi = async ({deviceId, fcm_token}) => {
+  const response = await api.post('/auth/guest-login', {
+    deviceId,
+    fcm_token,
+  });
+  if (response.status === 201) {
+    return response.data;
+  } else {
+    throw new Error(response.data?.message || 'Guest login failed');
   }
 };
 

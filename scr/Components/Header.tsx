@@ -2,6 +2,8 @@ import {View, StyleSheet, Image, TouchableOpacity} from 'react-native';
 import React from 'react';
 import Colors from '../Helper/Colors';
 import {hp, wp} from '../Helper/Responsive';
+import {useSelector} from 'react-redux';
+import Toast from 'react-native-simple-toast';
 
 export default function Header({
   navigation,
@@ -10,6 +12,7 @@ export default function Header({
   navigation: any;
   showNotification: any;
 }) {
+  const {userData} = useSelector((state: any) => state.user);
   return (
     <View style={styles.headerContainer}>
       {/* Left Side: Back Button */}
@@ -30,7 +33,14 @@ export default function Header({
       {showNotification && (
         <TouchableOpacity
           onPress={() => {
-            navigation.navigate('Notifications');
+            if (userData?.is_guest) {
+              Toast.show(
+                'You’re logged in as a guest. Please log in to access notifications.',
+                Toast.LONG,
+              );
+            } else {
+              navigation.navigate('Notifications');
+            }
           }}>
           <Image
             source={require('../assets/bellEmpty.png')}

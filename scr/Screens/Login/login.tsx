@@ -13,7 +13,7 @@ import {
   Linking,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
-import {loginRequest} from '../../redux/slices/authSlice';
+import {guestLoginRequest, loginRequest} from '../../redux/slices/authSlice';
 import Colors from '../../Helper/Colors';
 import {
   widthPercentageToDP as wp,
@@ -23,16 +23,21 @@ import Toast from 'react-native-simple-toast';
 import {axiosHeader} from '../../Services/apiHeader';
 import {Fonts} from '../../Helper/Fonts';
 import DeviceInfo from 'react-native-device-info';
-import {checkSubscription} from '../../redux/api';
+import api, {checkSubscription} from '../../redux/api';
 import {NOTIFICATION_PERMISSION} from '../../Helper/Permisions';
 import {checkSubscriptionRequest} from '../../redux/slices/subcriptionsSlice';
 import {getMessaging} from '@react-native-firebase/messaging';
+import axios from 'axios';
 
 const Login = ({navigation}: {navigation: any}) => {
   const dispatch = useDispatch();
-  const {loading, loginResponse, token, loginSuccess} = useSelector(
-    (state: any) => state.auth,
-  );
+  // const {loading, loginResponse, token, loginSuccess} = useSelector(
+  //   (state: any) => state.auth,
+  // );
+  const guestLoading = useSelector((state: any) => state.auth.guestLoading);
+
+  const authState = useSelector((state: any) => state.auth);
+  const {loading, loginResponse, token} = authState;
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [formErrors, setFormErrors] = useState<{
@@ -68,7 +73,11 @@ const Login = ({navigation}: {navigation: any}) => {
       }
     }
   }, [loginResponse]);
-
+  useEffect(() => {
+    if (token) {
+      console.log('✅ Token available:', token);
+    }
+  }, [token]);
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       setFormErrors({
@@ -138,7 +147,6 @@ const Login = ({navigation}: {navigation: any}) => {
       setApiError('');
       const deviceId = await DeviceInfo.getUniqueId();
       const token = await getMessaging().getToken();
-      console.log('KKKK', token);
       dispatch(
         loginRequest({
           email,
@@ -147,6 +155,18 @@ const Login = ({navigation}: {navigation: any}) => {
           token,
         }),
       );
+    }
+  };
+
+  const handleGuestLogin = async () => {
+    try {
+      // setGuestLoading(true); // ✅ Show loader on button
+      const deviceId = await DeviceInfo.getUniqueId();
+      const fcm_token = await getMessaging().getToken();
+
+      dispatch(guestLoginRequest({deviceId, fcm_token}));
+    } catch (error) {
+      console.log('❌ Guest login error', error);
     }
   };
 
@@ -230,7 +250,18 @@ const Login = ({navigation}: {navigation: any}) => {
             {loading ? 'Please wait...' : 'Log In'}
           </Text>
         </TouchableOpacity>
-
+        <TouchableOpacity
+          style={[
+            styles.loginButton,
+            {backgroundColor: Colors.primary, marginTop: hp(2)},
+            guestLoading && styles.disabledButton,
+          ]}
+          disabled={guestLoading}
+          onPress={handleGuestLogin}>
+          <Text style={[styles.LoginButtonText, {color: Colors.white}]}>
+            {guestLoading ? 'Please wait...' : ' Login as Guest'}
+          </Text>
+        </TouchableOpacity>
         <TouchableOpacity
           style={styles.link}
           onPress={() => navigation.navigate('Register')}>

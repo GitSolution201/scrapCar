@@ -10,6 +10,8 @@ import {
 import {hp, wp} from '../../Helper/Responsive';
 import Colors from '../../Helper/Colors';
 import {Fonts} from '../../Helper/Fonts';
+import Header from '../../Components/Header';
+import {useNavigation} from '@react-navigation/native';
 
 const initialNotifications = [
   {
@@ -92,7 +94,7 @@ const initialNotifications = [
 
 const Notifications = () => {
   const [data, setData] = useState(initialNotifications);
-
+  const navigation = useNavigation();
   const handleClearAll = () => {
     setData([]);
   };
@@ -116,6 +118,8 @@ const Notifications = () => {
   return (
     <View style={styles.container}>
       {/* Header */}
+      <Header navigation={navigation} showNotification={false} />
+
       <View style={styles.headerContainer}>
         <Text style={styles.headerTitle}>Notifications</Text>
       </View>
@@ -140,7 +144,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(5),
     paddingTop: hp(3),
     backgroundColor: '#F5F5F5',
-    marginTop: 40,
+    // marginTop: 40,
   },
   headerContainer: {
     flexDirection: 'row',

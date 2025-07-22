@@ -45,7 +45,7 @@ const Details = ({route}: {route: any}) => {
     messageError: '',
     amountError: '',
   });
-  const isSubscribed = true; // <--- temporarily hardcoded
+  // const isSubscribed = true; // <--- temporarily hardcoded
 
   useEffect(() => {
     if (qoute?.success) {
@@ -56,7 +56,7 @@ const Details = ({route}: {route: any}) => {
     }
   }, [qoute?.success]);
   const handleSendQoute = () => {
-    if (!isSubscribed) {
+    if (!hasSubscription) {
       showSubscriptionAlert();
       return;
     }
@@ -116,7 +116,7 @@ const Details = ({route}: {route: any}) => {
   //   }
   // };
   const handleCall = (phoneNumber: any) => {
-    if (!isSubscribed) {
+    if (!hasSubscription) {
       showSubscriptionAlert();
       return;
     }
@@ -124,7 +124,7 @@ const Details = ({route}: {route: any}) => {
   };
 
   const handleTextMessage = (phoneNumber: any) => {
-    if (!isSubscribed) {
+    if (!hasSubscription) {
       showSubscriptionAlert();
       return;
     }
@@ -132,7 +132,7 @@ const Details = ({route}: {route: any}) => {
   };
 
   const handleWhatsApp = (phoneNumber: any) => {
-    if (!isSubscribed) {
+    if (!hasSubscription) {
       showSubscriptionAlert();
       return;
     }
@@ -140,7 +140,7 @@ const Details = ({route}: {route: any}) => {
   };
 
   const handleMotHistory = () => {
-    if (!isSubscribed) {
+    if (!hasSubscription) {
       showSubscriptionAlert();
       return;
     }
@@ -239,7 +239,7 @@ const Details = ({route}: {route: any}) => {
               </Text>
             </View>
           </View>
-          {/* <Banner navigation={navigationRef} /> */}
+          <Banner navigation={navigationRef} />
         </View>
 
         <View style={styles.contactContainer}>

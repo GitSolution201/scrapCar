@@ -43,6 +43,9 @@
 <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 <string>BusyMotors uses your location to show nearby vehicles and improve booking accuracy.</string>
 
+<key>NSPhotoLibraryUsageDescription</key>
+<string>BusyMotors needs access to your gallery to upload documents or profile pictures.</string>
+
 <key>NSLocationWhenInUseUsageDescription</key>
 <string>BusyMotors needs your location to help you find vehicles near you while using the app.</string>
 

@@ -58,7 +58,6 @@ const Profile = () => {
   const [callingCode, setCallingCode] = useState('44');
   const [visible, setVisible] = useState(false);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
-
   useEffect(() => {
     setErrors({});
 
@@ -69,10 +68,17 @@ const Profile = () => {
   }, [isFocused]);
   useEffect(() => {
     if (userData) {
-      setFirstName(userData.first_name || '');
-      setLastName(userData.last_name || '');
-      setEmail(userData.email || '');
-      setPhoneNumber(userData.phone_number || '');
+      if (userData.is_guest) {
+        setFirstName('guest');
+        setLastName('guest');
+        setEmail('guest');
+      } else {
+        setFirstName(userData.first_name || '');
+        setLastName(userData.last_name || '');
+        setEmail(userData.email || '');
+        setPhoneNumber(userData.phone_number || '');
+      }
+
       setShowImage(userData.profile_image || '');
     }
   }, [userData]);
@@ -104,11 +110,11 @@ const Profile = () => {
       newErrors.email = 'Email is invalid';
     }
 
-    if (!phoneNumber.trim()) {
-      newErrors.phoneNumber = 'Phone number is required';
-    } else if (!/^\d{10}$/.test(phoneNumber)) {
-      newErrors.phoneNumber = 'Phone number must be 10 digits';
-    }
+    // if (!phoneNumber.trim()) {
+    //   newErrors.phoneNumber = 'Phone number is required';
+    // } else if (!/^\d{10}$/.test(phoneNumber)) {
+    //   newErrors.phoneNumber = 'Phone number must be 10 digits';
+    // }
     if (!showImage) {
       newErrors.showImage = 'Profile picture is required';
     }
@@ -138,6 +144,13 @@ const Profile = () => {
   };
 
   const handleSave = () => {
+    if (userData?.is_guest) {
+      Toast.show(
+        'Guest users cannot update profile. Please log in to make changes.',
+        Toast.LONG,
+      );
+      return; // Stop further execution
+    }
     if (validateForm()) {
       const formData = new FormData();
 
@@ -153,7 +166,6 @@ const Profile = () => {
           type: 'image/jpeg',
         });
       }
-
       dispatch(updateProfileRequest({token, updatedData: formData}));
     }
   };
@@ -189,7 +201,6 @@ const Profile = () => {
       Toast.show('Something went wrong while deleting profile', Toast.LONG);
     }
   };
-
   if (userLoading || updateLoading) {
     return (
       <View style={styles.loadingContainer}>
@@ -305,7 +316,7 @@ const Profile = () => {
             placeholderTextColor="#9E9E9E"
           />
           {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
-          <Text style={styles.hidingColor}>Phone Number</Text>
+          {/* <Text style={styles.hidingColor}>Phone Number</Text>
           <View style={styles.phoneContainer}>
             <TouchableOpacity
               onPress={() => setVisible(true)}
@@ -338,7 +349,7 @@ const Profile = () => {
           </View>
           {errors.phoneNumber && (
             <Text style={styles.errorText}>{errors.phoneNumber}</Text>
-          )}
+          )} */}
           {/* <TextInput
           style={[styles.input, errors.phoneNumber && styles.inputError]}
           placeholder="Phone Number"
@@ -362,7 +373,16 @@ const Profile = () => {
         {/* Save Button */}
         <TouchableOpacity
           style={styles.deleteButton}
-          onPress={() => setDeleteModalVisible(true)}>
+          onPress={() => {
+            if (userData?.is_guest) {
+              Toast.show(
+                'Guest accounts cannot be deleted. Please log in to delete your profile.',
+                Toast.LONG,
+              );
+            } else {
+              setDeleteModalVisible(true);
+            }
+          }}>
           <Text style={styles.deleteButtonText}>Delete Profile</Text>
         </TouchableOpacity>
 
@@ -413,7 +433,9 @@ const Profile = () => {
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
               <Text style={styles.modalTopText}>
-                {userData?.first_name + ' ' + userData?.last_name}
+                {userData?.is_guest
+                  ? 'Guest User'
+                  : userData?.first_name + ' ' + userData?.last_name}
               </Text>
               <Text style={styles.modalText}>
                 Are you sure you want to log out ?
