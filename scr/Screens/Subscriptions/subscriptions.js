@@ -643,8 +643,14 @@ const SubscriptionScreen = () => {
   useEffect(() => {
     const fetchRevenueCatProducts = async () => {
       try {
-        const offeringsData = await Purchases.getOfferings();
-        console.log('@ofering', offeringsData);
+        const offeringsData = await Purchases.getOfferings().then((res)=>{
+          console.log('==============@oferingres', res);
+        
+        }).catch((err)=>{
+          console.log('==============@oferingerr', err);
+        
+        })
+        console.log('==============@ofering', offeringsData);
         if (
           offeringsData.current &&
           offeringsData.current.availablePackages.length > 0
@@ -1039,6 +1045,23 @@ const SalvageRoute = ({
     </ScrollView>
   );
 };
+const purchase = async () => {
+  try {
+    const offerings = await Purchases.getOfferings();
+    const packageToBuy = offerings.current.availablePackages[0]; // or index by identifier
+
+    const purchaseInfo = await Purchases.purchasePackage(packageToBuy);
+
+    console.log('✅ Purchase successful!', purchaseInfo);
+  } catch (e: any) {
+    if (!e.userCancelled) {
+      console.log('❌ Purchase failed:', e);
+    } else {
+      console.log('🚫 Purchase cancelled by user');
+    }
+  }
+};
+
 
 // ScrapRoute Component
 const ScrapRoute = ({
@@ -1110,6 +1133,7 @@ const ScrapRoute = ({
     <ScrollView contentContainerStyle={styles.scrollContent}>
       <View style={styles.tabContent}>
         <Text style={styles.subHeader}>Scrap Monthly Subscription:</Text>
+        <Button title="Buy Subscription" onPress={purchase} />
         <Text style={styles.description}>
           Access a curated list of car sellers.
         </Text>

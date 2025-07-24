@@ -20,13 +20,13 @@ export default function App() {
   } | null>(null);
 
   // const API_KEY = Platform.select({
-  //   ios: 'appl_TXZGrdgdMhSiZsEQZibKveQQwtQ',
+  //   ios: 'appl_ddZHtOMnsNUHTMWzjGfiSlKHzVL',
   //   // android: 'your_revenuecat_android_api_key',
   // });
 
-  // useEffect(() => {
-  //   Purchases.configure({apiKey: API_KEY});
-  // }, []);
+  useEffect(() => {
+    Purchases.configure({apiKey: "appl_ddZHtOMnsNUHTMWzjGfiSlKHzVL"});
+  }, []);
 
   useEffect(() => {
     let unsubscribeFn = () => {};

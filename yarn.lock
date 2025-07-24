@@ -2371,10 +2371,10 @@
     redux-thunk "^3.1.0"
     reselect "^5.1.0"
 
-"@revenuecat/purchases-typescript-internal@13.38.1":
-  version "13.38.1"
-  resolved "https://registry.yarnpkg.com/@revenuecat/purchases-typescript-internal/-/purchases-typescript-internal-13.38.1.tgz#91cb3d4e309933386916a69604b16f6e36e12b4e"
-  integrity sha512-Z+08KPBHgHsVUE46/SwraoI04NIZz7kOzl8dCXe8ZLckQIyXQOkz5RfhXFHTbVWlYf0f7fPD4aNDfDX3Kn9gVQ==
+"@revenuecat/purchases-typescript-internal@15.0.0":
+  version "15.0.0"
+  resolved "https://registry.yarnpkg.com/@revenuecat/purchases-typescript-internal/-/purchases-typescript-internal-15.0.0.tgz#9197fb1218238ac695a799b8c06d648430214f13"
+  integrity sha512-EUR2jD8zk59MNON3vYpU90J+rvLxP09jO1/x2rSMV8w6dd5BGoxIP5x5So5HdISfz5Lz1egeVbc2LQ+5Ord4fw==
 
 "@sideway/address@^4.1.5":
   version "4.1.5"
@@ -6577,12 +6577,12 @@ react-native-permissions@^5.2.5:
   resolved "https://registry.yarnpkg.com/react-native-permissions/-/react-native-permissions-5.4.0.tgz#04427be8897625ba5af29c3f1dc81b7bec48fd12"
   integrity sha512-D+YOIss+aKXi/VuZvm7hAq4WSugYyif58AIAWsT2/uLh9pz9ukOttGzPttjrv617J3bOEnt7C6cJBWoXmj/QRw==
 
-react-native-purchases@^8.11.7:
-  version "8.11.7"
-  resolved "https://registry.yarnpkg.com/react-native-purchases/-/react-native-purchases-8.11.7.tgz#36a401e1ed0a2b2d1d8271a20ff579797ebfc421"
-  integrity sha512-hcCI155cHTxZYkDLTvB1Bpk2Z1eOXm7A1n8Iqx4qrTk6wZAFG7cyBreiCz12+aKzld6iX9audZT5npiY9VoE6A==
+react-native-purchases@^9.0.0:
+  version "9.0.0"
+  resolved "https://registry.yarnpkg.com/react-native-purchases/-/react-native-purchases-9.0.0.tgz#5fa2eb8163fec063bda40950bbce7921774b4e3e"
+  integrity sha512-zBcP15n07CujuYAwEX3kWWjo5O9xwME6WLhuGAsQ5zbkP3eNM3TQtIM1O4HDxNZxkRlpZn1Z3YYWtJ1v/ljqMQ==
   dependencies:
-    "@revenuecat/purchases-typescript-internal" "13.38.1"
+    "@revenuecat/purchases-typescript-internal" "15.0.0"
 
 react-native-reanimated@^3.16.5:
   version "3.17.5"
