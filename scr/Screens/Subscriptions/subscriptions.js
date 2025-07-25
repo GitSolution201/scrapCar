@@ -42,6 +42,7 @@ import {checkSubscriptionRequest} from '../../redux/slices/subcriptionsSlice';
 import {cancelSubscriptionRequest} from '../../redux/slices/canceleSubcriptionsSlice';
 import {updateSubscriptionRequest} from '../../redux/slices/updateSubcriptionSlice';
 import Purchases from 'react-native-purchases';
+import * as RNIap from 'react-native-iap';
 
 const {width: wp, height: hp} = Dimensions.get('window');
 const api = axios.create({
@@ -113,6 +114,8 @@ const SubscriptionScreen = () => {
   ]);
   const [offerings, setOfferings] = useState(null);
   const [isPurchasing, setIsPurchasing] = useState(false);
+  const [purchaseUpdateSubscription, setPurchaseUpdateSubscription] = useState(null);
+  const [purchaseErrorSubscription, setPurchaseErrorSubscription] = useState(null);
 
   const [loading, setLoading] = useState(false);
   const [merchantIdentifier, setMerchantIdentifier] = useState(
@@ -135,7 +138,7 @@ const SubscriptionScreen = () => {
     state => state?.updateSubscription,
   );
   const dispatch = useDispatch();
-
+  const productIds = ['scrap_monthlu_299_testing']; // 👈 your product ID from App Store Connect
   useEffect(() => {
     if (userData) {
       setEmail(userData.email);
@@ -445,7 +448,6 @@ const SubscriptionScreen = () => {
   };
   const renderScene = ({route}) => {
     const sharedProps = {
-      products: products,
       // selectedSubscription: subscriptionSelected,
       // onSelectSubscription: subscription => {
       //   setSubscriptionSelected(subscription);
@@ -641,55 +643,148 @@ const SubscriptionScreen = () => {
     dispatch(cancelSubscriptionRequest({subscriptionId, token}));
   };
   useEffect(() => {
-    const fetchRevenueCatProducts = async () => {
+    const initIAP = async () => {
       try {
-        const offeringsData = await Purchases.getOfferings().then((res)=>{
-          console.log('==============@oferingres', res);
-        
-        }).catch((err)=>{
-          console.log('==============@oferingerr', err);
-        
-        })
-        console.log('==============@ofering', offeringsData);
-        if (
-          offeringsData.current &&
-          offeringsData.current.availablePackages.length > 0
-        ) {
-          console.log(
-            '🟢 Available Packages:',
-            offeringsData.current.availablePackages,
-          );
-          setOfferings(offeringsData.current);
-        } else {
-          console.log('🔴 No available products found in RevenueCat.');
-        }
-      } catch (error) {
-        console.log('❌ Error fetching RevenueCat products:', error);
+           await RNIap.initConnection();
+        const items = await RNIap.getSubscriptions({skus: productIds});
+        console.log('-----------newproducts', productIds);
+        setProducts(items);
+
+        // Purchase Update Listener
+        const purchaseUpdate = RNIap.purchaseUpdatedListener(async (purchase) => {
+          console.log('✅ Purchase Updated:', purchase);
+
+          if (purchase.transactionReceipt) {
+            try {
+              // iOS: finish the transaction
+              await RNIap.finishTransaction(purchase);
+              Alert.alert('Success', 'Subscription Completed!');
+            } catch (ackErr) {
+              console.warn('⚠️ finishTransaction error:', ackErr);
+            }
+          }
+        });
+
+        // Purchase Error Listener
+        const purchaseError = RNIap.purchaseErrorListener((error) => {
+          console.log('❌ Purchase Error:', error);
+          Alert.alert('Error', error.message);
+        });
+
+        setPurchaseUpdateSubscription(purchaseUpdate);
+        setPurchaseErrorSubscription(purchaseError);
+
+      } catch (err) {
+        console.log('❌ IAP Init Error:', err);
       }
     };
 
-    fetchRevenueCatProducts();
+    initIAP();
+
+    return () => {
+      if (purchaseUpdateSubscription) {
+        purchaseUpdateSubscription.remove();
+      }
+      if (purchaseErrorSubscription) {
+        purchaseErrorSubscription.remove();
+      }
+      RNIap.endConnection();
+    };
   }, []);
-
   const handleSubscribe = async () => {
-    if (!offerings) return;
-
     try {
       setIsPurchasing(true);
-      const purchase = await Purchases.purchasePackage(
-        offerings.availablePackages[0],
-      );
-      console.log('🎉 Purchase successful:', purchase);
-    } catch (e) {
-      if (!e.userCancelled) {
-        console.log('❌ Purchase error:', e);
-      } else {
-        console.log('⚠️ User cancelled purchase.');
-      }
+      await RNIap.requestSubscription({ sku: 'scrap_monthlu_299_testing' });
+    } catch (err) {
+      Alert.alert('Error', err.message || 'Something went wrong');
     } finally {
       setIsPurchasing(false);
     }
   };
+  
+  // useEffect(() => {
+  //   const init = async () => {
+  //     try {
+  //       await RNIap.initConnection();
+  //       const items = await RNIap.getSubscriptions({skus: productIds});
+  //       console.log('-----------newproducts', productIds);
+  //       // use getProducts for one-time purchases
+  //       setProducts(items);
+  //     } catch (err) {
+  //       console.log('error-------', err);
+  //     }
+  //   };
+
+  //   init();
+
+  //   return () => {
+  //     RNIap.endConnection();
+  //   };
+  // }, []);
+  // const handleSubscribe = async () => {
+  //   try {
+  //     setIsPurchasing(true);
+  //     const pur = await RNIap.clearTransactionIOS();
+  //     // const purchase = await RNIap.requestSubscription({sku: productIds[0]});
+  //     console.log('✅ Subscription successful:', pur);
+  //     Alert.alert('Success', 'Subscription Completed!');
+  //     setIsPurchasing(false);
+  //   } catch (err) {
+  //     console.warn('❌ Subscription error:', err);
+  //     Alert.alert('Error', err.message);
+  //     setIsPurchasing(false);
+  //   }
+  // };
+  // useEffect(() => {
+  //   const fetchRevenueCatProducts = async () => {
+  //     try {
+  //       const offeringsData = await Purchases.getOfferings().then((res)=>{
+  //         console.log('==============@oferingres', res);
+        
+  //       }).catch((err)=>{
+  //         console.log('==============@oferingerr', err);
+        
+  //       })
+  //       console.log('==============@ofering', offeringsData);
+  //       if (
+  //         offeringsData.current &&
+  //         offeringsData.current.availablePackages.length > 0
+  //       ) {
+  //         console.log(
+  //           '🟢 Available Packages:',
+  //           offeringsData.current.availablePackages,
+  //         );
+  //         setOfferings(offeringsData.current);
+  //       } else {
+  //         console.log('🔴 No available products found in RevenueCat.');
+  //       }
+  //     } catch (error) {
+  //       console.log('❌ Error fetching RevenueCat products:', error);
+  //     }
+  //   };
+
+  //   fetchRevenueCatProducts();
+  // }, []);
+
+  // const handleSubscribe = async () => {
+  //   if (!offerings) return;
+
+  //   try {
+  //     setIsPurchasing(true);
+  //     const purchase = await Purchases.purchasePackage(
+  //       offerings.availablePackages[0],
+  //     );
+  //     console.log('🎉 Purchase successful:', purchase);
+  //   } catch (e) {
+  //     if (!e.userCancelled) {
+  //       console.log('❌ Purchase error:', e);
+  //     } else {
+  //       console.log('⚠️ User cancelled purchase.');
+  //     }
+  //   } finally {
+  //     setIsPurchasing(false);
+  //   }
+  // };
   return (
     <StripeProvider
       publishableKey={publishableKey}
@@ -853,7 +948,7 @@ const SubscriptionScreen = () => {
         <Text style={{textAlign: 'center', marginBottom: 20}}>
           In app purchase in Review
         </Text>
-        {offerings ? (
+        {/* {offerings ? ( */}
           <View
             style={{
               alignItems: 'center',
@@ -864,11 +959,11 @@ const SubscriptionScreen = () => {
               disabled={isPurchasing}
             />
           </View>
-        ) : (
+        {/* ) : (
           <Text style={{textAlign: 'center', marginBottom: 10}}>
             Loading products...
           </Text>
-        )}
+        )} */}
         {/* {loading && (
           <View style={styles.loaderOverlay}>
             <ActivityIndicator size="large" color={Colors.primary} />
@@ -959,7 +1054,7 @@ const SalvageRoute = ({
           Expand your inventory with unique opportunities.
         </Text>
         <View style={styles.tabContainer}>
-          <TouchableOpacity
+          {/* <TouchableOpacity
             onPress={() => console.log('object')}
             style={[styles.optionSelected]}>
             <Image
@@ -978,8 +1073,7 @@ const SalvageRoute = ({
             </View>
             <Text style={styles.optionSubText}>50 GBP</Text>
             <Text style={styles.helperText}>7 days access</Text>
-            {/* ✅ added */}
-          </TouchableOpacity>
+          </TouchableOpacity> */}
 
           <TouchableOpacity
             onPress={() => console.log('object')}
@@ -1000,12 +1094,10 @@ const SalvageRoute = ({
             </View>
             <Text style={styles.optionSubText}>180 GBP</Text>
             <Text style={styles.helperText}>1 month access</Text>
-            {/* ✅ added */}
           </TouchableOpacity>
         </View>
 
-        {/* Add Corporate Box */}
-        <View
+        {/* <View
           style={[
             styles.tabContainer,
             {
@@ -1038,9 +1130,8 @@ const SalvageRoute = ({
             </View>
             <Text style={styles.optionSubText}>300 GBP</Text>
             <Text style={styles.helperText}>1 month access</Text>
-            {/* ✅ added */}
           </TouchableOpacity>
-        </View>
+        </View> */}
       </View>
     </ScrollView>
   );
@@ -1144,7 +1235,7 @@ const ScrapRoute = ({
           Contact sellers directly to negotiate and close deals.
         </Text>
         <View style={styles.tabContainer}>
-          <TouchableOpacity
+          {/* <TouchableOpacity
             onPress={() => console.log('ooo')}
             style={[styles.optionSelected]}>
             <Image
@@ -1163,8 +1254,7 @@ const ScrapRoute = ({
             </View>
             <Text style={styles.optionSubText}>50 GBP</Text>
             <Text style={styles.helperText}>7 days access</Text>
-            {/* ✅ added */}
-          </TouchableOpacity>
+          </TouchableOpacity> */}
 
           <TouchableOpacity
             onPress={() => console.log('hj')}
@@ -1185,12 +1275,11 @@ const ScrapRoute = ({
             </View>
             <Text style={styles.optionSubText}>180 GBP</Text>
             <Text style={styles.helperText}>1 month access</Text>
-            {/* ✅ added */}
+      
           </TouchableOpacity>
         </View>
 
-        {/* Add Corporate Box */}
-        <View
+        {/* <View
           style={[
             styles.tabContainer,
             {
@@ -1223,9 +1312,8 @@ const ScrapRoute = ({
             </View>
             <Text style={styles.optionSubText}>300 GBP</Text>
             <Text style={styles.helperText}>1 month access</Text>
-            {/* ✅ added */}
           </TouchableOpacity>
-        </View>
+        </View> */}
       </View>
     </ScrollView>
   );
