@@ -642,65 +642,65 @@ const SubscriptionScreen = () => {
     }
     dispatch(cancelSubscriptionRequest({subscriptionId, token}));
   };
-  useEffect(() => {
-    const initIAP = async () => {
-      try {
-           await RNIap.initConnection();
-        const items = await RNIap.getSubscriptions({skus: productIds});
-        console.log('-----------newproducts', productIds);
-        setProducts(items);
+  // useEffect(() => {
+  //   const initIAP = async () => {
+  //     try {
+  //       await RNIap.initConnection();
+  //       const items = await RNIap.getSubscriptions({skus: productIds});
+  //       console.log('-----------newproducts', productIds);
+  //       setProducts(items);
 
-        // Purchase Update Listener
-        const purchaseUpdate = RNIap.purchaseUpdatedListener(async (purchase) => {
-          console.log('✅ Purchase Updated:', purchase);
+  //       // Purchase Update Listener
+  //       const purchaseUpdate = RNIap.purchaseUpdatedListener(async (purchase) => {
+  //         console.log('✅ Purchase Updated:', purchase);
 
-          if (purchase.transactionReceipt) {
-            try {
-              // iOS: finish the transaction
-              await RNIap.finishTransaction(purchase);
-              Alert.alert('Success', 'Subscription Completed!');
-            } catch (ackErr) {
-              console.warn('⚠️ finishTransaction error:', ackErr);
-            }
-          }
-        });
+  //         if (purchase.transactionReceipt) {
+  //           try {
+  //             // iOS: finish the transaction
+  //             await RNIap.finishTransaction(purchase);
+  //             Alert.alert('Success', 'Subscription Completed!');
+  //           } catch (ackErr) {
+  //             console.warn('⚠️ finishTransaction error:', ackErr);
+  //           }
+  //         }
+  //       });
 
-        // Purchase Error Listener
-        const purchaseError = RNIap.purchaseErrorListener((error) => {
-          console.log('❌ Purchase Error:', error);
-          Alert.alert('Error', error.message);
-        });
+  //       // Purchase Error Listener
+  //       const purchaseError = RNIap.purchaseErrorListener((error) => {
+  //         console.log('❌ Purchase Error:', error);
+  //         Alert.alert('Error', error.message);
+  //       });
 
-        setPurchaseUpdateSubscription(purchaseUpdate);
-        setPurchaseErrorSubscription(purchaseError);
+  //       setPurchaseUpdateSubscription(purchaseUpdate);
+  //       setPurchaseErrorSubscription(purchaseError);
 
-      } catch (err) {
-        console.log('❌ IAP Init Error:', err);
-      }
-    };
+  //     } catch (err) {
+  //       console.log('❌ IAP Init Error:', err);
+  //     }
+  //   };
 
-    initIAP();
+  //   initIAP();
 
-    return () => {
-      if (purchaseUpdateSubscription) {
-        purchaseUpdateSubscription.remove();
-      }
-      if (purchaseErrorSubscription) {
-        purchaseErrorSubscription.remove();
-      }
-      RNIap.endConnection();
-    };
-  }, []);
-  const handleSubscribe = async () => {
-    try {
-      setIsPurchasing(true);
-      await RNIap.requestSubscription({ sku: 'scrap_monthlu_299_testing' });
-    } catch (err) {
-      Alert.alert('Error', err.message || 'Something went wrong');
-    } finally {
-      setIsPurchasing(false);
-    }
-  };
+  //   return () => {
+  //     if (purchaseUpdateSubscription) {
+  //       purchaseUpdateSubscription.remove();
+  //     }
+  //     if (purchaseErrorSubscription) {
+  //       purchaseErrorSubscription.remove();
+  //     }
+  //     RNIap.endConnection();
+  //   };
+  // }, []);
+  // const handleSubscribe = async () => {
+  //   try {
+  //     setIsPurchasing(true);
+  //     await RNIap.requestSubscription({ sku: 'scrap_monthlu_299_testing' });
+  //   } catch (err) {
+  //     Alert.alert('Error', err.message || 'Something went wrong');
+  //   } finally {
+  //     setIsPurchasing(false);
+  //   }
+  // };
   
   // useEffect(() => {
   //   const init = async () => {
@@ -735,56 +735,243 @@ const SubscriptionScreen = () => {
   //     setIsPurchasing(false);
   //   }
   // };
-  // useEffect(() => {
-  //   const fetchRevenueCatProducts = async () => {
-  //     try {
-  //       const offeringsData = await Purchases.getOfferings().then((res)=>{
-  //         console.log('==============@oferingres', res);
+  const handleSubscribe = async () => {
+   
+    try {
+      const offerings = await Purchases.getOfferings();
+      if (offerings.current && offerings.current.availablePackages.length > 0) {
+        const packageToBuy = offerings.current.availablePackages[0]; // or pick by identifier
+        await Purchases.purchasePackage(packageToBuy); // <-- This opens the purchase sheet
+        Alert.alert('Success', 'Subscription Completed!');
+      } else {
+        Alert.alert('No available packages to purchase.');
+      }
+    } catch (e) {
+      if (!e.userCancelled) {
+        Alert.alert('Error', e.message || 'Something went wrong');
+      }
+    }
+  };
+  useEffect(() => {
+    const fetchRevenueCatProducts = async () => {
+      try {
+        console.log('🔄 Fetching RevenueCat offerings...');
         
-  //       }).catch((err)=>{
-  //         console.log('==============@oferingerr', err);
+        // Get all offerings (not just current)
+        const allOfferings = await Purchases.getOfferings();
+        console.log('📦 All offerings:', JSON.stringify(allOfferings, null, 2));
         
-  //       })
-  //       console.log('==============@ofering', offeringsData);
-  //       if (
-  //         offeringsData.current &&
-  //         offeringsData.current.availablePackages.length > 0
-  //       ) {
-  //         console.log(
-  //           '🟢 Available Packages:',
-  //           offeringsData.current.availablePackages,
-  //         );
-  //         setOfferings(offeringsData.current);
-  //       } else {
-  //         console.log('🔴 No available products found in RevenueCat.');
-  //       }
-  //     } catch (error) {
-  //       console.log('❌ Error fetching RevenueCat products:', error);
-  //     }
-  //   };
+        if (allOfferings.current) {
+          console.log('✅ Current offering found:', allOfferings.current.identifier);
+          console.log('📋 Available packages:', allOfferings.current.availablePackages.length);
+          
+          allOfferings.current.availablePackages.forEach((pkg, index) => {
+            console.log(`📦 Package ${index + 1}:`, {
+              identifier: pkg.identifier,
+              packageType: pkg.packageType,
+              product: {
+                identifier: pkg.product.identifier,
+                title: pkg.product.title,
+                price: pkg.product.price,
+                priceString: pkg.product.priceString,
+                productType: pkg.product.productType
+              }
+            });
+          });
+          
+          return allOfferings.current.availablePackages;
+        } else {
+          console.log('❌ No current offering found');
+          console.log('🔍 Available offerings:', Object.keys(allOfferings));
+          
+          // Check if there are any other offerings
+          Object.keys(allOfferings).forEach(key => {
+            if (key !== 'current' && allOfferings[key]) {
+              console.log(`📦 Offering "${key}":`, allOfferings[key].availablePackages.length, 'packages');
+            }
+          });
+        }
+      } catch (error) {
+        console.log('❌ Error fetching offerings:', error);
+        console.log('Error details:', {
+          message: error.message,
+          code: error.code,
+          userCancelled: error.userCancelled
+        });
+      }
+    };
 
-  //   fetchRevenueCatProducts();
-  // }, []);
+    fetchRevenueCatProducts();
+  }, []);
 
-  // const handleSubscribe = async () => {
-  //   if (!offerings) return;
+  const checkCustomerInfo = async () => {
+    try {
+      console.log('👤 Fetching customer info...');
+      const customerInfo = await Purchases.getCustomerInfo();
+      
+      console.log('📊 Customer Info:', {
+        originalAppUserId: customerInfo.originalAppUserId,
+        activeSubscriptions: customerInfo.activeSubscriptions,
+        allPurchaseDates: customerInfo.allPurchaseDates,
+        entitlements: customerInfo.entitlements.active
+      });
+      
+      if (customerInfo.activeSubscriptions.length > 0) {
+        console.log('✅ Active subscriptions found:', customerInfo.activeSubscriptions);
+      } else {
+        console.log('❌ No active subscriptions');
+      }
+      
+      return customerInfo;
+    } catch (error) {
+      console.log('❌ Error fetching customer info:', error);
+      return null;
+    }
+  };
 
-  //   try {
-  //     setIsPurchasing(true);
-  //     const purchase = await Purchases.purchasePackage(
-  //       offerings.availablePackages[0],
-  //     );
-  //     console.log('🎉 Purchase successful:', purchase);
-  //   } catch (e) {
-  //     if (!e.userCancelled) {
-  //       console.log('❌ Purchase error:', e);
-  //     } else {
-  //       console.log('⚠️ User cancelled purchase.');
-  //     }
-  //   } finally {
-  //     setIsPurchasing(false);
-  //   }
-  // };
+  useEffect(() => {
+    checkCustomerInfo();
+  }, []);
+
+  // Add this method to force refresh offerings
+  const forceRefreshOfferings = async () => {
+    try {
+      console.log('🔄 Force refreshing offerings...');
+      
+      // Clear any cached data (if available)
+      // Note: This is a workaround - RevenueCat doesn't have a direct cache clear method
+      
+      // Get fresh offerings
+      const freshOfferings = await Purchases.getOfferings();
+      console.log('🆕 Fresh offerings:', JSON.stringify(freshOfferings, null, 2));
+      
+      if (freshOfferings.current) {
+        console.log('✅ Fresh current offering:', freshOfferings.current.identifier);
+        return freshOfferings.current.availablePackages;
+      } else {
+        console.log('❌ Still no current offering after refresh');
+        return [];
+      }
+    } catch (error) {
+      console.log('❌ Error refreshing offerings:', error);
+      return [];
+    }
+  };
+
+  // Add a button to test this (you can call this from your UI)
+  const handleRefreshOfferings = async () => {
+    const packages = await forceRefreshOfferings();
+    if (packages.length > 0) {
+      Alert.alert('Success', `Found ${packages.length} packages after refresh`);
+    } else {
+      Alert.alert('No Packages', 'No packages found after refresh. Check App Store Connect and RevenueCat configuration.');
+    }
+  };
+
+  // Add this method to purchase any specific package
+  const purchaseSpecificPackage = async (packageIdentifier) => {
+    try {
+      console.log(`🛒 Attempting to purchase package: ${packageIdentifier}`);
+      
+      const offerings = await Purchases.getOfferings();
+      
+      if (!offerings.current) {
+        Alert.alert('Error', 'No offerings available');
+        return;
+      }
+      
+      // Find the specific package
+      const packageToBuy = offerings.current.availablePackages.find(
+        pkg => pkg.identifier === packageIdentifier
+      );
+      
+      if (!packageToBuy) {
+        console.log('❌ Package not found:', packageIdentifier);
+        console.log('📦 Available packages:', offerings.current.availablePackages.map(p => p.identifier));
+        Alert.alert('Error', `Package ${packageIdentifier} not found`);
+        return;
+      }
+      
+      console.log('✅ Package found:', {
+        identifier: packageToBuy.identifier,
+        product: packageToBuy.product.identifier,
+        price: packageToBuy.product.priceString,
+        title: packageToBuy.product.title
+      });
+      
+      // Purchase the package
+      const purchaseInfo = await Purchases.purchasePackage(packageToBuy);
+      
+      console.log('🎉 Purchase successful:', purchaseInfo);
+      Alert.alert('Success', 'Purchase completed successfully!');
+      
+      return purchaseInfo;
+      
+    } catch (error) {
+      console.log('❌ Purchase error:', error);
+      
+      if (error.userCancelled) {
+        console.log('🚫 User cancelled purchase');
+      } else {
+        Alert.alert('Purchase Failed', error.message || 'Something went wrong');
+      }
+      
+      throw error;
+    }
+  };
+
+  // Method to purchase monthly package
+  const purchaseMonthly = async () => {
+    return await purchaseSpecificPackage('$rc_monthly');
+  };
+
+  // Method to purchase weekly package (if you add it)
+  const purchaseWeekly = async () => {
+    return await purchaseSpecificPackage('$rc_weekly');
+  };
+
+  // Method to purchase custom package (if you add salvage)
+  const purchaseSalvageMonthly = async () => {
+    return await purchaseSpecificPackage('$rc_salvage_monthly');
+  };
+
+  // Method to show all available packages and let user choose
+  const showPackageSelection = async () => {
+    try {
+      const offerings = await Purchases.getOfferings();
+      
+      if (!offerings.current || offerings.current.availablePackages.length === 0) {
+        Alert.alert('No Packages', 'No packages available for purchase');
+        return;
+      }
+      
+      const packages = offerings.current.availablePackages;
+      
+      // Create alert options for each package
+      const options = packages.map(pkg => ({
+        text: `${pkg.product.title} - ${pkg.product.priceString}`,
+        onPress: () => purchaseSpecificPackage(pkg.identifier)
+      }));
+      
+      // Add cancel option
+      options.push({
+        text: 'Cancel',
+        style: 'cancel'
+      });
+      
+      Alert.alert(
+        'Choose a Package',
+        'Select a package to purchase:',
+        options
+      );
+      
+    } catch (error) {
+      console.log('❌ Error showing packages:', error);
+      Alert.alert('Error', 'Failed to load packages');
+    }
+  };
+
+
   return (
     <StripeProvider
       publishableKey={publishableKey}
@@ -957,6 +1144,21 @@ const SubscriptionScreen = () => {
               title={isPurchasing ? 'Processing...' : 'Subscribe Now'}
               onPress={() => handleSubscribe()}
               disabled={isPurchasing}
+            />
+            <Button
+              title="Choose Package to Purchase"
+              onPress={() => showPackageSelection()}
+              style={{marginTop: 10}}
+            />
+            <Button
+              title="Purchase Monthly"
+              onPress={() => purchaseMonthly()}
+              style={{marginTop: 10}}
+            />
+            <Button
+              title="Debug: Refresh Offerings"
+              onPress={() => handleRefreshOfferings()}
+              style={{marginTop: 10}}
             />
           </View>
         {/* ) : (
@@ -1224,7 +1426,7 @@ const ScrapRoute = ({
     <ScrollView contentContainerStyle={styles.scrollContent}>
       <View style={styles.tabContent}>
         <Text style={styles.subHeader}>Scrap Monthly Subscription:</Text>
-        <Button title="Buy Subscription" onPress={purchase} />
+        <Button title="Buy Subscription" onPress={()=>handleSubscribe()} />
         <Text style={styles.description}>
           Access a curated list of car sellers.
         </Text>

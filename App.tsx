@@ -26,6 +26,7 @@ export default function App() {
 
   useEffect(() => {
     Purchases.configure({apiKey: "appl_ddZHtOMnsNUHTMWzjGfiSlKHzVL"});
+    
   }, []);
 
   useEffect(() => {
