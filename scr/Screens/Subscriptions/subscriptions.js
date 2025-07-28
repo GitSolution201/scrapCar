@@ -1548,11 +1548,9 @@ const ScrapRoute = ({
   const weekly = products?.find(pkg =>
     pkg?.product?.identifier?.includes('scrap_weekly')
   );
-console.log('total in scrap',products)
   const monthlyIndividual = products?.find(pkg =>
-    pkg?.product?.identifier?.includes('scrap_monthly_180_Test')
+    pkg?.product?.identifier?.includes('scrap_monthly_50')
   );
-console.log('@monthly Individual',monthlyIndividual)
   const monthlyCorporate = products?.find(pkg =>
     pkg?.product?.identifier?.includes('scrap_monthly_300_Test')
   );
