@@ -59,10 +59,10 @@ const SubscriptionScreen = () => {
   const [index, setIndex] = React.useState(0);
   const token = useSelector((state: any) => state.auth?.token);
 
-  const routes = [
-    {key: 'scrap', title: 'Scrap'},
-    {key: 'salvage', title: 'Salvage'},
-  ];
+const [routes] = useState([
+  { key: 'salvage', title: 'Salvage' },
+  { key: 'scrap', title: 'Scrap' },
+]);
   const {initPaymentSheet, presentPaymentSheet, confirmPayment} = useStripe();
   const [email, setEmail] = useState('tayyabjamil999@gmail.com');
   const [publishableKey, setPublishedKey] = useState('');
@@ -116,6 +116,8 @@ const SubscriptionScreen = () => {
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [purchaseUpdateSubscription, setPurchaseUpdateSubscription] = useState(null);
   const [purchaseErrorSubscription, setPurchaseErrorSubscription] = useState(null);
+const [salvagePackages, setSalvagePackages] = useState([]);
+const [scrapPackages, setScrapPackages] = useState([]);
 
   const [loading, setLoading] = useState(false);
   const [merchantIdentifier, setMerchantIdentifier] = useState(
@@ -446,24 +448,27 @@ const SubscriptionScreen = () => {
     //   setLoading(false);
     // }
   };
-  const renderScene = ({route}) => {
-    const sharedProps = {
-      // selectedSubscription: subscriptionSelected,
-      // onSelectSubscription: subscription => {
-      //   setSubscriptionSelected(subscription);
-      // },
-      currentIndex: index,
-      // setSelectedActiveSubscription: setSelectedActiveSubscription,
-    };
-    switch (route.key) {
-      case 'scrap':
-        return <ScrapRoute {...sharedProps} />;
-      case 'salvage':
-        return <SalvageRoute {...sharedProps} />;
-      default:
-        return null;
-    }
+
+const renderScene = ({ route }) => {
+  const sharedProps = {
+    onSelectSubscription: subscription => {
+      setSubscriptionSelected(subscription);
+    },
+    selectedSubscription: subscriptionSelected,
+    currentIndex: index,
   };
+
+  switch (route.key) {
+    case 'scrap':
+      return <ScrapRoute {...sharedProps} products={scrapPackages} />;
+    case 'salvage':
+      return <SalvageRoute {...sharedProps} products={salvagePackages} />;
+    default:
+      return null;
+  }
+};
+
+  
   // const handleApplePay = async () => {
   //   if (selectedActiveSubscription) {
   //     Alert.alert('Error', 'This subscription is already active');
@@ -534,6 +539,7 @@ const SubscriptionScreen = () => {
   //   return response.data;
   // };
   // };
+
 
   const fetchPaymentIntentClientSecret = async () => {
     if (selectedActiveSubscription) {
@@ -753,56 +759,88 @@ const SubscriptionScreen = () => {
     }
   };
   useEffect(() => {
-    const fetchRevenueCatProducts = async () => {
-      try {
-        console.log('🔄 Fetching RevenueCat offerings...');
-        
-        // Get all offerings (not just current)
-        const allOfferings = await Purchases.getOfferings();
-        console.log('📦 All offerings:', JSON.stringify(allOfferings, null, 2));
-        
-        if (allOfferings.current) {
-          console.log('✅ Current offering found:', allOfferings.current.identifier);
-          console.log('📋 Available packages:', allOfferings.current.availablePackages.length);
-          
-          allOfferings.current.availablePackages.forEach((pkg, index) => {
-            console.log(`📦 Package ${index + 1}:`, {
-              identifier: pkg.identifier,
-              packageType: pkg.packageType,
-              product: {
-                identifier: pkg.product.identifier,
-                title: pkg.product.title,
-                price: pkg.product.price,
-                priceString: pkg.product.priceString,
-                productType: pkg.product.productType
-              }
-            });
-          });
-          
-          return allOfferings.current.availablePackages;
-        } else {
-          console.log('❌ No current offering found');
-          console.log('🔍 Available offerings:', Object.keys(allOfferings));
-          
-          // Check if there are any other offerings
-          Object.keys(allOfferings).forEach(key => {
-            if (key !== 'current' && allOfferings[key]) {
-              console.log(`📦 Offering "${key}":`, allOfferings[key].availablePackages.length, 'packages');
-            }
-          });
-        }
-      } catch (error) {
-        console.log('❌ Error fetching offerings:', error);
-        console.log('Error details:', {
-          message: error.message,
-          code: error.code,
-          userCancelled: error.userCancelled
-        });
-      }
-    };
+  const fetchRevenueCatProducts = async () => {
+    try {
+      console.log('🔄 Fetching RevenueCat offerings...');
+      const allOfferings = await Purchases.getOfferings();
 
-    fetchRevenueCatProducts();
-  }, []);
+      if (allOfferings.current) {
+        const packages = allOfferings.current.availablePackages;
+
+        const salvage = packages.filter(pkg =>
+          pkg.product.identifier.includes('salvage')
+        );
+
+        const scrap = packages.filter(pkg =>
+          pkg.product.identifier.includes('scrap')
+        );
+
+        setSalvagePackages(salvage);
+        setScrapPackages(scrap);
+
+        console.log('✅ Salvage Packages:', salvage.map(p => p.identifier));
+        console.log('✅ Scrap Packages:', scrap.map(p => p.identifier));
+      } else {
+        console.log('❌ No current offering found');
+      }
+    } catch (error) {
+      console.log('❌ Error fetching offerings:', error);
+    }
+  };
+
+  fetchRevenueCatProducts();
+}, []);
+  // useEffect(() => {
+  //   const fetchRevenueCatProducts = async () => {
+  //     try {
+  //       console.log('🔄 Fetching RevenueCat offerings...');
+        
+  //       // Get all offerings (not just current)
+  //       const allOfferings = await Purchases.getOfferings();
+  //       console.log('📦 All offerings:', JSON.stringify(allOfferings, null, 2));
+        
+  //       if (allOfferings.current) {
+  //         console.log('✅ Current offering found:', allOfferings.current.identifier);
+  //         console.log('📋 Available packages:', allOfferings.current.availablePackages.length);
+          
+  //         allOfferings.current.availablePackages.forEach((pkg, index) => {
+  //           console.log(`📦 Package ${index + 1}:`, {
+  //             identifier: pkg.identifier,
+  //             packageType: pkg.packageType,
+  //             product: {
+  //               identifier: pkg.product.identifier,
+  //               title: pkg.product.title,
+  //               price: pkg.product.price,
+  //               priceString: pkg.product.priceString,
+  //               productType: pkg.product.productType
+  //             }
+  //           });
+  //         });
+          
+  //         return allOfferings.current.availablePackages;
+  //       } else {
+  //         console.log('❌ No current offering found');
+  //         console.log('🔍 Available offerings:', Object.keys(allOfferings));
+          
+  //         // Check if there are any other offerings
+  //         Object.keys(allOfferings).forEach(key => {
+  //           if (key !== 'current' && allOfferings[key]) {
+  //             console.log(`📦 Offering "${key}":`, allOfferings[key].availablePackages.length, 'packages');
+  //           }
+  //         });
+  //       }
+  //     } catch (error) {
+  //       console.log('❌ Error fetching offerings:', error);
+  //       console.log('Error details:', {
+  //         message: error.message,
+  //         code: error.code,
+  //         userCancelled: error.userCancelled
+  //       });
+  //     }
+  //   };
+
+  //   fetchRevenueCatProducts();
+  // }, []);
 
   const checkCustomerInfo = async () => {
     try {
@@ -981,23 +1019,24 @@ const SubscriptionScreen = () => {
           navigation={navigation}
           centerContent="Subscriptions"
         />
-        <TabView
-          navigationState={{index, routes}}
-          renderScene={renderScene}
-          onIndexChange={setIndex}
-          initialLayout={{width: layout.width}}
-          style={styles.tabView}
-          renderTabBar={props => (
-            <TabBar
-              {...props}
-              indicatorStyle={styles.tabIndicator}
-              style={styles.tabBar}
-              activeColor={Colors.primary}
-              inactiveColor={Colors.textGray}
-              pressColor={Colors.primary}
-            />
-          )}
-        />
+      <TabView
+  navigationState={{ index, routes }}
+  renderScene={renderScene}
+  onIndexChange={setIndex}
+  initialLayout={{ width: layout.width }}
+  style={styles.tabView}
+  renderTabBar={props => (
+    <TabBar
+      {...props}
+      indicatorStyle={styles.tabIndicator}
+      style={styles.tabBar}
+      activeColor={Colors.primary}
+      inactiveColor={Colors.textGray}
+      pressColor={Colors.primary}
+    />
+  )}
+/>
+
         {/* {subscriptionSelected && subscriptionSelected !== '' ? (
           <>
             {selectedActiveSubscription ? (
@@ -1175,72 +1214,37 @@ const SubscriptionScreen = () => {
     </StripeProvider>
   );
 };
-
+// const PlanList = ({ data }) => {
+//   return (
+//     <ScrollView contentContainerStyle={{ padding: 16 }}>
+//       {data.map((pkg, index) => (
+//         <View key={index} style={styles.card}>
+//           <Text style={styles.title}>{pkg.identifier}</Text>
+//           <Text style={styles.description}>{pkg.product.description}</Text>
+//           <Text style={styles.price}>{pkg.product.priceString}</Text>
+//         </View>
+//       ))}
+//     </ScrollView>
+//   );
+// };
 const SalvageRoute = ({
-  products,
   onSelectSubscription,
+  products=[],
   selectedSubscription,
   currentIndex,
   setSelectedActiveSubscription,
 }) => {
-  const {subscriptions = []} = useSelector(
-    state => state?.subscription?.subscriptionData || {},
+  const weekly = products.find(pkg =>
+    pkg.product.identifier.includes('salvage_weekly')
   );
-  const subscriptionIds = [
-    'price_1R57DZDnmorUxClnRG48rfKZ',
-    'price_1R15A1DnmorUxCln7W0DslGy',
-    'price_1R9a3xDnmorUxClnuwyFYx1B',
-  ];
+  const monthlyIndividual = products?.find(pkg =>
+   
+    pkg?.product?.identifier?.includes('salvage_monthly_180_Test')
+  );
 
-  // useFocusEffect(
-  //   useCallback(() => {
-  //     const activeId = isSubscriptionActive(subscriptionIds);
-  //     if (activeId) {
-  //       setSelectedActiveSubscription(true);
-  //       onSelectSubscription(activeId);
-  //     } else {
-  //       setSelectedActiveSubscription(false);
-  //       console.log('No active subscriptions found');
-  //     }
-
-  //     // Cleanup function (optional)
-  //     return () => {
-  //       // Reset states if needed when screen loses focus
-  //       // setSelectedActiveSubscription(false);
-  //     };
-  //   }, []), // Add dependencies if these are used: setSelectedActiveSubscription, onSelectSubscription
-  // );
-  // const isSubscriptionActive = subscriptionIds => {
-  //   // Convert single ID to array for consistent handling
-  //   const ids = Array.isArray(subscriptionIds)
-  //     ? subscriptionIds
-  //     : [subscriptionIds];
-
-  //   const activeSubscription = subscriptions.find(sub => {
-  //     // Check if subscription is active
-  //     if (sub.status !== 'active') return false;
-
-  //     // Check if this subscription's plan ID matches any of the provided IDs
-  //     return ids.includes(sub.plan.id);
-  //   });
-
-  //   return activeSubscription ? activeSubscription.plan.id : false;
-  // };
-  // const handleSubscriptionSelect = subscriptionId => {
-  //   // First check if this subscription is already active
-
-  //   const isActive = isSubscriptionActive(subscriptionId);
-  //   if (isActive) {
-  //     // If subscription is active, just select it to show cancel button
-  //     setSelectedActiveSubscription(true);
-  //     onSelectSubscription(subscriptionId);
-  //     return;
-  //   }
-
-  //   // If not active, allow normal selection for purchase
-  //   setSelectedActiveSubscription(false);
-  //   onSelectSubscription(subscriptionId);
-  // };
+  const monthlyCorporate = products.find(pkg =>
+    pkg?.product?.identifier?.includes('salvage_monthly_300_Test')
+  );
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -1255,89 +1259,266 @@ const SalvageRoute = ({
         <Text style={styles.description}>
           Expand your inventory with unique opportunities.
         </Text>
-        <View style={styles.tabContainer}>
-          {/* <TouchableOpacity
-            onPress={() => console.log('object')}
-            style={[styles.optionSelected]}>
-            <Image
-              source={require('../../assets/loyalty.png')}
-              style={styles.optionImage}
-              resizeMode="contain"
-            />
-            <Text style={styles.optionText}>Weekly</Text>
-            <View style={styles.sharingRow}>
-              <Text style={styles.sharingText}>Use 1 Device</Text>
-              <Image
-                source={require('../../assets/iphone.png')}
-                style={styles.phoneIcon}
-                resizeMode="contain"
-              />
-            </View>
-            <Text style={styles.optionSubText}>50 GBP</Text>
-            <Text style={styles.helperText}>7 days access</Text>
-          </TouchableOpacity> */}
 
-          <TouchableOpacity
-            onPress={() => console.log('object')}
-            style={[styles.optionSelected]}>
-            <Image
-              source={require('../../assets/loyalty.png')}
-              style={styles.optionImage}
-              resizeMode="contain"
-            />
-            <Text style={styles.optionText}>Monthly</Text>
-            <View style={styles.sharingRow}>
-              <Text style={styles.sharingText}>Use 1 Device</Text>
+        <View style={styles.tabContainer}>
+          {weekly && (
+            <TouchableOpacity
+              onPress={() => onSelectSubscription(weekly.product.identifier)}
+              style={styles.optionSelected}>
               <Image
-                source={require('../../assets/iphone.png')}
-                style={styles.phoneIcon}
+                source={require('../../assets/loyalty.png')}
+                style={styles.optionImage}
                 resizeMode="contain"
               />
-            </View>
-            <Text style={styles.optionSubText}>180 GBP</Text>
-            <Text style={styles.helperText}>1 month access</Text>
-          </TouchableOpacity>
+              <Text style={styles.optionText}>{weekly.product.title}</Text>
+              <View style={styles.sharingRow}>
+                <Text style={styles.sharingText}>{weekly?.product?.description}</Text>
+                <Image
+                  source={require('../../assets/iphone.png')}
+                  style={styles.phoneIcon}
+                  resizeMode="contain"
+                />
+              </View>
+              <Text style={styles.optionSubText}>
+                {weekly.product.priceString}
+              </Text>
+              <Text style={styles.helperText}>7 days access</Text>
+            </TouchableOpacity>
+          )}
+
+          {monthlyIndividual && (
+            <TouchableOpacity
+              onPress={() =>
+                onSelectSubscription(monthlyIndividual.product.identifier)
+              }
+              style={styles.optionSelected}>
+              <Image
+                source={require('../../assets/loyalty.png')}
+                style={styles.optionImage}
+                resizeMode="contain"
+              />
+              <Text style={styles.optionText}>{monthlyIndividual.product?.title}</Text>
+              <View style={styles.sharingRow}>
+                <Text style={styles.sharingText}>{monthlyIndividual.product.description} </Text>
+                <Image
+                  source={require('../../assets/iphone.png')}
+                  style={styles.phoneIcon}
+                  resizeMode="contain"
+                />
+              </View>
+              <Text style={styles.optionSubText}>
+                {monthlyIndividual.product.priceString}
+              </Text>
+              <Text style={styles.helperText}>1 month access</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
-        {/* <View
-          style={[
-            styles.tabContainer,
-            {
-              justifyContent: 'center',
-              marginHorizontal: wp * 0.05,
-            },
-          ]}>
-          <TouchableOpacity
-            onPress={() => console.log('object')}
-            style={[styles.corporateBox]}>
-            <Image
-              source={require('../../assets/loyalty.png')}
-              style={styles.optionImage}
-              resizeMode="contain"
-            />
-            <Text style={styles.optionText}>Corporate Monthly</Text>
-            <Text style={styles.forText}>for business use</Text>
-            <View style={styles.sharingRow}>
-              <Text style={styles.sharingText}>Use 2 Devices</Text>
+        {monthlyCorporate && (
+          <View
+            style={[
+              styles.tabContainer,
+              { justifyContent: 'center', marginHorizontal: wp * 0.05 },
+            ]}>
+            <TouchableOpacity
+              onPress={() =>
+                onSelectSubscription(monthlyCorporate.product.identifier)
+              }
+              style={styles.corporateBox}>
               <Image
-                source={require('../../assets/iphone.png')}
-                style={styles.phoneIcon}
+                source={require('../../assets/loyalty.png')}
+                style={styles.optionImage}
                 resizeMode="contain"
               />
-              <Image
-                source={require('../../assets/iphone.png')}
-                style={styles.phoneIcon}
-                resizeMode="contain"
-              />
-            </View>
-            <Text style={styles.optionSubText}>300 GBP</Text>
-            <Text style={styles.helperText}>1 month access</Text>
-          </TouchableOpacity>
-        </View> */}
+              <Text style={styles.optionText}>{monthlyCorporate.product.title}</Text>
+              <Text style={styles.forText}>for business use</Text>
+              <View style={styles.sharingRow}>
+                <Text style={styles.sharingText}>{monthlyCorporate.product.description}</Text>
+                <Image
+                  source={require('../../assets/iphone.png')}
+                  style={styles.phoneIcon}
+                  resizeMode="contain"
+                />
+                <Image
+                  source={require('../../assets/iphone.png')}
+                  style={styles.phoneIcon}
+                  resizeMode="contain"
+                />
+              </View>
+              <Text style={styles.optionSubText}>
+                {monthlyCorporate.product.priceString}
+              </Text>
+              <Text style={styles.helperText}>1 month access</Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
     </ScrollView>
   );
 };
+
+// const SalvageRoute = ({
+//   products,
+//   onSelectSubscription,
+//   selectedSubscription,
+//   currentIndex,
+//   setSelectedActiveSubscription,
+// }) => {
+//   const {subscriptions = []} = useSelector(
+//     state => state?.subscription?.subscriptionData || {},
+//   );
+//   const subscriptionIds = [
+//     'price_1R57DZDnmorUxClnRG48rfKZ',
+//     'price_1R15A1DnmorUxCln7W0DslGy',
+//     'price_1R9a3xDnmorUxClnuwyFYx1B',
+//   ];
+
+//   // useFocusEffect(
+//   //   useCallback(() => {
+//   //     const activeId = isSubscriptionActive(subscriptionIds);
+//   //     if (activeId) {
+//   //       setSelectedActiveSubscription(true);
+//   //       onSelectSubscription(activeId);
+//   //     } else {
+//   //       setSelectedActiveSubscription(false);
+//   //       console.log('No active subscriptions found');
+//   //     }
+
+//   //     // Cleanup function (optional)
+//   //     return () => {
+//   //       // Reset states if needed when screen loses focus
+//   //       // setSelectedActiveSubscription(false);
+//   //     };
+//   //   }, []), // Add dependencies if these are used: setSelectedActiveSubscription, onSelectSubscription
+//   // );
+//   // const isSubscriptionActive = subscriptionIds => {
+//   //   // Convert single ID to array for consistent handling
+//   //   const ids = Array.isArray(subscriptionIds)
+//   //     ? subscriptionIds
+//   //     : [subscriptionIds];
+
+//   //   const activeSubscription = subscriptions.find(sub => {
+//   //     // Check if subscription is active
+//   //     if (sub.status !== 'active') return false;
+
+//   //     // Check if this subscription's plan ID matches any of the provided IDs
+//   //     return ids.includes(sub.plan.id);
+//   //   });
+
+//   //   return activeSubscription ? activeSubscription.plan.id : false;
+//   // };
+//   // const handleSubscriptionSelect = subscriptionId => {
+//   //   // First check if this subscription is already active
+
+//   //   const isActive = isSubscriptionActive(subscriptionId);
+//   //   if (isActive) {
+//   //     // If subscription is active, just select it to show cancel button
+//   //     setSelectedActiveSubscription(true);
+//   //     onSelectSubscription(subscriptionId);
+//   //     return;
+//   //   }
+
+//   //   // If not active, allow normal selection for purchase
+//   //   setSelectedActiveSubscription(false);
+//   //   onSelectSubscription(subscriptionId);
+//   // };
+
+//   return (
+//     <ScrollView contentContainerStyle={styles.scrollContent}>
+//       <View style={styles.tabContent}>
+//         <Text style={styles.subHeader}>Salvage Monthly Subscription:</Text>
+//         <Text style={styles.description}>
+//           Find salvaged cars at competitive prices.
+//         </Text>
+//         <Text style={styles.description}>
+//           Connect with sellers offload vehicles.
+//         </Text>
+//         <Text style={styles.description}>
+//           Expand your inventory with unique opportunities.
+//         </Text>
+//         <View style={styles.tabContainer}>
+//           {/* <TouchableOpacity
+//             onPress={() => console.log('object')}
+//             style={[styles.optionSelected]}>
+//             <Image
+//               source={require('../../assets/loyalty.png')}
+//               style={styles.optionImage}
+//               resizeMode="contain"
+//             />
+//             <Text style={styles.optionText}>Weekly</Text>
+//             <View style={styles.sharingRow}>
+//               <Text style={styles.sharingText}>Use 1 Device</Text>
+//               <Image
+//                 source={require('../../assets/iphone.png')}
+//                 style={styles.phoneIcon}
+//                 resizeMode="contain"
+//               />
+//             </View>
+//             <Text style={styles.optionSubText}>50 GBP</Text>
+//             <Text style={styles.helperText}>7 days access</Text>
+//           </TouchableOpacity> */}
+
+//           <TouchableOpacity
+//             onPress={() => console.log('object')}
+//             style={[styles.optionSelected]}>
+//             <Image
+//               source={require('../../assets/loyalty.png')}
+//               style={styles.optionImage}
+//               resizeMode="contain"
+//             />
+//             <Text style={styles.optionText}>Monthly</Text>
+//             <View style={styles.sharingRow}>
+//               <Text style={styles.sharingText}>Use 1 Device</Text>
+//               <Image
+//                 source={require('../../assets/iphone.png')}
+//                 style={styles.phoneIcon}
+//                 resizeMode="contain"
+//               />
+//             </View>
+//             <Text style={styles.optionSubText}>180 GBP</Text>
+//             <Text style={styles.helperText}>1 month access</Text>
+//           </TouchableOpacity>
+//         </View>
+
+//         {/* <View
+//           style={[
+//             styles.tabContainer,
+//             {
+//               justifyContent: 'center',
+//               marginHorizontal: wp * 0.05,
+//             },
+//           ]}>
+//           <TouchableOpacity
+//             onPress={() => console.log('object')}
+//             style={[styles.corporateBox]}>
+//             <Image
+//               source={require('../../assets/loyalty.png')}
+//               style={styles.optionImage}
+//               resizeMode="contain"
+//             />
+//             <Text style={styles.optionText}>Corporate Monthly</Text>
+//             <Text style={styles.forText}>for business use</Text>
+//             <View style={styles.sharingRow}>
+//               <Text style={styles.sharingText}>Use 2 Devices</Text>
+//               <Image
+//                 source={require('../../assets/iphone.png')}
+//                 style={styles.phoneIcon}
+//                 resizeMode="contain"
+//               />
+//               <Image
+//                 source={require('../../assets/iphone.png')}
+//                 style={styles.phoneIcon}
+//                 resizeMode="contain"
+//               />
+//             </View>
+//             <Text style={styles.optionSubText}>300 GBP</Text>
+//             <Text style={styles.helperText}>1 month access</Text>
+//           </TouchableOpacity>
+//         </View> */}
+//       </View>
+//     </ScrollView>
+//   );
+// };
 const purchase = async () => {
   try {
     const offerings = await Purchases.getOfferings();
@@ -1358,75 +1539,28 @@ const purchase = async () => {
 
 // ScrapRoute Component
 const ScrapRoute = ({
-  products,
+  products = [],
   onSelectSubscription,
   selectedSubscription,
   currentIndex,
   setSelectedActiveSubscription,
 }) => {
-  const {subscriptions = []} = useSelector(
-    state => state?.subscription?.subscriptionData || {},
+  const weekly = products?.find(pkg =>
+    pkg?.product?.identifier?.includes('scrap_weekly')
   );
-  const subscriptionIds = [
-    'price_1R57CnDnmorUxClnS97UhVMT',
-    'price_1R9a2eDnmorUxCln8q94c9Xg',
-    'price_1R573DDnmorUxClnp4X4Imki',
-  ];
-  // useFocusEffect(
-  //   useCallback(() => {
-  //     const activeId = isSubscriptionActive(subscriptionIds);
-
-  //     if (activeId) {
-  //       setSelectedActiveSubscription(true);
-  //       onSelectSubscription(activeId);
-  //     } else {
-  //       setSelectedActiveSubscription(false);
-  //       console.log('No active subscriptions found');
-  //     }
-
-  //     // Cleanup function (optional)
-  //     return () => {
-  //       // Reset states if needed when screen loses focus
-  //       // setSelectedActiveSubscription(false);
-  //     };
-  //   }, []), // Add dependencies if these are used: setSelectedActiveSubscription, onSelectSubscription
-  // );
-  // const isSubscriptionActive = subscriptionIds => {
-  //   // Convert single ID to array for consistent handling
-  //   const ids = Array.isArray(subscriptionIds)
-  //     ? subscriptionIds
-  //     : [subscriptionIds];
-
-  //   const activeSubscription = subscriptions.find(sub => {
-  //     // Check if subscription is active
-  //     if (sub.status !== 'active') return false;
-
-  //     // Check if this subscription's plan ID matches any of the provided IDs
-  //     return ids.includes(sub.plan.id);
-  //   });
-
-  //   return activeSubscription ? activeSubscription.plan.id : false;
-  // };
-  // const handleSubscriptionSelect = subscriptionId => {
-  //   // First check if this subscription is already active
-  //   const isActive = isSubscriptionActive(subscriptionId);
-  //   if (isActive) {
-  //     // If subscription is active, just select it to show cancel button
-  //     setSelectedActiveSubscription(true);
-  //     onSelectSubscription(subscriptionId);
-  //     return;
-  //   }
-
-  //   // If not active, allow normal selection for purchase
-  //   setSelectedActiveSubscription(false);
-  //   onSelectSubscription(subscriptionId);
-  // };
+console.log('total in scrap',products)
+  const monthlyIndividual = products?.find(pkg =>
+    pkg?.product?.identifier?.includes('scrap_monthly_180_Test')
+  );
+console.log('@monthly Individual',monthlyIndividual)
+  const monthlyCorporate = products?.find(pkg =>
+    pkg?.product?.identifier?.includes('scrap_monthly_300_Test')
+  );
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContent}>
       <View style={styles.tabContent}>
         <Text style={styles.subHeader}>Scrap Monthly Subscription:</Text>
-        <Button title="Buy Subscription" onPress={()=>handleSubscribe()} />
         <Text style={styles.description}>
           Access a curated list of car sellers.
         </Text>
@@ -1436,86 +1570,85 @@ const ScrapRoute = ({
         <Text style={styles.description}>
           Contact sellers directly to negotiate and close deals.
         </Text>
-        <View style={styles.tabContainer}>
-          {/* <TouchableOpacity
-            onPress={() => console.log('ooo')}
-            style={[styles.optionSelected]}>
-            <Image
-              source={require('../../assets/loyalty.png')}
-              style={styles.optionImage}
-              resizeMode="contain"
-            />
-            <Text style={styles.optionText}>Weekly</Text>
-            <View style={styles.sharingRow}>
-              <Text style={styles.sharingText}>Use 1 Device</Text>
-              <Image
-                source={require('../../assets/iphone.png')}
-                style={styles.phoneIcon}
-                resizeMode="contain"
-              />
-            </View>
-            <Text style={styles.optionSubText}>50 GBP</Text>
-            <Text style={styles.helperText}>7 days access</Text>
-          </TouchableOpacity> */}
 
-          <TouchableOpacity
-            onPress={() => console.log('hj')}
-            style={[styles.optionSelected]}>
-            <Image
-              source={require('../../assets/loyalty.png')}
-              style={styles.optionImage}
-              resizeMode="contain"
-            />
-            <Text style={styles.optionText}>Monthly</Text>
-            <View style={styles.sharingRow}>
-              <Text style={styles.sharingText}>Use 1 Device</Text>
+        <View style={styles.tabContainer}>
+          {weekly && (
+            <TouchableOpacity
+              onPress={() => onSelectSubscription(weekly.product.identifier)}
+              style={styles.optionSelected}>
               <Image
-                source={require('../../assets/iphone.png')}
-                style={styles.phoneIcon}
+                source={require('../../assets/loyalty.png')}
+                style={styles.optionImage}
                 resizeMode="contain"
               />
-            </View>
-            <Text style={styles.optionSubText}>180 GBP</Text>
-            <Text style={styles.helperText}>1 month access</Text>
-      
-          </TouchableOpacity>
+              <Text style={styles.optionText}>{weekly.product.title}</Text>
+              <View style={styles.sharingRow}>
+                <Text style={styles.sharingText}>{weekly.product.description}</Text>
+                <Image
+                  source={require('../../assets/iphone.png')}
+                  style={styles.phoneIcon}
+                  resizeMode="contain"
+                />
+              </View>
+              <Text style={styles.optionSubText}>{weekly.product.priceString}</Text>
+              <Text style={styles.helperText}>7 days access</Text>
+            </TouchableOpacity>
+          )}
+
+          {monthlyIndividual && (
+            <TouchableOpacity
+              onPress={() => onSelectSubscription(monthlyIndividual.product.identifier)}
+              style={styles.optionSelected}>
+              <Image
+                source={require('../../assets/loyalty.png')}
+                style={styles.optionImage}
+                resizeMode="contain"
+              />
+              <Text style={styles.optionText}>{monthlyIndividual.product.title}</Text>
+              <View style={styles.sharingRow}>
+                <Text style={styles.sharingText}>{monthlyIndividual.product.description}</Text>
+                <Image
+                  source={require('../../assets/iphone.png')}
+                  style={styles.phoneIcon}
+                  resizeMode="contain"
+                />
+              </View>
+              <Text style={styles.optionSubText}>{monthlyIndividual.product.priceString}</Text>
+              <Text style={styles.helperText}>1 month access</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
-        {/* <View
-          style={[
-            styles.tabContainer,
-            {
-              justifyContent: 'center',
-              marginHorizontal: wp * 0.05,
-            },
-          ]}>
-          <TouchableOpacity
-            onPress={() => console.log('ii')}
-            style={[styles.corporateBox]}>
-            <Image
-              source={require('../../assets/loyalty.png')}
-              style={styles.optionImage}
-              resizeMode="contain"
-            />
-            <Text style={styles.optionText}>Corporate Monthly</Text>
-            <Text style={styles.forText}>for business use</Text>
-            <View style={styles.sharingRow}>
-              <Text style={styles.sharingText}>Use 2 Devices</Text>
+        {monthlyCorporate && (
+          <View style={[styles.tabContainer, { justifyContent: 'center', marginHorizontal: wp * 0.05 }]}>
+            <TouchableOpacity
+              onPress={() => onSelectSubscription(monthlyCorporate.product.identifier)}
+              style={styles.corporateBox}>
               <Image
-                source={require('../../assets/iphone.png')}
-                style={styles.phoneIcon}
+                source={require('../../assets/loyalty.png')}
+                style={styles.optionImage}
                 resizeMode="contain"
               />
-              <Image
-                source={require('../../assets/iphone.png')}
-                style={styles.phoneIcon}
-                resizeMode="contain"
-              />
-            </View>
-            <Text style={styles.optionSubText}>300 GBP</Text>
-            <Text style={styles.helperText}>1 month access</Text>
-          </TouchableOpacity>
-        </View> */}
+              <Text style={styles.optionText}>{monthlyCorporate.product.title}</Text>
+              <Text style={styles.forText}>for business use</Text>
+              <View style={styles.sharingRow}>
+                <Text style={styles.sharingText}>{monthlyCorporate.product.description}</Text>
+                <Image
+                  source={require('../../assets/iphone.png')}
+                  style={styles.phoneIcon}
+                  resizeMode="contain"
+                />
+                <Image
+                  source={require('../../assets/iphone.png')}
+                  style={styles.phoneIcon}
+                  resizeMode="contain"
+                />
+              </View>
+              <Text style={styles.optionSubText}>{monthlyCorporate.product.priceString}</Text>
+              <Text style={styles.helperText}>1 month access</Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
     </ScrollView>
   );
