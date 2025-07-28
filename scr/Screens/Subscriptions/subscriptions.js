@@ -449,11 +449,41 @@ const [scrapPackages, setScrapPackages] = useState([]);
     // }
   };
 
+const handlePurchase = async (selectedIdentifier) => {
+  try {
+    const allOfferings = await Purchases.getOfferings();
+    const availablePackages = allOfferings.current.availablePackages;
+
+    const selectedPackage = availablePackages.find(
+      pkg => pkg.product.identifier === selectedIdentifier
+    );
+
+    if (!selectedPackage) {
+      console.warn('❌ Package not found for identifier:', selectedIdentifier);
+      return;
+    }
+
+    const purchaseResult = await Purchases.purchasePackage(selectedPackage);
+    console.log('✅ Purchase successful:', purchaseResult);
+
+    // Optional: handle entitlement access
+    const customerInfo = await Purchases.getCustomerInfo();
+    if (customerInfo.entitlements.active['your_entitlement_id']) {
+      console.log('🎉 Entitlement active!');
+    }
+
+  } catch (error) {
+    if (!error.userCancelled) {
+      console.error('❌ Purchase error:', error);
+    } else {
+      console.log('⚠️ Purchase cancelled by user');
+    }
+  }
+};
+
 const renderScene = ({ route }) => {
   const sharedProps = {
-    onSelectSubscription: subscription => {
-      setSubscriptionSelected(subscription);
-    },
+    onSelectSubscription:handlePurchase,
     selectedSubscription: subscriptionSelected,
     currentIndex: index,
   };
@@ -1175,7 +1205,7 @@ const renderScene = ({ route }) => {
           In app purchase in Review
         </Text>
         {/* {offerings ? ( */}
-          <View
+          {/* <View
             style={{
               alignItems: 'center',
             }}>
@@ -1199,7 +1229,7 @@ const renderScene = ({ route }) => {
               onPress={() => handleRefreshOfferings()}
               style={{marginTop: 10}}
             />
-          </View>
+          </View> */}
         {/* ) : (
           <Text style={{textAlign: 'center', marginBottom: 10}}>
             Loading products...
@@ -1214,19 +1244,7 @@ const renderScene = ({ route }) => {
     </StripeProvider>
   );
 };
-// const PlanList = ({ data }) => {
-//   return (
-//     <ScrollView contentContainerStyle={{ padding: 16 }}>
-//       {data.map((pkg, index) => (
-//         <View key={index} style={styles.card}>
-//           <Text style={styles.title}>{pkg.identifier}</Text>
-//           <Text style={styles.description}>{pkg.product.description}</Text>
-//           <Text style={styles.price}>{pkg.product.priceString}</Text>
-//         </View>
-//       ))}
-//     </ScrollView>
-//   );
-// };
+
 const SalvageRoute = ({
   onSelectSubscription,
   products=[],
@@ -1357,168 +1375,6 @@ const SalvageRoute = ({
   );
 };
 
-// const SalvageRoute = ({
-//   products,
-//   onSelectSubscription,
-//   selectedSubscription,
-//   currentIndex,
-//   setSelectedActiveSubscription,
-// }) => {
-//   const {subscriptions = []} = useSelector(
-//     state => state?.subscription?.subscriptionData || {},
-//   );
-//   const subscriptionIds = [
-//     'price_1R57DZDnmorUxClnRG48rfKZ',
-//     'price_1R15A1DnmorUxCln7W0DslGy',
-//     'price_1R9a3xDnmorUxClnuwyFYx1B',
-//   ];
-
-//   // useFocusEffect(
-//   //   useCallback(() => {
-//   //     const activeId = isSubscriptionActive(subscriptionIds);
-//   //     if (activeId) {
-//   //       setSelectedActiveSubscription(true);
-//   //       onSelectSubscription(activeId);
-//   //     } else {
-//   //       setSelectedActiveSubscription(false);
-//   //       console.log('No active subscriptions found');
-//   //     }
-
-//   //     // Cleanup function (optional)
-//   //     return () => {
-//   //       // Reset states if needed when screen loses focus
-//   //       // setSelectedActiveSubscription(false);
-//   //     };
-//   //   }, []), // Add dependencies if these are used: setSelectedActiveSubscription, onSelectSubscription
-//   // );
-//   // const isSubscriptionActive = subscriptionIds => {
-//   //   // Convert single ID to array for consistent handling
-//   //   const ids = Array.isArray(subscriptionIds)
-//   //     ? subscriptionIds
-//   //     : [subscriptionIds];
-
-//   //   const activeSubscription = subscriptions.find(sub => {
-//   //     // Check if subscription is active
-//   //     if (sub.status !== 'active') return false;
-
-//   //     // Check if this subscription's plan ID matches any of the provided IDs
-//   //     return ids.includes(sub.plan.id);
-//   //   });
-
-//   //   return activeSubscription ? activeSubscription.plan.id : false;
-//   // };
-//   // const handleSubscriptionSelect = subscriptionId => {
-//   //   // First check if this subscription is already active
-
-//   //   const isActive = isSubscriptionActive(subscriptionId);
-//   //   if (isActive) {
-//   //     // If subscription is active, just select it to show cancel button
-//   //     setSelectedActiveSubscription(true);
-//   //     onSelectSubscription(subscriptionId);
-//   //     return;
-//   //   }
-
-//   //   // If not active, allow normal selection for purchase
-//   //   setSelectedActiveSubscription(false);
-//   //   onSelectSubscription(subscriptionId);
-//   // };
-
-//   return (
-//     <ScrollView contentContainerStyle={styles.scrollContent}>
-//       <View style={styles.tabContent}>
-//         <Text style={styles.subHeader}>Salvage Monthly Subscription:</Text>
-//         <Text style={styles.description}>
-//           Find salvaged cars at competitive prices.
-//         </Text>
-//         <Text style={styles.description}>
-//           Connect with sellers offload vehicles.
-//         </Text>
-//         <Text style={styles.description}>
-//           Expand your inventory with unique opportunities.
-//         </Text>
-//         <View style={styles.tabContainer}>
-//           {/* <TouchableOpacity
-//             onPress={() => console.log('object')}
-//             style={[styles.optionSelected]}>
-//             <Image
-//               source={require('../../assets/loyalty.png')}
-//               style={styles.optionImage}
-//               resizeMode="contain"
-//             />
-//             <Text style={styles.optionText}>Weekly</Text>
-//             <View style={styles.sharingRow}>
-//               <Text style={styles.sharingText}>Use 1 Device</Text>
-//               <Image
-//                 source={require('../../assets/iphone.png')}
-//                 style={styles.phoneIcon}
-//                 resizeMode="contain"
-//               />
-//             </View>
-//             <Text style={styles.optionSubText}>50 GBP</Text>
-//             <Text style={styles.helperText}>7 days access</Text>
-//           </TouchableOpacity> */}
-
-//           <TouchableOpacity
-//             onPress={() => console.log('object')}
-//             style={[styles.optionSelected]}>
-//             <Image
-//               source={require('../../assets/loyalty.png')}
-//               style={styles.optionImage}
-//               resizeMode="contain"
-//             />
-//             <Text style={styles.optionText}>Monthly</Text>
-//             <View style={styles.sharingRow}>
-//               <Text style={styles.sharingText}>Use 1 Device</Text>
-//               <Image
-//                 source={require('../../assets/iphone.png')}
-//                 style={styles.phoneIcon}
-//                 resizeMode="contain"
-//               />
-//             </View>
-//             <Text style={styles.optionSubText}>180 GBP</Text>
-//             <Text style={styles.helperText}>1 month access</Text>
-//           </TouchableOpacity>
-//         </View>
-
-//         {/* <View
-//           style={[
-//             styles.tabContainer,
-//             {
-//               justifyContent: 'center',
-//               marginHorizontal: wp * 0.05,
-//             },
-//           ]}>
-//           <TouchableOpacity
-//             onPress={() => console.log('object')}
-//             style={[styles.corporateBox]}>
-//             <Image
-//               source={require('../../assets/loyalty.png')}
-//               style={styles.optionImage}
-//               resizeMode="contain"
-//             />
-//             <Text style={styles.optionText}>Corporate Monthly</Text>
-//             <Text style={styles.forText}>for business use</Text>
-//             <View style={styles.sharingRow}>
-//               <Text style={styles.sharingText}>Use 2 Devices</Text>
-//               <Image
-//                 source={require('../../assets/iphone.png')}
-//                 style={styles.phoneIcon}
-//                 resizeMode="contain"
-//               />
-//               <Image
-//                 source={require('../../assets/iphone.png')}
-//                 style={styles.phoneIcon}
-//                 resizeMode="contain"
-//               />
-//             </View>
-//             <Text style={styles.optionSubText}>300 GBP</Text>
-//             <Text style={styles.helperText}>1 month access</Text>
-//           </TouchableOpacity>
-//         </View> */}
-//       </View>
-//     </ScrollView>
-//   );
-// };
 const purchase = async () => {
   try {
     const offerings = await Purchases.getOfferings();
