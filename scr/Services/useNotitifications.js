@@ -4,6 +4,46 @@ import {PermissionsAndroid, Platform, Alert} from 'react-native';
 import {Linking} from 'react-native';
 import {DeepLinkingRoute} from '../Components/DeepLinkingRoute';
 import {navigationRef} from '../navigationRef';
+import {useDispatch} from 'react-redux';
+import Purchases from 'react-native-purchases';
+import {setActiveSubscriptions} from '../redux/slices/subcriptionsSlice';
+
+// Global subscription check service
+export const checkGlobalSubscriptions = async (dispatch) => {
+  try {
+    console.log('🌍 Checking global subscriptions on app launch...');
+    const customerInfo = await Purchases.getCustomerInfo();
+    const activeSubs = customerInfo.activeSubscriptions || [];
+    
+    console.log('✅ Global active subscriptions found:', activeSubs);
+    console.log('📊 Full customer info on launch:', {
+      originalAppUserId: customerInfo.originalAppUserId,
+      activeSubscriptions: customerInfo.activeSubscriptions,
+      allPurchasedProductIdentifiers: customerInfo.allPurchasedProductIdentifiers,
+      entitlements: customerInfo.entitlements.active
+    });
+    
+    // Save to Redux store
+    dispatch(setActiveSubscriptions(activeSubs));
+    
+    return activeSubs;
+  } catch (error) {
+    console.log('❌ Error checking global subscriptions:', error);
+    return [];
+  }
+};
+
+// Hook for global subscription checking
+export const useGlobalSubscriptions = () => {
+  const dispatch = useDispatch();
+  
+  useEffect(() => {
+    // Check subscriptions when component mounts
+    checkGlobalSubscriptions(dispatch);
+  }, [dispatch]);
+  
+  return { checkGlobalSubscriptions: () => checkGlobalSubscriptions(dispatch) };
+};
 
 const useNotifications = () => {
   const [fcmToken, setFcmToken] = useState(null);

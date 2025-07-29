@@ -20,7 +20,7 @@ const Banner = ({navigation}: {navigation: any}) => {
   const loading = useSelector((state: any) => state?.subscription?.loading);
   const {userData} = useSelector((state: any) => state.user);
   
-  // Get active subscriptions from RevenueCat
+  // Get active subscriptions from RevenueCat (global check)
   const activeSubscriptions = useSelector(
     (state: any) => state?.subscription?.activeSubscriptions || [],
   );
@@ -73,12 +73,26 @@ const Banner = ({navigation}: {navigation: any}) => {
     );
 
     if (activeProduct) {
+      // Determine subscription type based on identifier
+      const isScrap = activeProduct.product.identifier.toLowerCase().includes('scrap');
+      const isSalvage = activeProduct.product.identifier.toLowerCase().includes('salvage');
+      
+      let subscriptionType = '';
+      if (isScrap) {
+        subscriptionType = 'Scrap';
+      } else if (isSalvage) {
+        subscriptionType = 'Salvage';
+      } else {
+        subscriptionType = 'Premium';
+      }
+
       return {
         name: activeProduct.product.title,
         price: activeProduct.product.price,
         priceString: activeProduct.product.priceString,
         identifier: activeProduct.product.identifier,
         description: activeProduct.product.description,
+        type: subscriptionType,
       };
     }
 
@@ -101,6 +115,9 @@ const Banner = ({navigation}: {navigation: any}) => {
   const subscriptionInterval = activeSubscriptionDetails?.identifier?.includes('weekly') ? 'week' : 
     (activeSubscription?.plan?.interval === 'N/A' ? 'monthly' : activeSubscription?.plan?.interval || 'month');
 
+  // Get subscription type for display
+  const subscriptionType = activeSubscriptionDetails?.type || 'Premium';
+
   return (
     <View style={styles.bannerContainer}>
       {/* Left Section: Text and Price OR Loader */}
@@ -117,19 +134,14 @@ const Banner = ({navigation}: {navigation: any}) => {
             <View style={styles.priceContainer}>
               <Text style={styles.discountedPrice}>
                 {hasRevenueCatSubscription || subscription
-                  ? `${subscriptionName} (${subscriptionPriceString}/${subscriptionInterval})`
+                  ? `${subscriptionType} ${subscriptionName} (${subscriptionPriceString}/${subscriptionInterval})`
                   : 'Start from £50/week'}
               </Text>
               {!(hasRevenueCatSubscription || subscription) && (
                 <Text style={styles.originalPrice}>£180/Monthly</Text>
               )}
             </View>
-            <Text style={styles.additionalText}>
-              {hasRevenueCatSubscription || subscription
-                ? `Active Subscription - ${activeSubscriptions.length} plan${activeSubscriptions.length > 1 ? 's' : ''}`
-                : 'Subscribe to Contact Customers'}
-            </Text>
-          </>
+           </>
         )}
       </View>
 
@@ -179,7 +191,7 @@ const styles = StyleSheet.create({
     marginBottom: hp(0.5),
   },
   discountedPrice: {
-    fontSize: wp(3.5),
+    fontSize: wp(3.2),
     fontFamily: Fonts.semiBold,
     color: Colors.black,
     marginRight: wp(2),

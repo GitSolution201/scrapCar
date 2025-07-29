@@ -17,6 +17,8 @@ import Savage from './Screens/Savage/Savage';
 import {axiosHeader} from './Services/apiHeader';
 import {fetchUserRequest} from './redux/slices/userDetail';
 import {checkSubscriptionRequest} from './redux/slices/subcriptionsSlice';
+import {setActiveSubscriptions} from './redux/slices/subcriptionsSlice';
+import Purchases from 'react-native-purchases';
 import DeviceInfo from 'react-native-device-info';
 import {logout} from './redux/slices/authSlice';
 import forgotPassword from './Screens/ForgotPassword/forgotPassword';
@@ -97,13 +99,27 @@ const MainStack = () => {
 
 /* App Navigation */
 const AppNavigation = () => {
-  const authState = useSelector((state: any) => state.auth);
+  const authState = useSelector((state) => state.auth);
 
   const {token} = authState;
   console.log(token);
   // const token = useSelector(state => state.auth.token);
   const dispatch = useDispatch();
   const {userData} = useSelector(state => state?.user);
+  
+  // Function to check RevenueCat subscriptions
+  const checkRevenueCatSubscriptions = async () => {
+    try {
+      console.log('🔍 Checking RevenueCat subscriptions on login...');
+      const customerInfo = await Purchases.getCustomerInfo();
+      const activeSubs = customerInfo.activeSubscriptions || [];
+      dispatch(setActiveSubscriptions(activeSubs));
+      console.log('✅ RevenueCat subscriptions found on login:', activeSubs);
+    } catch (error) {
+      console.log('❌ Error checking RevenueCat subscriptions on login:', error);
+    }
+  };
+
   // Check device ID and active devices
   // useEffect(() => {
   //   const checkActiveDevice = async () => {
@@ -142,6 +158,8 @@ const AppNavigation = () => {
       dispatch(fetchUserRequest(token));
       if (userData?.email) {
         dispatch(checkSubscriptionRequest({email: userData.email}));
+        // Also check RevenueCat subscriptions
+        checkRevenueCatSubscriptions();
       }
     }
   }, [token]);

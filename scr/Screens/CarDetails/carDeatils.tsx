@@ -28,15 +28,21 @@ import {navigationRef} from '../../navigationRef';
 
 const defaultCarImage = require('../../assets/car2.png');
 
-const Details = ({route}: {route: any}) => {
+const Details = ({route}) => {
   const dispatch = useDispatch();
   const {car} = route.params;
-  const {hasSubscription} = useSelector(
-    (state: any) => state?.subscription?.subscriptionData,
+  
+  // Get active subscriptions from RevenueCat (global check)
+  const activeSubscriptions = useSelector(
+    (state) => state?.subscription?.activeSubscriptions || [],
   );
-  const {userData} = useSelector((state: any) => state.user);
-  const token = useSelector((state: any) => state.auth?.token);
-  const qoute = useSelector((state: any) => state?.quote);
+  
+  // Check if user has any active subscriptions
+  const hasActiveSubscription = activeSubscriptions.length > 0;
+  
+  const {userData} = useSelector((state) => state.user);
+  const token = useSelector((state) => state.auth?.token);
+  const qoute = useSelector((state) => state?.quote);
   const [showWebView, setShowWebView] = useState(false);
   const [webViewUrl, setWebViewUrl] = useState('');
   const [message, setMessage] = useState('');
@@ -55,8 +61,9 @@ const Details = ({route}: {route: any}) => {
       dispatch(resetQuoteState());
     }
   }, [qoute?.success]);
+  
   const handleSendQoute = () => {
-    if (!hasSubscription) {
+    if (!hasActiveSubscription) {
       showSubscriptionAlert();
       return;
     }
@@ -88,6 +95,7 @@ const Details = ({route}: {route: any}) => {
       }),
     );
   };
+  
   const handlePlaceBid = () => {
     if (!amount.trim()) {
       setError(prev => ({...prev, amountError: 'Please enter an amount'}));
@@ -98,41 +106,25 @@ const Details = ({route}: {route: any}) => {
     console.log('Bid Placed with Amount:', amount);
     Toast.show(`Bid placed: ₹${amount}`, Toast.SHORT);
   };
-  // const handleSendQoute = async () => {
-  //   if (!message) {
-  //     setError('Please enter a message');
-  //   } else if (!amount) {
-  //     setError('Please enter a amount');
-  //   } else {
-  //     dispatch(
-  //       sendQuoteRequest({
-  //         listingId: car?._id,
-  //         userId: userData?.userId,
-  //         amount: '800',
-  //         message,
-  //         token,
-  //       }),
-  //     );
-  //   }
-  // };
-  const handleCall = (phoneNumber: any) => {
-    if (!hasSubscription) {
+  
+  const handleCall = (phoneNumber) => {
+    if (!hasActiveSubscription) {
       showSubscriptionAlert();
       return;
     }
     Linking.openURL(`tel:${phoneNumber}`);
   };
 
-  const handleTextMessage = (phoneNumber: any) => {
-    if (!hasSubscription) {
+  const handleTextMessage = (phoneNumber) => {
+    if (!hasActiveSubscription) {
       showSubscriptionAlert();
       return;
     }
     Linking.openURL(`sms:${phoneNumber}`);
   };
 
-  const handleWhatsApp = (phoneNumber: any) => {
-    if (!hasSubscription) {
+  const handleWhatsApp = (phoneNumber) => {
+    if (!hasActiveSubscription) {
       showSubscriptionAlert();
       return;
     }
@@ -140,7 +132,7 @@ const Details = ({route}: {route: any}) => {
   };
 
   const handleMotHistory = () => {
-    if (!hasSubscription) {
+    if (!hasActiveSubscription) {
       showSubscriptionAlert();
       return;
     }
@@ -169,7 +161,7 @@ const Details = ({route}: {route: any}) => {
     );
   };
 
-  const formatDate = (dateString: any) => {
+  const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-GB', {
       day: '2-digit',

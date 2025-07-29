@@ -11,6 +11,7 @@ import ForegroundNotification from './scr/Components/ForgroundNotification';
 import {navigationRef} from './scr/navigationRef';
 import Sound from 'react-native-sound';
 import Purchases from 'react-native-purchases';
+import {checkGlobalSubscriptions} from './scr/Services/useNotitifications';
 
 export default function App() {
   const [notificationData, setNotificationData] = useState<{
@@ -26,6 +27,19 @@ export default function App() {
 
   useEffect(() => {
     Purchases.configure({apiKey: "appl_ddZHtOMnsNUHTMWzjGfiSlKHzVL"});
+    
+    // Check global subscriptions on app launch
+    const checkSubscriptionsOnLaunch = async () => {
+      try {
+        console.log('🚀 App launched - checking subscriptions...');
+        await checkGlobalSubscriptions(store.dispatch);
+      } catch (error) {
+        console.log('❌ Error checking subscriptions on launch:', error);
+      }
+    };
+    
+    // Wait a moment for RevenueCat to initialize, then check subscriptions
+    setTimeout(checkSubscriptionsOnLaunch, 1000);
     
   }, []);
 

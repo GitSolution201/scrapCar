@@ -83,6 +83,62 @@ const SubscriptionScreen = () => {
     }
   }, [userData?.email, cancelSuccess, updateSuccess]);
 
+  // Function to cancel RevenueCat subscription
+  const cancelRevenueCatSubscription = async (subscriptionId) => {
+    try {
+      console.log('🔄 Cancelling RevenueCat subscription:', subscriptionId);
+      
+      // Get customer info to find the subscription
+      const customerInfo = await Purchases.getCustomerInfo();
+      console.log('📊 Customer info before cancellation:', customerInfo);
+      
+      // Note: RevenueCat doesn't provide direct cancellation through SDK
+      // Users need to cancel through App Store/Google Play
+      Alert.alert(
+        'Cancel Subscription',
+        'To cancel your subscription, please go to:\n\n' +
+        'iOS: Settings > Apple ID > Subscriptions\n' +
+        'Android: Google Play Store > Subscriptions\n\n' +
+        'Or contact our support team for assistance.',
+        [
+          {
+            text: 'OK',
+            onPress: () => {
+              // Refresh active subscriptions after user cancels
+              setTimeout(async () => {
+                await refreshActiveSubscriptions();
+              }, 2000);
+            },
+          },
+        ],
+        {cancelable: false},
+      );
+      
+    } catch (error) {
+      console.log('❌ Error cancelling RevenueCat subscription:', error);
+      Alert.alert('Error', 'Failed to cancel subscription. Please try again.');
+    }
+  };
+
+  // Function to refresh active subscriptions
+  const refreshActiveSubscriptions = async () => {
+    try {
+      console.log('🔄 Refreshing active subscriptions...');
+      const customerInfo = await Purchases.getCustomerInfo();
+      const activeSubs = customerInfo.activeSubscriptions || [];
+      dispatch(setActiveSubscriptions(activeSubs));
+      console.log('✅ Refreshed active subscriptions:', activeSubs);
+      console.log('📊 Full refreshed customer info:', {
+        originalAppUserId: customerInfo.originalAppUserId,
+        activeSubscriptions: customerInfo.activeSubscriptions,
+        allPurchasedProductIdentifiers: customerInfo.allPurchasedProductIdentifiers,
+        entitlements: customerInfo.entitlements.active
+      });
+    } catch (error) {
+      console.log('❌ Error refreshing active subscriptions:', error);
+    }
+  };
+
   // Check for active subscriptions and save to Redux store
   useEffect(() => {
     const checkActiveSubscriptions = async () => {
@@ -91,6 +147,12 @@ const SubscriptionScreen = () => {
         const activeSubs = customerInfo.activeSubscriptions || [];
         dispatch(setActiveSubscriptions(activeSubs));
         console.log('✅ Active subscriptions found:', activeSubs);
+        console.log('📊 Full customer info:', {
+          originalAppUserId: customerInfo.originalAppUserId,
+          activeSubscriptions: customerInfo.activeSubscriptions,
+          allPurchasedProductIdentifiers: customerInfo.allPurchasedProductIdentifiers,
+          entitlements: customerInfo.entitlements.active
+        });
       } catch (error) {
         console.log('❌ Error checking active subscriptions:', error);
       }
@@ -171,11 +233,17 @@ const SubscriptionScreen = () => {
       console.log('📊 Customer Info after purchase:', {
         originalAppUserId: customerInfo.originalAppUserId,
         activeSubscriptions: customerInfo.activeSubscriptions,
+        allPurchasedProductIdentifiers: customerInfo.allPurchasedProductIdentifiers,
         entitlements: customerInfo.entitlements.active
       });
 
       // Update active subscriptions in Redux store
       dispatch(updateActiveSubscriptions(customerInfo.activeSubscriptions || []));
+
+      // Wait a moment and refresh to ensure we have the latest data
+      setTimeout(async () => {
+        await refreshActiveSubscriptions();
+      }, 1000);
 
       Alert.alert(
         'Congratulations! 🎉',
@@ -238,6 +306,7 @@ const SubscriptionScreen = () => {
         navigation={navigation}
         centerContent="Subscriptions"
       />
+      
       <TabView
         navigationState={{index, routes}}
         renderScene={renderScene}
@@ -261,70 +330,19 @@ const SubscriptionScreen = () => {
           {selectedActiveSubscription ? (
             <View style={styles.actionButtonsContainer}>
               <TouchableOpacity
-                style={styles.deleteButton}
+                style={styles.infoButton}
                 onPress={() => {
                   Alert.alert(
-                    'Cancel Subscription',
-                    'Are you sure you want to cancel your subscription?',
-                    [
-                      {
-                        text: 'No',
-                        style: 'cancel',
-                      },
-                      {
-                        text: 'Yes, Cancel',
-                        onPress: async () => {
-                          try {
-                            const activeSubscription = subscriptions.find(
-                              sub => sub.plan.id === subscriptionSelected,
-                            );
-                            if (!activeSubscription) {
-                              Alert.alert(
-                                'Error',
-                                'Could not find active subscription',
-                              );
-                              return;
-                            }
-
-                            await cancelSubscription(
-                              activeSubscription?.subscriptionId,
-                            );
-
-                            dispatch(
-                              checkSubscriptionRequest({
-                                email: userData.email,
-                              }),
-                            );
-
-                            setSubscriptionSelected('');
-                            setSelectedActiveSubscription(false);
-
-                            Alert.alert(
-                              'Success',
-                              'Subscription cancelled successfully!',
-                            );
-                          } catch (error) {
-                            console.error(
-                              'Error cancelling subscription:',
-                              error,
-                            );
-                            Alert.alert(
-                              'Error',
-                              'Failed to cancel subscription. Please try again.',
-                            );
-                          }
-                        },
-                      },
-                    ],
+                    'Active Subscription',
+                    `You have an active subscription: ${subscriptionSelected}\n\nTo manage your subscription, please go to:\n\n` +
+                    'iOS: Settings > Apple ID > Subscriptions\n' +
+                    'Android: Google Play Store > Subscriptions',
+                    [{text: 'OK'}],
                   );
                 }}>
-                {cancelLoading ? (
-                  <ActivityIndicator color="#FF3B30" />
-                ) : (
-                  <Text style={styles.deleteButtonText}>
-                    Cancel Subscription
-                  </Text>
-                )}
+                <Text style={styles.infoButtonText}>
+                  ℹ️ Manage Subscription
+                </Text>
               </TouchableOpacity>
             </View>
           ) : (
@@ -347,6 +365,9 @@ const SubscriptionScreen = () => {
           <ActivityIndicator size="large" color={Colors.primary} />
         </View>
       )}
+
+      {/* Active Subscriptions Display */}
+      
     </SafeAreaView>
   );
 };
@@ -370,8 +391,17 @@ const SalvageRoute = ({
 
   // Check if a subscription is active
   const isSubscriptionActive = (productIdentifier) => {
-    return activeSubscriptions.includes(productIdentifier);
+    const isActive = activeSubscriptions.includes(productIdentifier);
+    console.log(`🔍 SALVAGE - Checking if ${productIdentifier} is active:`, isActive);
+    console.log(`📋 SALVAGE - All active subscriptions:`, activeSubscriptions);
+    console.log(`🔍 SALVAGE - Product identifier being checked:`, productIdentifier);
+    console.log(`🔍 SALVAGE - Active subscriptions array:`, activeSubscriptions);
+    console.log(`🔍 SALVAGE - Is included?`, activeSubscriptions.includes(productIdentifier));
+    return isActive;
   };
+
+  console.log('🔄 SALVAGE ROUTE - Products:', products.map(p => p.product.identifier));
+  console.log('🔄 SALVAGE ROUTE - Active subscriptions:', activeSubscriptions);
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -390,6 +420,7 @@ const SalvageRoute = ({
         <View style={styles.tabContainer}>
           {products.map((pkg, index) => {
             const isActive = isSubscriptionActive(pkg.product.identifier);
+            console.log(`🎯 SALVAGE - Package ${pkg.product.identifier} active:`, isActive);
             return (
               <TouchableOpacity
                 key={pkg.identifier}
@@ -692,6 +723,72 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontSize: wp * 0.025,
     fontFamily: Fonts.bold,
+  },
+  debugContainer: {
+    backgroundColor: Colors.lightGray,
+    padding: 10,
+    alignItems: 'center',
+    marginTop: hp * 0.02,
+  },
+  debugText: {
+    fontSize: wp * 0.035,
+    fontFamily: Fonts.regular,
+    color: Colors.black,
+  },
+  debugButton: {
+    marginTop: 10,
+    paddingVertical: hp * 0.01,
+    paddingHorizontal: wp * 0.1,
+    backgroundColor: Colors.primary,
+    borderRadius: 20,
+  },
+  debugButtonText: {
+    color: Colors.white,
+    fontSize: wp * 0.035,
+    fontFamily: Fonts.bold,
+  },
+  activeSubscriptionsContainer: {
+    backgroundColor: Colors.lightGray,
+    padding: 15,
+    marginTop: hp * 0.02,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: Colors.lightGray,
+  },
+  activeSubscriptionsTitle: {
+    fontSize: wp * 0.045,
+    fontFamily: Fonts.bold,
+    color: Colors.primary,
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  activeSubscriptionItem: {
+    fontSize: wp * 0.038,
+    fontFamily: Fonts.regular,
+    color: Colors.black,
+    marginBottom: 5,
+  },
+  infoButton: {
+    width: '100%',
+    paddingVertical: hp * 0.015,
+    backgroundColor: Colors.white,
+    alignItems: 'center',
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: Colors.primary,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.23,
+    shadowRadius: 2.62,
+    elevation: 4,
+  },
+  infoButtonText: {
+    color: Colors.primary,
+    fontSize: wp * 0.038,
+    fontFamily: Fonts.semiBold,
   },
 });
 
