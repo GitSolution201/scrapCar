@@ -22,114 +22,40 @@ import Colors from '../../Helper/Colors';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {Fonts} from '../../Helper/Fonts';
 import SubcriptionsHeader from '../../Components/HomeHeader';
-import {
-  StripeProvider,
-  CardField,
-  useStripe,
-  ApplePayButton,
-  PlatformPayButton,
-  isPlatformPaySupported,
-  PlatformPay,
-  isGooglePaySupported,
-  confirmPlatformPayPayment,
-  confirmPayment,
-  confirmPlatformPaySetupIntent,
-} from '@stripe/stripe-react-native';
+import Purchases from 'react-native-purchases';
 
 import {useDispatch, useSelector} from 'react-redux';
 import axios from 'axios';
-import {checkSubscriptionRequest} from '../../redux/slices/subcriptionsSlice';
+import {checkSubscriptionRequest, setActiveSubscriptions, updateActiveSubscriptions} from '../../redux/slices/subcriptionsSlice';
 import {cancelSubscriptionRequest} from '../../redux/slices/canceleSubcriptionsSlice';
 import {updateSubscriptionRequest} from '../../redux/slices/updateSubcriptionSlice';
-import Purchases from 'react-native-purchases';
-import * as RNIap from 'react-native-iap';
 
 const {width: wp, height: hp} = Dimensions.get('window');
-const api = axios.create({
-  baseURL: 'https://scrape4you.onrender.com', // Replace this with your actual API base URL
-  timeout: 10000, // Timeout in milliseconds
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
 
 const SubscriptionScreen = () => {
   const navigation = useNavigation();
   const layout = useWindowDimensions();
   const [index, setIndex] = React.useState(0);
-  const token = useSelector((state: any) => state.auth?.token);
+  const token = useSelector((state) => state.auth?.token);
 
-const [routes] = useState([
-  { key: 'salvage', title: 'Salvage' },
-  { key: 'scrap', title: 'Scrap' },
-]);
-  const {initPaymentSheet, presentPaymentSheet, confirmPayment} = useStripe();
+  const routes = [
+    {key: 'scrap', title: 'Scrap'},
+    {key: 'salvage', title: 'Salvage'},
+  ];
+  
   const [email, setEmail] = useState('tayyabjamil999@gmail.com');
-  const [publishableKey, setPublishedKey] = useState('');
-  const [urlScheme, setUrlScheme] = useState('');
-  const [isPlatformPayAvailable, setIsPlatformPayAvailable] = useState(false);
-  const [clientSecret, setClientSecret] = useState('');
   const [subscriptionSelected, setSubscriptionSelected] = useState('');
-  const [isApplePaySupported, setIsApplePaySupported] = useState(false);
-  const [selectedActiveSubscription, setSelectedActiveSubscription] =
-    useState(false);
-  //
-  const [products, setProducts] = useState([
-    {
-      id: 'price_1R15A1DnmorUxCln7W0DslGy',
-      name: 'Salvage Monthly',
-      price: 180,
-      type: 'salvage',
-    },
-    {
-      id: 'price_1R57DZDnmorUxClnRG48rfKZ',
-      name: 'Salvage Weekly',
-      price: 50,
-      type: 'salvage',
-    },
-    {
-      id: 'price_1R573DDnmorUxClnp4X4Imki',
-      name: 'Scrap Monthly',
-      price: 180,
-      type: 'scrap',
-    },
-    {
-      id: 'price_1R57CnDnmorUxClnS97UhVMT',
-      name: 'Scrap Weekly',
-      price: 50,
-      type: 'scrap',
-    },
-    {
-      id: 'price_1R9a2eDnmorUxCln8q94c9Xg',
-      name: 'Corporate Monthly Scrap',
-      price: 300,
-      type: 'corporate',
-    },
-    {
-      id: 'price_1R9a3xDnmorUxClnuwyFYx1B',
-      name: 'Corporate Monthly Salvage',
-      price: 300,
-      type: 'corporate',
-    },
-  ]);
-  const [offerings, setOfferings] = useState(null);
-  const [isPurchasing, setIsPurchasing] = useState(false);
-  const [purchaseUpdateSubscription, setPurchaseUpdateSubscription] = useState(null);
-  const [purchaseErrorSubscription, setPurchaseErrorSubscription] = useState(null);
-const [salvagePackages, setSalvagePackages] = useState([]);
-const [scrapPackages, setScrapPackages] = useState([]);
-
+  const [selectedActiveSubscription, setSelectedActiveSubscription] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [merchantIdentifier, setMerchantIdentifier] = useState(
-    // 'merchant.com.carscrap',
-    '',
-  );
+  const [salvagePackages, setSalvagePackages] = useState([]);
+  const [scrapPackages, setScrapPackages] = useState([]);
+  const [isPurchasing, setIsPurchasing] = useState(false);
 
   const {
     loading: userLoading,
     userData,
     error: userError,
-  } = useSelector((state: any) => state.user);
+  } = useSelector((state) => state.user);
   const {hasSubscription, subscriptions = []} = useSelector(
     state => state?.subscription?.subscriptionData || {},
   );
@@ -139,490 +65,118 @@ const [scrapPackages, setScrapPackages] = useState([]);
   const {updateSuccess, updateLoading, updateSubscriptionData} = useSelector(
     state => state?.updateSubscription,
   );
+  // Get active subscriptions from Redux store
+  const activeSubscriptions = useSelector(
+    state => state?.subscription?.activeSubscriptions || [],
+  );
   const dispatch = useDispatch();
-  const productIds = ['scrap_monthlu_299_testing']; // 👈 your product ID from App Store Connect
+
   useEffect(() => {
     if (userData) {
       setEmail(userData.email);
     }
   }, [userData]);
 
-  // useEffect(() => {
-  //   initializePaymentMethods();
-  // }, []);
-
-  // useEffect(() => {
-  //   if (userData?.email) {
-  //     dispatch(checkSubscriptionRequest({email: userData?.email}));
-  //   }
-  // }, [userData?.email, cancelSuccess, updateSuccess]);
-
-  // const initializePaymentMethods = async () => {
-  //   if (isApplePaySupported) {
-  //     await initApplePay();
-  //   }
-  //   if (isGooglePaySupported) {
-  //     await initGooglePay();
-  //   }
-  // };
-  // useEffect(() => {
-  //   const initializeApplePay = async () => {
-  //     if (Platform.OS == 'ios') {
-  //       try {
-  //         const supported = await isPlatformPaySupported();
-  //         // console.log('====================================');
-  //         // console.log(supported);
-  //         // console.log('====================================');
-  //         setIsApplePaySupported(supported);
-  //       } catch (error) {
-  //         console.log('Apple Pay support check error:', error);
-  //         setIsApplePaySupported(false);
-  //       }
-  //     }
-  //   };
-
-  //   initializeApplePay();
-  // }, [isPlatformPaySupported]);
-
-  // useEffect(() => {
-  //   const checkPlatformPaySupport = async () => {
-  //     // Add a small delay for Android
-  //     if (Platform.OS === 'android') {
-  //       // Wait for component to mount properly
-  //       await new Promise(resolve => setTimeout(resolve, 500));
-  //     }
-
-  //     try {
-  //       if (Platform.OS === 'android') {
-  //         const isSupported = await isPlatformPaySupported({
-  //           provider: 'google_pay',
-  //           googlePay: {
-  //             environment: 'test',
-  //             merchantCountryCode: 'GB',
-  //           },
-  //         });
-  //         console.log('Google Pay support:', isSupported);
-  //         setIsPlatformPayAvailable(isSupported);
-  //       }
-  //     } catch (error) {
-  //       console.log('Platform pay support check error:', error);
-  //       setIsPlatformPayAvailable(false);
-  //     }
-  //   };
-
-  //   // For Android, we'll run this after a short delay
-  //   if (Platform.OS === 'android') {
-  //     const timer = setTimeout(() => {
-  //       checkPlatformPaySupport();
-  //     }, 1000);
-  //     return () => clearTimeout(timer);
-  //   } else {
-  //     checkPlatformPaySupport();
-  //   }
-  // }, []);
-  const handlePlatformPay = async () => {
-    console.log('Handle Platform ');
-    // // Add loading state
-    // setLoading(true); // Assuming you have a state variable for loading
-
-    // try {
-    //   if (!subscriptionSelected || subscriptionSelected === '') {
-    //     Alert.alert('Error', 'Please select a subscription plan first');
-    //     setLoading(false);
-    //     return;
-    //   }
-
-    //   if (selectedActiveSubscription) {
-    //     Alert.alert('Error', 'This subscription is already active');
-    //     setLoading(false);
-    //     return;
-    //   }
-
-    //   console.log('@subcription', subscriptionSelected?.price);
-    //   console.log('@prodcut', products);
-
-    //   const amount =
-    //     products.find(p => p.id === subscriptionSelected)?.price || 0;
-
-    //   const response = await axios.post(
-    //     'https://scrape4you.onrender.com/stripe/create-customer-and-subscription',
-    //     {
-    //       email: email,
-    //       priceId: subscriptionSelected,
-    //     },
-    //     {
-    //       headers: {
-    //         Authorization: `Bearer ${token}`,
-    //         'Content-Type': 'application/json',
-    //       },
-    //     },
-    //   );
-
-    //   if (response.data?.clientSecret) {
-    //     const paymentMethod = {
-    //       provider: 'google_pay',
-    //       googlePay: {
-    //         testEnv: true,
-    //         amount: amount * 100,
-    //         currencyCode: 'GBP',
-    //         merchantCountryCode: 'GB',
-    //         merchantName: 'Car Scrap',
-    //         billingAddressRequired: true,
-    //         emailRequired: true,
-    //       },
-    //     };
-
-    //     console.log('Attempting payment with:', paymentMethod);
-    //     setLoading(false);
-
-    //     const {error} = await confirmPlatformPayPayment(
-    //       response.data.clientSecret,
-    //       paymentMethod,
-    //     );
-
-    //     if (error) {
-    //       console.log('Payment error:', error);
-    //       Alert.alert('Error', 'Payment failed. Please try again.');
-    //     } else {
-    //       setLoading(false);
-
-    //       Alert.alert(
-    //         'Congratulations! 🎉',
-    //         'Your subscription has been successfully activated. Welcome to our premium services. You now have access to all features.',
-    //         [
-    //           {
-    //             text: 'Continue',
-    //             onPress: () => {
-    //               dispatch(checkSubscriptionRequest({email: userData.email})),
-    //                 navigation.goBack();
-    //             },
-    //           },
-    //         ],
-    //         {cancelable: false},
-    //       );
-    //     }
-    //   }
-    // } catch (error) {
-    //   console.log('Payment error:', error);
-    //   Alert.alert('Error', 'Payment failed. Please try again.');
-    // } finally {
-    //   // Ensure loading is set to false when operation completes (success or failure)
-    //   setLoading(false);
-    // }
-  };
-
-  const getPublishedKeys = async () => {
-    // const response = await fetch(
-    //   `https://scrape4you.onrender.com/stripe/keys`,
-    //   {
-    //     method: 'GET',
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //     },
-    //   },
-    // );
-    // const {publishedKey, merchantIdentifier, urlScheme} = await response.json();
-    // setPublishedKey(publishedKey);
-    // console.log('====================================');
-    // console.log(merchantIdentifier);
-    // console.log('====================================');
-    // setMerchantIdentifier('merchant.com.carscrap');
-    // setUrlScheme('https://scrape4you.onrender.com');
-  };
-  // useEffect(() => {
-  //   const fetchProducts = async () => {
-  //     try {
-  //       const response = await axios.get(
-  //         'https://scrape4you.onrender.com/stripe/products',
-  //       );
-
-  //       // setProducts(response);
-  //     } catch (error) {
-  //       console.error(error);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-
-  //   fetchProducts();
-  // }, []);
   useEffect(() => {
-    getPublishedKeys();
-  }, []);
-  const fetchPaymentSheetParams = async () => {
-    const response = await fetch(
-      `https://scrape4you.onrender.com/stripe/payment/sheet`,
-      {
-        method: 'POST',
-        body: {
-          email: email,
-        },
+    if (userData?.email) {
+      dispatch(checkSubscriptionRequest({email: userData.email}));
+    }
+  }, [userData?.email, cancelSuccess, updateSuccess]);
 
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      },
-    );
-
-    const {paymentIntent, ephemeralKey, customer} = await response.json();
-    setClientSecret(paymentIntent);
-    return {
-      paymentIntent,
-      ephemeralKey,
-      customer,
+  // Check for active subscriptions and save to Redux store
+  useEffect(() => {
+    const checkActiveSubscriptions = async () => {
+      try {
+        const customerInfo = await Purchases.getCustomerInfo();
+        const activeSubs = customerInfo.activeSubscriptions || [];
+        dispatch(setActiveSubscriptions(activeSubs));
+        console.log('✅ Active subscriptions found:', activeSubs);
+      } catch (error) {
+        console.log('❌ Error checking active subscriptions:', error);
+      }
     };
-  };
-  const openPaymentSheet = async () => {
-    console.log('object');
-    // try {
-    //   if (!subscriptionSelected || subscriptionSelected === '') {
-    //     Alert.alert('Error', 'Please select a subscription plan first');
-    //     return;
-    //   }
 
-    //   if (selectedActiveSubscription) {
-    //     Alert.alert('Error', 'This subscription is already active');
-    //     return;
-    //   }
+    checkActiveSubscriptions();
+  }, [dispatch]);
 
-    //   setLoading(true);
+  // Fetch RevenueCat products
+  useEffect(() => {
+    const fetchRevenueCatProducts = async () => {
+      try {
+        console.log('🔄 Fetching RevenueCat offerings...');
+        const allOfferings = await Purchases.getOfferings();
 
-    //   // Step 1: Create the subscription intent
-    //   const response = await axios.post(
-    //     'https://scrape4you.onrender.com/stripe/create-customer-and-subscription',
-    //     {
-    //       email: email,
-    //       priceId: subscriptionSelected,
-    //     },
-    //     {
-    //       headers: {
-    //         Authorization: `Bearer ${token}`,
-    //         'Content-Type': 'application/json',
-    //       },
-    //     },
-    //   );
-    //   setLoading(false);
+        if (allOfferings.current) {
+          const packages = allOfferings.current.availablePackages;
 
-    //   // Step 2: Initialize payment sheet with the returned client secret
-    //   const {error} = await initPaymentSheet({
-    //     merchantDisplayName: 'merchant.com.carscrap',
-    //     customerId: response.data.customerId,
-    //     customerEphemeralKeySecret: response.data.ephemeralKey,
-    //     paymentIntentClientSecret: response.data.clientSecret,
-    //     returnURL: 'https://scrape4you.onrender.com',
-    //     allowsDelayedPaymentMethods: true,
-    //   });
+          // Filter salvage packages - look for 'salvage' in the identifier
+          const salvage = packages.filter(pkg =>
+            pkg.product.identifier.toLowerCase().includes('salvage')
+          );
 
-    //   if (error) {
-    //     Alert.alert('Error', error.message);
-    //     return;
-    //   }
+          // Filter scrap packages - look for 'scrap' in the identifier and exclude salvage
+          const scrap = packages.filter(pkg =>
+            pkg.product.identifier.toLowerCase().includes('scrap') && 
+            !pkg.product.identifier.toLowerCase().includes('salvage')
+          );
 
-    //   // Step 3: Present the payment sheet
-    //   const {error: paymentError} = await presentPaymentSheet();
+          setSalvagePackages(salvage);
+          setScrapPackages(scrap);
 
-    //   if (paymentError) {
-    //     Alert.alert('Error', paymentError.message);
-    //     return;
-    //   }
+          console.log('✅ Salvage Packages:', salvage.map(p => p.product.title));
+          console.log('✅ Scrap Packages:', scrap.map(p => p.product.title));
+          console.log('🔍 All Package Identifiers:', packages.map(p => p.product.identifier));
+        } else {
+          console.log('❌ No current offering found');
+        }
+      } catch (error) {
+        console.log('❌ Error fetching offerings:', error);
+      }
+    };
 
-    //   // Payment was successful
-    //   Alert.alert(
-    //     'Congratulations! 🎉',
-    //     'Your subscription has been successfully activated. Welcome to our premium services. You now have access to all features.',
-    //     [
-    //       {
-    //         text: 'Continue',
-    //         onPress: () => {
-    //           dispatch(checkSubscriptionRequest({email: userData.email})),
-    //             navigation.goBack();
-    //         },
-    //       },
-    //     ],
-    //     {cancelable: false},
-    //   );
-    // } catch (error) {
-    //   console.error('Payment error:', error);
-    //   Alert.alert('Error', 'Payment failed. Please try again.');
-    // } finally {
-    //   setLoading(false);
-    // }
-  };
+    fetchRevenueCatProducts();
+  }, []);
 
-const handlePurchase = async (selectedIdentifier) => {
-  try {
-    const allOfferings = await Purchases.getOfferings();
-    const availablePackages = allOfferings.current.availablePackages;
+  // Handle RevenueCat purchase
+  const handlePurchase = async (selectedIdentifier) => {
+    try {
+      setIsPurchasing(true);
+      console.log('🛒 Attempting to purchase package:', selectedIdentifier);
+      
+      const allOfferings = await Purchases.getOfferings();
+      const availablePackages = allOfferings.current.availablePackages;
 
-    const selectedPackage = availablePackages.find(
-      pkg => pkg.product.identifier === selectedIdentifier
-    );
+      const selectedPackage = availablePackages.find(
+        pkg => pkg.product.identifier === selectedIdentifier
+      );
 
-    if (!selectedPackage) {
-      console.warn('❌ Package not found for identifier:', selectedIdentifier);
-      return;
-    }
+      if (!selectedPackage) {
+        console.warn('❌ Package not found for identifier:', selectedIdentifier);
+        Alert.alert('Error', 'Package not found. Please try again.');
+        return;
+      }
 
-    const purchaseResult = await Purchases.purchasePackage(selectedPackage);
-    console.log('✅ Purchase successful:', purchaseResult);
+      console.log('✅ Package found:', {
+        identifier: selectedPackage.identifier,
+        product: selectedPackage.product.identifier,
+        price: selectedPackage.product.priceString,
+        title: selectedPackage.product.title
+      });
 
-    // Optional: handle entitlement access
-    const customerInfo = await Purchases.getCustomerInfo();
-    if (customerInfo.entitlements.active['your_entitlement_id']) {
-      console.log('🎉 Entitlement active!');
-    }
+      const purchaseResult = await Purchases.purchasePackage(selectedPackage);
+      console.log('✅ Purchase successful:', purchaseResult);
 
-  } catch (error) {
-    if (!error.userCancelled) {
-      console.error('❌ Purchase error:', error);
-    } else {
-      console.log('⚠️ Purchase cancelled by user');
-    }
-  }
-};
+      // Check customer info after purchase
+      const customerInfo = await Purchases.getCustomerInfo();
+      console.log('📊 Customer Info after purchase:', {
+        originalAppUserId: customerInfo.originalAppUserId,
+        activeSubscriptions: customerInfo.activeSubscriptions,
+        entitlements: customerInfo.entitlements.active
+      });
 
-const renderScene = ({ route }) => {
-  const sharedProps = {
-    onSelectSubscription:handlePurchase,
-    selectedSubscription: subscriptionSelected,
-    currentIndex: index,
-  };
+      // Update active subscriptions in Redux store
+      dispatch(updateActiveSubscriptions(customerInfo.activeSubscriptions || []));
 
-  switch (route.key) {
-    case 'scrap':
-      return <ScrapRoute {...sharedProps} products={scrapPackages} />;
-    case 'salvage':
-      return <SalvageRoute {...sharedProps} products={salvagePackages} />;
-    default:
-      return null;
-  }
-};
-
-  
-  // const handleApplePay = async () => {
-  //   if (selectedActiveSubscription) {
-  //     Alert.alert('Error', 'This subscription is already active');
-  //     return;
-  //   }
-  //   const amount =
-  //     products.find(p => p.id === subscriptionSelected)?.price || 0;
-  //   const response = await axios.post(
-  //     'https://scrape4you.onrender.com/stripe/create-customer-and-subscription',
-  //     {
-  //       email: email,
-  //       priceId: subscriptionSelected,
-  //     },
-  //     {
-  //       headers: {
-  //         Authorization: `Bearer ${token}`,
-  //         'Content-Type': 'application/json',
-  //       },
-  //     },
-  //   );
-  //   // Successful response (status 2xx)
-  //   console.log('====================================');
-  //   console.log(response.data);
-  //   console.log('====================================');
-
-  //   try {
-  //     const {error, paymentIntent} = await confirmPlatformPayPayment(
-  //       response.data.clientSecret,
-  //       {
-  //         applePay: {
-  //           cartItems: [
-  //             {
-  //               label: 'Total',
-  //               amount: amount, // This should already be in correct currency format (in pence for GBP)
-  //               paymentType: PlatformPay.PaymentType.Immediate,
-  //             },
-  //           ],
-  //           currencyCode: 'GBP',
-  //           merchantCountryCode: 'GBP', // 'US' is incorrect for GBP
-  //         },
-  //       },
-  //     );
-
-  //     console.log('Apple Pay Result:', {error, paymentIntent});
-
-  //     if (error) {
-  //       Alert.alert('Payment failed', error.message);
-  //       return;
-  //     }
-
-  //     if (
-  //       paymentIntent?.status === 'Succeeded' ||
-  //       paymentIntent?.status === 'succeeded'
-  //     ) {
-  //       Alert.alert('Success', 'Payment completed successfully!');
-  //     } else {
-  //       Alert.alert('Info', `Payment status: ${paymentIntent?.status}`);
-  //     }
-
-  //     navigation.goBack();
-  //     return response.data;
-  //   } catch (err) {
-  //     console.log('Apple Pay Error:', err);
-  //     Alert.alert('Error', 'Something went wrong during Apple Pay');
-  //   }
-
-  //   navigation.goBack();
-  //   return response.data;
-  // };
-  // };
-
-
-  const fetchPaymentIntentClientSecret = async () => {
-    if (selectedActiveSubscription) {
-      Alert.alert('Error', 'This subscription is already active');
-      return;
-    }
-    const amount =
-      products.find(p => p.id === subscriptionSelected)?.price || 0;
-    const response = await axios.post(
-      'https://scrape4you.onrender.com/stripe/create-customer-and-subscription',
-      {
-        email: email,
-        priceId: subscriptionSelected,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      },
-    );
-    return response.data.clientSecret;
-    // Successful response (status 2xx)
-  };
-  const handleApplePay = async () => {
-    const amount =
-      products.find(p => p.id === subscriptionSelected)?.price || 0;
-    const clientSecret = await fetchPaymentIntentClientSecret();
-    console.log('====================================');
-    console.log(clientSecret);
-    console.log('====================================');
-
-    const {error} = await confirmPlatformPayPayment(clientSecret, {
-      applePay: {
-        cartItems: [
-          {
-            label: 'Example item name',
-            amount: JSON.stringify(amount),
-            paymentType: PlatformPay.PaymentType.Immediate,
-          },
-        ],
-        merchantCountryCode: 'GB',
-        currencyCode: 'GBP',
-        requiredShippingAddressFields: [PlatformPay.ContactField.PostalAddress],
-        requiredBillingContactFields: [PlatformPay.ContactField.PhoneNumber],
-      },
-    });
-    if (error) {
-      // handle error
-      console.log('====================================');
-      console.log(error);
-      console.log('====================================');
-    } else {
       Alert.alert(
         'Congratulations! 🎉',
         'Your subscription has been successfully activated. Welcome to our premium services. You now have access to all features.',
@@ -630,47 +184,46 @@ const renderScene = ({ route }) => {
           {
             text: 'Continue',
             onPress: () => {
-              dispatch(checkSubscriptionRequest({email: userData.email})),
-                navigation.goBack();
+              dispatch(checkSubscriptionRequest({email: userData.email}));
+              navigation.goBack();
             },
           },
         ],
         {cancelable: false},
       );
-      console.log(JSON.stringify(paymentIntent, null, 2));
+
+    } catch (error) {
+      console.log('❌ Purchase error:', error);
+      
+      if (error.userCancelled) {
+        console.log('🚫 Purchase cancelled by user');
+      } else {
+        Alert.alert('Purchase Failed', error.message || 'Something went wrong');
+      }
+    } finally {
+      setIsPurchasing(false);
     }
   };
-  const renderPaymentButton = () => {
-    if (!isPlatformPayAvailable) return null;
 
-    if (Platform.OS === 'android') {
-      return (
-        <TouchableOpacity
-          style={[
-            styles.googlePayButton,
-            !subscriptionSelected && {opacity: 0.7},
-          ]}
-          onPress={handlePlatformPay}>
-          <Text style={styles.googlePayText}>Pay with Google Pay</Text>
-        </TouchableOpacity>
-      );
+  const renderScene = ({route}) => {
+    const sharedProps = {
+      onSelectSubscription: handlePurchase,
+      selectedSubscription: subscriptionSelected,
+      currentIndex: index,
+      setSelectedActiveSubscription: setSelectedActiveSubscription,
+      activeSubscriptions: activeSubscriptions,
+    };
+
+    switch (route.key) {
+      case 'scrap':
+        return <ScrapRoute {...sharedProps} products={scrapPackages} />;
+      case 'salvage':
+        return <SalvageRoute {...sharedProps} products={salvagePackages} />;
+      default:
+        return null;
     }
-
-    return (
-      <PlatformPayButton
-        onPress={handlePlatformPay}
-        type={PlatformPay.ButtonType.Pay}
-        appearance={PlatformPay.ButtonStyle.Black}
-        borderRadius={25}
-        style={styles.paymentButton}
-      />
-    );
   };
 
-  const getSelectedPlanName = () => {
-    const selectedProduct = products.find(p => p.id === subscriptionSelected);
-    return selectedProduct ? selectedProduct.name : '';
-  };
   const cancelSubscription = async subscriptionId => {
     if (!token) {
       Alert.alert('Error', 'Authentication required. Please login again.');
@@ -678,591 +231,147 @@ const renderScene = ({ route }) => {
     }
     dispatch(cancelSubscriptionRequest({subscriptionId, token}));
   };
-  // useEffect(() => {
-  //   const initIAP = async () => {
-  //     try {
-  //       await RNIap.initConnection();
-  //       const items = await RNIap.getSubscriptions({skus: productIds});
-  //       console.log('-----------newproducts', productIds);
-  //       setProducts(items);
-
-  //       // Purchase Update Listener
-  //       const purchaseUpdate = RNIap.purchaseUpdatedListener(async (purchase) => {
-  //         console.log('✅ Purchase Updated:', purchase);
-
-  //         if (purchase.transactionReceipt) {
-  //           try {
-  //             // iOS: finish the transaction
-  //             await RNIap.finishTransaction(purchase);
-  //             Alert.alert('Success', 'Subscription Completed!');
-  //           } catch (ackErr) {
-  //             console.warn('⚠️ finishTransaction error:', ackErr);
-  //           }
-  //         }
-  //       });
-
-  //       // Purchase Error Listener
-  //       const purchaseError = RNIap.purchaseErrorListener((error) => {
-  //         console.log('❌ Purchase Error:', error);
-  //         Alert.alert('Error', error.message);
-  //       });
-
-  //       setPurchaseUpdateSubscription(purchaseUpdate);
-  //       setPurchaseErrorSubscription(purchaseError);
-
-  //     } catch (err) {
-  //       console.log('❌ IAP Init Error:', err);
-  //     }
-  //   };
-
-  //   initIAP();
-
-  //   return () => {
-  //     if (purchaseUpdateSubscription) {
-  //       purchaseUpdateSubscription.remove();
-  //     }
-  //     if (purchaseErrorSubscription) {
-  //       purchaseErrorSubscription.remove();
-  //     }
-  //     RNIap.endConnection();
-  //   };
-  // }, []);
-  // const handleSubscribe = async () => {
-  //   try {
-  //     setIsPurchasing(true);
-  //     await RNIap.requestSubscription({ sku: 'scrap_monthlu_299_testing' });
-  //   } catch (err) {
-  //     Alert.alert('Error', err.message || 'Something went wrong');
-  //   } finally {
-  //     setIsPurchasing(false);
-  //   }
-  // };
-  
-  // useEffect(() => {
-  //   const init = async () => {
-  //     try {
-  //       await RNIap.initConnection();
-  //       const items = await RNIap.getSubscriptions({skus: productIds});
-  //       console.log('-----------newproducts', productIds);
-  //       // use getProducts for one-time purchases
-  //       setProducts(items);
-  //     } catch (err) {
-  //       console.log('error-------', err);
-  //     }
-  //   };
-
-  //   init();
-
-  //   return () => {
-  //     RNIap.endConnection();
-  //   };
-  // }, []);
-  // const handleSubscribe = async () => {
-  //   try {
-  //     setIsPurchasing(true);
-  //     const pur = await RNIap.clearTransactionIOS();
-  //     // const purchase = await RNIap.requestSubscription({sku: productIds[0]});
-  //     console.log('✅ Subscription successful:', pur);
-  //     Alert.alert('Success', 'Subscription Completed!');
-  //     setIsPurchasing(false);
-  //   } catch (err) {
-  //     console.warn('❌ Subscription error:', err);
-  //     Alert.alert('Error', err.message);
-  //     setIsPurchasing(false);
-  //   }
-  // };
-  const handleSubscribe = async () => {
-   
-    try {
-      const offerings = await Purchases.getOfferings();
-      if (offerings.current && offerings.current.availablePackages.length > 0) {
-        const packageToBuy = offerings.current.availablePackages[0]; // or pick by identifier
-        await Purchases.purchasePackage(packageToBuy); // <-- This opens the purchase sheet
-        Alert.alert('Success', 'Subscription Completed!');
-      } else {
-        Alert.alert('No available packages to purchase.');
-      }
-    } catch (e) {
-      if (!e.userCancelled) {
-        Alert.alert('Error', e.message || 'Something went wrong');
-      }
-    }
-  };
-  useEffect(() => {
-  const fetchRevenueCatProducts = async () => {
-    try {
-      console.log('🔄 Fetching RevenueCat offerings...');
-      const allOfferings = await Purchases.getOfferings();
-
-      if (allOfferings.current) {
-        const packages = allOfferings.current.availablePackages;
-
-        const salvage = packages.filter(pkg =>
-          pkg.product.identifier.includes('salvage')
-        );
-
-        const scrap = packages.filter(pkg =>
-          pkg.product.identifier.includes('scrap')
-        );
-
-        setSalvagePackages(salvage);
-        setScrapPackages(scrap);
-
-        console.log('✅ Salvage Packages:', salvage.map(p => p.identifier));
-        console.log('✅ Scrap Packages:', scrap.map(p => p.identifier));
-      } else {
-        console.log('❌ No current offering found');
-      }
-    } catch (error) {
-      console.log('❌ Error fetching offerings:', error);
-    }
-  };
-
-  fetchRevenueCatProducts();
-}, []);
-  // useEffect(() => {
-  //   const fetchRevenueCatProducts = async () => {
-  //     try {
-  //       console.log('🔄 Fetching RevenueCat offerings...');
-        
-  //       // Get all offerings (not just current)
-  //       const allOfferings = await Purchases.getOfferings();
-  //       console.log('📦 All offerings:', JSON.stringify(allOfferings, null, 2));
-        
-  //       if (allOfferings.current) {
-  //         console.log('✅ Current offering found:', allOfferings.current.identifier);
-  //         console.log('📋 Available packages:', allOfferings.current.availablePackages.length);
-          
-  //         allOfferings.current.availablePackages.forEach((pkg, index) => {
-  //           console.log(`📦 Package ${index + 1}:`, {
-  //             identifier: pkg.identifier,
-  //             packageType: pkg.packageType,
-  //             product: {
-  //               identifier: pkg.product.identifier,
-  //               title: pkg.product.title,
-  //               price: pkg.product.price,
-  //               priceString: pkg.product.priceString,
-  //               productType: pkg.product.productType
-  //             }
-  //           });
-  //         });
-          
-  //         return allOfferings.current.availablePackages;
-  //       } else {
-  //         console.log('❌ No current offering found');
-  //         console.log('🔍 Available offerings:', Object.keys(allOfferings));
-          
-  //         // Check if there are any other offerings
-  //         Object.keys(allOfferings).forEach(key => {
-  //           if (key !== 'current' && allOfferings[key]) {
-  //             console.log(`📦 Offering "${key}":`, allOfferings[key].availablePackages.length, 'packages');
-  //           }
-  //         });
-  //       }
-  //     } catch (error) {
-  //       console.log('❌ Error fetching offerings:', error);
-  //       console.log('Error details:', {
-  //         message: error.message,
-  //         code: error.code,
-  //         userCancelled: error.userCancelled
-  //       });
-  //     }
-  //   };
-
-  //   fetchRevenueCatProducts();
-  // }, []);
-
-  const checkCustomerInfo = async () => {
-    try {
-      console.log('👤 Fetching customer info...');
-      const customerInfo = await Purchases.getCustomerInfo();
-      
-      console.log('📊 Customer Info:', {
-        originalAppUserId: customerInfo.originalAppUserId,
-        activeSubscriptions: customerInfo.activeSubscriptions,
-        allPurchaseDates: customerInfo.allPurchaseDates,
-        entitlements: customerInfo.entitlements.active
-      });
-      
-      if (customerInfo.activeSubscriptions.length > 0) {
-        console.log('✅ Active subscriptions found:', customerInfo.activeSubscriptions);
-      } else {
-        console.log('❌ No active subscriptions');
-      }
-      
-      return customerInfo;
-    } catch (error) {
-      console.log('❌ Error fetching customer info:', error);
-      return null;
-    }
-  };
-
-  useEffect(() => {
-    checkCustomerInfo();
-  }, []);
-
-  // Add this method to force refresh offerings
-  const forceRefreshOfferings = async () => {
-    try {
-      console.log('🔄 Force refreshing offerings...');
-      
-      // Clear any cached data (if available)
-      // Note: This is a workaround - RevenueCat doesn't have a direct cache clear method
-      
-      // Get fresh offerings
-      const freshOfferings = await Purchases.getOfferings();
-      console.log('🆕 Fresh offerings:', JSON.stringify(freshOfferings, null, 2));
-      
-      if (freshOfferings.current) {
-        console.log('✅ Fresh current offering:', freshOfferings.current.identifier);
-        return freshOfferings.current.availablePackages;
-      } else {
-        console.log('❌ Still no current offering after refresh');
-        return [];
-      }
-    } catch (error) {
-      console.log('❌ Error refreshing offerings:', error);
-      return [];
-    }
-  };
-
-  // Add a button to test this (you can call this from your UI)
-  const handleRefreshOfferings = async () => {
-    const packages = await forceRefreshOfferings();
-    if (packages.length > 0) {
-      Alert.alert('Success', `Found ${packages.length} packages after refresh`);
-    } else {
-      Alert.alert('No Packages', 'No packages found after refresh. Check App Store Connect and RevenueCat configuration.');
-    }
-  };
-
-  // Add this method to purchase any specific package
-  const purchaseSpecificPackage = async (packageIdentifier) => {
-    try {
-      console.log(`🛒 Attempting to purchase package: ${packageIdentifier}`);
-      
-      const offerings = await Purchases.getOfferings();
-      
-      if (!offerings.current) {
-        Alert.alert('Error', 'No offerings available');
-        return;
-      }
-      
-      // Find the specific package
-      const packageToBuy = offerings.current.availablePackages.find(
-        pkg => pkg.identifier === packageIdentifier
-      );
-      
-      if (!packageToBuy) {
-        console.log('❌ Package not found:', packageIdentifier);
-        console.log('📦 Available packages:', offerings.current.availablePackages.map(p => p.identifier));
-        Alert.alert('Error', `Package ${packageIdentifier} not found`);
-        return;
-      }
-      
-      console.log('✅ Package found:', {
-        identifier: packageToBuy.identifier,
-        product: packageToBuy.product.identifier,
-        price: packageToBuy.product.priceString,
-        title: packageToBuy.product.title
-      });
-      
-      // Purchase the package
-      const purchaseInfo = await Purchases.purchasePackage(packageToBuy);
-      
-      console.log('🎉 Purchase successful:', purchaseInfo);
-      Alert.alert('Success', 'Purchase completed successfully!');
-      
-      return purchaseInfo;
-      
-    } catch (error) {
-      console.log('❌ Purchase error:', error);
-      
-      if (error.userCancelled) {
-        console.log('🚫 User cancelled purchase');
-      } else {
-        Alert.alert('Purchase Failed', error.message || 'Something went wrong');
-      }
-      
-      throw error;
-    }
-  };
-
-  // Method to purchase monthly package
-  const purchaseMonthly = async () => {
-    return await purchaseSpecificPackage('$rc_monthly');
-  };
-
-  // Method to purchase weekly package (if you add it)
-  const purchaseWeekly = async () => {
-    return await purchaseSpecificPackage('$rc_weekly');
-  };
-
-  // Method to purchase custom package (if you add salvage)
-  const purchaseSalvageMonthly = async () => {
-    return await purchaseSpecificPackage('$rc_salvage_monthly');
-  };
-
-  // Method to show all available packages and let user choose
-  const showPackageSelection = async () => {
-    try {
-      const offerings = await Purchases.getOfferings();
-      
-      if (!offerings.current || offerings.current.availablePackages.length === 0) {
-        Alert.alert('No Packages', 'No packages available for purchase');
-        return;
-      }
-      
-      const packages = offerings.current.availablePackages;
-      
-      // Create alert options for each package
-      const options = packages.map(pkg => ({
-        text: `${pkg.product.title} - ${pkg.product.priceString}`,
-        onPress: () => purchaseSpecificPackage(pkg.identifier)
-      }));
-      
-      // Add cancel option
-      options.push({
-        text: 'Cancel',
-        style: 'cancel'
-      });
-      
-      Alert.alert(
-        'Choose a Package',
-        'Select a package to purchase:',
-        options
-      );
-      
-    } catch (error) {
-      console.log('❌ Error showing packages:', error);
-      Alert.alert('Error', 'Failed to load packages');
-    }
-  };
-
 
   return (
-    <StripeProvider
-      publishableKey={publishableKey}
-      merchantIdentifier={merchantIdentifier}>
-      <SafeAreaView style={styles.container}>
-        <SubcriptionsHeader
-          navigation={navigation}
-          centerContent="Subscriptions"
-        />
+    <SafeAreaView style={styles.container}>
+      <SubcriptionsHeader
+        navigation={navigation}
+        centerContent="Subscriptions"
+      />
       <TabView
-  navigationState={{ index, routes }}
-  renderScene={renderScene}
-  onIndexChange={setIndex}
-  initialLayout={{ width: layout.width }}
-  style={styles.tabView}
-  renderTabBar={props => (
-    <TabBar
-      {...props}
-      indicatorStyle={styles.tabIndicator}
-      style={styles.tabBar}
-      activeColor={Colors.primary}
-      inactiveColor={Colors.textGray}
-      pressColor={Colors.primary}
-    />
-  )}
-/>
+        navigationState={{index, routes}}
+        renderScene={renderScene}
+        onIndexChange={setIndex}
+        initialLayout={{width: layout.width}}
+        style={styles.tabView}
+        renderTabBar={props => (
+          <TabBar
+            {...props}
+            indicatorStyle={styles.tabIndicator}
+            style={styles.tabBar}
+            activeColor={Colors.primary}
+            inactiveColor={Colors.textGray}
+            pressColor={Colors.primary}
+          />
+        )}
+      />
+      
+      {subscriptionSelected && subscriptionSelected !== '' ? (
+        <>
+          {selectedActiveSubscription ? (
+            <View style={styles.actionButtonsContainer}>
+              <TouchableOpacity
+                style={styles.deleteButton}
+                onPress={() => {
+                  Alert.alert(
+                    'Cancel Subscription',
+                    'Are you sure you want to cancel your subscription?',
+                    [
+                      {
+                        text: 'No',
+                        style: 'cancel',
+                      },
+                      {
+                        text: 'Yes, Cancel',
+                        onPress: async () => {
+                          try {
+                            const activeSubscription = subscriptions.find(
+                              sub => sub.plan.id === subscriptionSelected,
+                            );
+                            if (!activeSubscription) {
+                              Alert.alert(
+                                'Error',
+                                'Could not find active subscription',
+                              );
+                              return;
+                            }
 
-        {/* {subscriptionSelected && subscriptionSelected !== '' ? (
-          <>
-            {selectedActiveSubscription ? (
-              // Show only update button if an active subscription is selected
-              <>
-                <View style={styles.actionButtonsContainer}>
-                  <TouchableOpacity
-                    style={styles.deleteButton}
-                    onPress={() => {
-                      Alert.alert(
-                        'Cancel Subscription',
-                        'Are you sure you want to cancel your subscription?',
-                        [
-                          {
-                            text: 'No',
-                            style: 'cancel',
-                          },
-                          {
-                            text: 'Yes, Cancel',
-                            onPress: async () => {
-                              try {
-                                // Find the active subscription ID
-                                const activeSubscription = subscriptions.find(
-                                  sub => sub.plan.id === subscriptionSelected,
-                                );
-                                if (!activeSubscription) {
-                                  Alert.alert(
-                                    'Error',
-                                    'Could not find active subscription',
-                                  );
-                                  return;
-                                }
+                            await cancelSubscription(
+                              activeSubscription?.subscriptionId,
+                            );
 
-                                await cancelSubscription(
-                                  activeSubscription?.subscriptionId,
-                                );
+                            dispatch(
+                              checkSubscriptionRequest({
+                                email: userData.email,
+                              }),
+                            );
 
-                                // Refresh subscription data
-                                dispatch(
-                                  checkSubscriptionRequest({
-                                    email: userData.email,
-                                  }),
-                                );
+                            setSubscriptionSelected('');
+                            setSelectedActiveSubscription(false);
 
-                                // Reset selection states
-                                setSubscriptionSelected('');
-                                setSelectedActiveSubscription(false);
-
-                                Alert.alert(
-                                  'Success',
-                                  'Subscription cancelled successfully!',
-                                );
-                              } catch (error) {
-                                console.error(
-                                  'Error cancelling subscription:',
-                                  error,
-                                );
-                                Alert.alert(
-                                  'Error',
-                                  'Failed to cancel subscription. Please try again.',
-                                );
-                              }
-                            },
-                          },
-                        ],
-                      );
-                    }}>
-                    {cancelLoading ? (
-                      <ActivityIndicator color="#FF3B30" />
-                    ) : (
-                      <Text style={styles.deleteButtonText}>
-                        Cancel Subscription
-                      </Text>
-                    )}
-                  </TouchableOpacity>
-                </View>
-              </>
-            ) : (
-              // Show payment buttons only if selected subscription is not active
-              <View style={styles.paymentButtonsContainer}>
-                {/* {isApplePaySupported && (
-                  <PlatformPayButton
-                    onPress={handleApplePay}
-                    type={PlatformPay.ButtonType.Order}
-                    appearance={PlatformPay.ButtonStyle.Black}
-                    borderRadius={25}
-                    style={{
-                      width: '100%',
-                      height: 50,
-                    }}
-                  />
-                )} */}
-        {/* {renderPaymentButton()} */}
-        {/* <TouchableOpacity
-                  style={styles.continueButton}
-                  onPress={openPaymentSheet}>
-                  <Text style={styles.continueText}>Pay By Card</Text>
-                </TouchableOpacity> */}
-        {/* </View>
-            )} */}
-        {/* </>
-        ) : ( */}
-        {/* <View style={styles.paymentButtonsContainer}> */}
-        {/* {isApplePaySupported && (
-          //     <PlatformPayButton
-          //       onPress={() => Alert.alert('Please Select Any Subscription')}
-          //       type={PlatformPay.ButtonType.Order}
-          //       appearance={PlatformPay.ButtonStyle.Black}
-          //       borderRadius={25}
-          //       style={{
-          //         width: '100%',
-          //         height: 50,
-          //         opacity: 0.5,
-          //       }}
-          //       disabled={true}
-          //     />
-          //   )} */}
-        {/* //{' '} */}
-        {/* {isPlatformPayAvailable && (
-          //     <TouchableOpacity
-          //       style={[styles.googlePayButton, {opacity: 0.5}]}
-          //       onPress={() => Alert.alert('Please Select Any Subscription')}
-          //       disabled={true}>
-          //       <Text style={styles.googlePayText}>Pay with Google Pay</Text>
-          //     </TouchableOpacity>
-          //   )} */}
-        {/* //{' '} */}
-        {/* <TouchableOpacity
-          //     style={[styles.continueButton, {opacity: 0.5}]}
-          //     onPress={() => Alert.alert('Please Select Any Subscription')}
-          //     disabled={true}>
-          //     <Text style={styles.continueText}>Pay By Card</Text>
-          //   </TouchableOpacity> */}
-        {/* // </View> */}
-        <Text style={{textAlign: 'center', marginBottom: 20}}>
-          In app purchase in Review
-        </Text>
-        {/* {offerings ? ( */}
-          {/* <View
-            style={{
-              alignItems: 'center',
-            }}>
-            <Button
-              title={isPurchasing ? 'Processing...' : 'Subscribe Now'}
-              onPress={() => handleSubscribe()}
-              disabled={isPurchasing}
-            />
-            <Button
-              title="Choose Package to Purchase"
-              onPress={() => showPackageSelection()}
-              style={{marginTop: 10}}
-            />
-            <Button
-              title="Purchase Monthly"
-              onPress={() => purchaseMonthly()}
-              style={{marginTop: 10}}
-            />
-            <Button
-              title="Debug: Refresh Offerings"
-              onPress={() => handleRefreshOfferings()}
-              style={{marginTop: 10}}
-            />
-          </View> */}
-        {/* ) : (
-          <Text style={{textAlign: 'center', marginBottom: 10}}>
-            Loading products...
-          </Text>
-        )} */}
-        {/* {loading && (
-          <View style={styles.loaderOverlay}>
-            <ActivityIndicator size="large" color={Colors.primary} />
-          </View>
-        )} */}
-      </SafeAreaView>
-    </StripeProvider>
+                            Alert.alert(
+                              'Success',
+                              'Subscription cancelled successfully!',
+                            );
+                          } catch (error) {
+                            console.error(
+                              'Error cancelling subscription:',
+                              error,
+                            );
+                            Alert.alert(
+                              'Error',
+                              'Failed to cancel subscription. Please try again.',
+                            );
+                          }
+                        },
+                      },
+                    ],
+                  );
+                }}>
+                {cancelLoading ? (
+                  <ActivityIndicator color="#FF3B30" />
+                ) : (
+                  <Text style={styles.deleteButtonText}>
+                    Cancel Subscription
+                  </Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <View style={styles.paymentButtonsContainer}>
+              <TouchableOpacity
+                style={styles.continueButton}
+                onPress={() => handlePurchase(subscriptionSelected)}
+                disabled={isPurchasing}>
+                <Text style={styles.continueText}>
+                  {isPurchasing ? 'Processing...' : 'Subscribe Now'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </>
+      ) : null}
+      
+      {loading && (
+        <View style={styles.loaderOverlay}>
+          <ActivityIndicator size="large" color={Colors.primary} />
+        </View>
+      )}
+    </SafeAreaView>
   );
 };
 
 const SalvageRoute = ({
   onSelectSubscription,
-  products=[],
+  products = [],
   selectedSubscription,
   currentIndex,
   setSelectedActiveSubscription,
+  activeSubscriptions = [],
 }) => {
-  const weekly = products.find(pkg =>
-    pkg.product.identifier.includes('salvage_weekly')
-  );
-  const monthlyIndividual = products?.find(pkg =>
-   
-    pkg?.product?.identifier?.includes('salvage_monthly_180_Test')
+  const {subscriptions = []} = useSelector(
+    state => state?.subscription?.subscriptionData || {},
   );
 
-  const monthlyCorporate = products.find(pkg =>
-    pkg?.product?.identifier?.includes('salvage_monthly_300_Test')
-  );
+  const handleSubscriptionSelect = (packageIdentifier) => {
+    setSelectedActiveSubscription(false);
+    onSelectSubscription(packageIdentifier);
+  };
+
+  // Check if a subscription is active
+  const isSubscriptionActive = (productIdentifier) => {
+    return activeSubscriptions.includes(productIdentifier);
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -1279,137 +388,71 @@ const SalvageRoute = ({
         </Text>
 
         <View style={styles.tabContainer}>
-          {weekly && (
-            <TouchableOpacity
-              onPress={() => onSelectSubscription(weekly.product.identifier)}
-              style={styles.optionSelected}>
-              <Image
-                source={require('../../assets/loyalty.png')}
-                style={styles.optionImage}
-                resizeMode="contain"
-              />
-              <Text style={styles.optionText}>{weekly.product.title}</Text>
-              <View style={styles.sharingRow}>
-                <Text style={styles.sharingText}>{weekly?.product?.description}</Text>
+          {products.map((pkg, index) => {
+            const isActive = isSubscriptionActive(pkg.product.identifier);
+            return (
+              <TouchableOpacity
+                key={pkg.identifier}
+                onPress={() => handleSubscriptionSelect(pkg.product.identifier)}
+                style={[
+                  styles.optionSelected,
+                  selectedSubscription === pkg.product.identifier
+                    ? styles.optionFocused
+                    : styles.optionDisabled,
+                ]}>
                 <Image
-                  source={require('../../assets/iphone.png')}
-                  style={styles.phoneIcon}
+                  source={require('../../assets/loyalty.png')}
+                  style={styles.optionImage}
                   resizeMode="contain"
                 />
-              </View>
-              <Text style={styles.optionSubText}>
-                {weekly.product.priceString}
-              </Text>
-              <Text style={styles.helperText}>7 days access</Text>
-            </TouchableOpacity>
-          )}
-
-          {monthlyIndividual && (
-            <TouchableOpacity
-              onPress={() =>
-                onSelectSubscription(monthlyIndividual.product.identifier)
-              }
-              style={styles.optionSelected}>
-              <Image
-                source={require('../../assets/loyalty.png')}
-                style={styles.optionImage}
-                resizeMode="contain"
-              />
-              <Text style={styles.optionText}>{monthlyIndividual.product?.title}</Text>
-              <View style={styles.sharingRow}>
-                <Text style={styles.sharingText}>{monthlyIndividual.product.description} </Text>
-                <Image
-                  source={require('../../assets/iphone.png')}
-                  style={styles.phoneIcon}
-                  resizeMode="contain"
-                />
-              </View>
-              <Text style={styles.optionSubText}>
-                {monthlyIndividual.product.priceString}
-              </Text>
-              <Text style={styles.helperText}>1 month access</Text>
-            </TouchableOpacity>
-          )}
+                <Text style={styles.optionText}>{pkg.product.title}</Text>
+                <View style={styles.sharingRow}>
+                  <Text style={styles.sharingText}>{pkg.product.description || 'Use 1 Device'}</Text>
+                  <Image
+                    source={require('../../assets/iphone.png')}
+                    style={styles.phoneIcon}
+                    resizeMode="contain"
+                  />
+                </View>
+                <Text style={styles.optionSubText}>{pkg.product.priceString}</Text>
+                <Text style={styles.helperText}>
+                  {pkg.product.identifier.includes('weekly') ? '7 days access' : '1 month access'}
+                </Text>
+                {isActive && (
+                  <View style={styles.activeOverlay}>
+                    <Text style={styles.activeText}>Active</Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+            );
+          })}
         </View>
-
-        {monthlyCorporate && (
-          <View
-            style={[
-              styles.tabContainer,
-              { justifyContent: 'center', marginHorizontal: wp * 0.05 },
-            ]}>
-            <TouchableOpacity
-              onPress={() =>
-                onSelectSubscription(monthlyCorporate.product.identifier)
-              }
-              style={styles.corporateBox}>
-              <Image
-                source={require('../../assets/loyalty.png')}
-                style={styles.optionImage}
-                resizeMode="contain"
-              />
-              <Text style={styles.optionText}>{monthlyCorporate.product.title}</Text>
-              <Text style={styles.forText}>for business use</Text>
-              <View style={styles.sharingRow}>
-                <Text style={styles.sharingText}>{monthlyCorporate.product.description}</Text>
-                <Image
-                  source={require('../../assets/iphone.png')}
-                  style={styles.phoneIcon}
-                  resizeMode="contain"
-                />
-                <Image
-                  source={require('../../assets/iphone.png')}
-                  style={styles.phoneIcon}
-                  resizeMode="contain"
-                />
-              </View>
-              <Text style={styles.optionSubText}>
-                {monthlyCorporate.product.priceString}
-              </Text>
-              <Text style={styles.helperText}>1 month access</Text>
-            </TouchableOpacity>
-          </View>
-        )}
       </View>
     </ScrollView>
   );
 };
 
-const purchase = async () => {
-  try {
-    const offerings = await Purchases.getOfferings();
-    const packageToBuy = offerings.current.availablePackages[0]; // or index by identifier
-
-    const purchaseInfo = await Purchases.purchasePackage(packageToBuy);
-
-    console.log('✅ Purchase successful!', purchaseInfo);
-  } catch (e: any) {
-    if (!e.userCancelled) {
-      console.log('❌ Purchase failed:', e);
-    } else {
-      console.log('🚫 Purchase cancelled by user');
-    }
-  }
-};
-
-
-// ScrapRoute Component
 const ScrapRoute = ({
   products = [],
   onSelectSubscription,
   selectedSubscription,
   currentIndex,
   setSelectedActiveSubscription,
+  activeSubscriptions = [],
 }) => {
-  const weekly = products?.find(pkg =>
-    pkg?.product?.identifier?.includes('scrap_weekly')
+  const {subscriptions = []} = useSelector(
+    state => state?.subscription?.subscriptionData || {},
   );
-  const monthlyIndividual = products?.find(pkg =>
-    pkg?.product?.identifier?.includes('scrap_monthly_50')
-  );
-  const monthlyCorporate = products?.find(pkg =>
-    pkg?.product?.identifier?.includes('scrap_monthly_300_Test')
-  );
+
+  const handleSubscriptionSelect = (packageIdentifier) => {
+    setSelectedActiveSubscription(false);
+    onSelectSubscription(packageIdentifier);
+  };
+
+  // Check if a subscription is active
+  const isSubscriptionActive = (productIdentifier) => {
+    return activeSubscriptions.includes(productIdentifier);
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -1426,96 +469,53 @@ const ScrapRoute = ({
         </Text>
 
         <View style={styles.tabContainer}>
-          {weekly && (
-            <TouchableOpacity
-              onPress={() => onSelectSubscription(weekly.product.identifier)}
-              style={styles.optionSelected}>
-              <Image
-                source={require('../../assets/loyalty.png')}
-                style={styles.optionImage}
-                resizeMode="contain"
-              />
-              <Text style={styles.optionText}>{weekly.product.title}</Text>
-              <View style={styles.sharingRow}>
-                <Text style={styles.sharingText}>{weekly.product.description}</Text>
+          {products.map((pkg, index) => {
+            const isActive = isSubscriptionActive(pkg.product.identifier);
+            return (
+              <TouchableOpacity
+                key={pkg.identifier}
+                onPress={() => handleSubscriptionSelect(pkg.product.identifier)}
+                style={[
+                  styles.optionSelected,
+                  selectedSubscription === pkg.product.identifier
+                    ? styles.optionFocused
+                    : styles.optionDisabled,
+                ]}>
                 <Image
-                  source={require('../../assets/iphone.png')}
-                  style={styles.phoneIcon}
+                  source={require('../../assets/loyalty.png')}
+                  style={styles.optionImage}
                   resizeMode="contain"
                 />
-              </View>
-              <Text style={styles.optionSubText}>{weekly.product.priceString}</Text>
-              <Text style={styles.helperText}>7 days access</Text>
-            </TouchableOpacity>
-          )}
-
-          {monthlyIndividual && (
-            <TouchableOpacity
-              onPress={() => onSelectSubscription(monthlyIndividual.product.identifier)}
-              style={styles.optionSelected}>
-              <Image
-                source={require('../../assets/loyalty.png')}
-                style={styles.optionImage}
-                resizeMode="contain"
-              />
-              <Text style={styles.optionText}>{monthlyIndividual.product.title}</Text>
-              <View style={styles.sharingRow}>
-                <Text style={styles.sharingText}>{monthlyIndividual.product.description}</Text>
-                <Image
-                  source={require('../../assets/iphone.png')}
-                  style={styles.phoneIcon}
-                  resizeMode="contain"
-                />
-              </View>
-              <Text style={styles.optionSubText}>{monthlyIndividual.product.priceString}</Text>
-              <Text style={styles.helperText}>1 month access</Text>
-            </TouchableOpacity>
-          )}
+                <Text style={styles.optionText}>{pkg.product.title}</Text>
+                <View style={styles.sharingRow}>
+                  <Text style={styles.sharingText}>{pkg.product.description || 'Use 1 Device'}</Text>
+                  <Image
+                    source={require('../../assets/iphone.png')}
+                    style={styles.phoneIcon}
+                    resizeMode="contain"
+                  />
+                </View>
+                <Text style={styles.optionSubText}>{pkg.product.priceString}</Text>
+                <Text style={styles.helperText}>
+                  {pkg.product.identifier.includes('weekly') ? '7 days access' : '1 month access'}
+                </Text>
+                {isActive && (
+                  <View style={styles.activeOverlay}>
+                    <Text style={styles.activeText}>Active</Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+            );
+          })}
         </View>
-
-        {monthlyCorporate && (
-          <View style={[styles.tabContainer, { justifyContent: 'center', marginHorizontal: wp * 0.05 }]}>
-            <TouchableOpacity
-              onPress={() => onSelectSubscription(monthlyCorporate.product.identifier)}
-              style={styles.corporateBox}>
-              <Image
-                source={require('../../assets/loyalty.png')}
-                style={styles.optionImage}
-                resizeMode="contain"
-              />
-              <Text style={styles.optionText}>{monthlyCorporate.product.title}</Text>
-              <Text style={styles.forText}>for business use</Text>
-              <View style={styles.sharingRow}>
-                <Text style={styles.sharingText}>{monthlyCorporate.product.description}</Text>
-                <Image
-                  source={require('../../assets/iphone.png')}
-                  style={styles.phoneIcon}
-                  resizeMode="contain"
-                />
-                <Image
-                  source={require('../../assets/iphone.png')}
-                  style={styles.phoneIcon}
-                  resizeMode="contain"
-                />
-              </View>
-              <Text style={styles.optionSubText}>{monthlyCorporate.product.priceString}</Text>
-              <Text style={styles.helperText}>1 month access</Text>
-            </TouchableOpacity>
-          </View>
-        )}
       </View>
     </ScrollView>
   );
 };
 
-// Scene Map for TabView
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-
-    // backgroundColor: Colors.white,
-    // margin: Platform.OS === 'ios' ? 20 : 5,
   },
   loaderOverlay: {
     position: 'absolute',
@@ -1554,6 +554,7 @@ const styles = StyleSheet.create({
     marginTop: wp * 0.05,
     flexDirection: 'row',
     justifyContent: 'space-between',
+    flexWrap: 'wrap',
   },
   optionSelected: {
     width: wp / 2.4,
@@ -1598,24 +599,23 @@ const styles = StyleSheet.create({
     marginTop: wp * 0.01,
     paddingLeft: 5,
   },
-
   phoneIcon: {
-    width: wp * 0.04, // slightly bigger
-    height: wp * 0.04, // keep it square for a balanced look
+    width: wp * 0.04,
+    height: wp * 0.04,
     marginLeft: wp * 0.01,
     resizeMode: 'contain',
-  },
-  forText: {
-    marginTop: wp * 0.01,
-    fontSize: wp * 0.033,
-    fontFamily: Fonts.regular,
-    color: Colors.black,
   },
   optionSubText: {
     marginTop: wp * 0.01,
     fontSize: wp * 0.035,
     fontFamily: Fonts.bold,
     color: Colors.black,
+  },
+  helperText: {
+    fontSize: wp * 0.03,
+    fontFamily: Fonts.regular,
+    color: Colors.footerGray,
+    marginTop: wp * 0.005,
   },
   tabView: {
     flex: 1,
@@ -1635,55 +635,12 @@ const styles = StyleSheet.create({
   continueButton: {
     width: '100%',
     padding: 13,
-    backgroundColor: Colors.white,
-    borderWidth: 2,
-    borderColor: Colors.lightGray,
+    backgroundColor: Colors.primary,
     alignItems: 'center',
     borderRadius: 25,
     marginTop: 10,
   },
   continueText: {
-    color: Colors.black,
-    fontSize: wp * 0.045,
-    fontFamily: Fonts.bold,
-  },
-  // Bottom Sheet Styles
-  bottomSheetOverlay: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  bottomSheetContainer: {
-    backgroundColor: Colors.white,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    padding: 20,
-  },
-  bottomSheetHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  bottomSheetTitle: {
-    fontSize: wp * 0.05,
-    fontFamily: Fonts.bold,
-    color: Colors.black,
-  },
-  bottomSheetClose: {
-    fontSize: wp * 0.04,
-    fontFamily: Fonts.regular,
-    color: Colors.primary,
-  },
-  payButton: {
-    width: '100%',
-    padding: hp * 0.02,
-    borderRadius: 10,
-    backgroundColor: Colors.primary,
-    alignItems: 'center',
-    marginTop: hp * 0.03,
-  },
-  payButtonText: {
     color: Colors.white,
     fontSize: wp * 0.045,
     fontFamily: Fonts.bold,
@@ -1693,43 +650,6 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     width: '100%',
   },
-  paymentButton: {
-    width: '100%',
-    height: 50,
-    marginBottom: 10,
-  },
-  googlePayButton: {
-    width: '100%',
-    height: 50,
-    backgroundColor: '#000000',
-    borderRadius: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  googlePayText: {
-    color: '#FFFFFF',
-    fontSize: wp * 0.045,
-    fontFamily: Fonts.bold,
-  },
-  corporateBox: {
-    width: wp - wp * 0.1,
-    height: hp / 4.5,
-    borderRadius: 10,
-    backgroundColor: Colors.white,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: wp * 0.03,
-    padding: 10,
-    position: 'relative',
-  },
-  helperText: {
-    fontSize: wp * 0.03,
-    fontFamily: Fonts.regular,
-    color: Colors.footerGray,
-    marginTop: wp * 0.005,
-  },
-
   actionButtonsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -1737,7 +657,6 @@ const styles = StyleSheet.create({
     marginVertical: hp * 0.02,
     marginBottom: hp * 0.01,
   },
-
   deleteButton: {
     width: '100%',
     paddingVertical: hp * 0.015,
@@ -1755,33 +674,24 @@ const styles = StyleSheet.create({
     shadowRadius: 2.62,
     elevation: 4,
   },
-
   deleteButtonText: {
     color: '#FF3B30',
-    fontSize: wp * 0.038,
-    fontFamily: Fonts.semiBold,
-  },
-  updateButtonText: {
-    color: Colors?.primary,
     fontSize: wp * 0.038,
     fontFamily: Fonts.semiBold,
   },
   activeOverlay: {
     position: 'absolute',
     top: 10,
-    left: 10,
-    backgroundColor: 'transparent',
-    justifyContent: 'flex-start',
-    alignItems: 'flex-start',
-    borderRadius: 0,
+    right: 10,
+    backgroundColor: Colors.primary,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
   },
-
   activeText: {
-    color: Colors.primary,
-    fontSize: wp * 0.03,
+    color: Colors.white,
+    fontSize: wp * 0.025,
     fontFamily: Fonts.bold,
-    backgroundColor: 'transparent',
-    padding: 0,
   },
 });
 

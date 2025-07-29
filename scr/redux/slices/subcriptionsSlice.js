@@ -6,13 +6,14 @@ const initialState = {
   subscriptionData: null,
   error: null,
   response: null,
+  activeSubscriptions: [], // Add this for RevenueCat active subscriptions
 };
 
 const subscriptionSlice = createSlice({
   name: 'subscription',
   initialState,
   reducers: {
-    checkSubscriptionRequest: state => {
+    checkSubscriptionRequest: (state, action) => {
       state.loading = true;
       state.response = null;
       state.error = null;
@@ -33,6 +34,13 @@ const subscriptionSlice = createSlice({
         error: action.payload,
       };
     },
+    // Add new actions for RevenueCat active subscriptions
+    setActiveSubscriptions: (state, action) => {
+      state.activeSubscriptions = action.payload;
+    },
+    updateActiveSubscriptions: (state, action) => {
+      state.activeSubscriptions = action.payload;
+    },
     resetSubscriptionResponse: state => {
       state.response = null;
     },
@@ -43,6 +51,8 @@ export const {
   checkSubscriptionRequest,
   checkSubscriptionSuccess,
   checkSubscriptionFailure,
+  setActiveSubscriptions,
+  updateActiveSubscriptions,
   resetSubscriptionResponse,
 } = subscriptionSlice.actions;
 

@@ -11,6 +11,7 @@ import Colors from '../Helper/Colors';
 import {hp, wp} from '../Helper/Responsive';
 import {Fonts} from '../Helper/Fonts';
 import {checkSubscriptionRequest} from '../redux/slices/subcriptionsSlice';
+import Purchases from 'react-native-purchases';
 
 const Banner = ({navigation}: {navigation: any}) => {
   const {hasSubscription, subscriptions = []} = useSelector(
@@ -18,8 +19,15 @@ const Banner = ({navigation}: {navigation: any}) => {
   );
   const loading = useSelector((state: any) => state?.subscription?.loading);
   const {userData} = useSelector((state: any) => state.user);
+  
+  // Get active subscriptions from RevenueCat
+  const activeSubscriptions = useSelector(
+    (state: any) => state?.subscription?.activeSubscriptions || [],
+  );
 
   const [subscription, setSubscription] = useState(false);
+  const [revenueCatProducts, setRevenueCatProducts] = useState<any[]>([]);
+  const [revenueCatLoading, setRevenueCatLoading] = useState(true);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -29,23 +37,75 @@ const Banner = ({navigation}: {navigation: any}) => {
     setSubscription(hasSubscription);
   }, [userData?.email, hasSubscription]);
 
-  // Get active subscription details
-  const activeSubscription = subscriptions.find(sub => sub.status === 'active');
-  const subscriptionName =
-    activeSubscription?.plan?.name === 'Unknown Plan'
-      ? 'Corporate Plan'
-      : activeSubscription?.plan?.name || 'Premium Plan';
-  const subscriptionPrice = activeSubscription?.plan?.price || 300;
-  const subscriptionInterval =
-    activeSubscription?.plan?.interval === 'N/A'
-      ? 'monthly'
-      : activeSubscription?.plan?.interval || 'week';
+  // Fetch RevenueCat products for subscription details
+  useEffect(() => {
+    const fetchRevenueCatProducts = async () => {
+      try {
+        setRevenueCatLoading(true);
+        const allOfferings = await Purchases.getOfferings();
+        
+        if (allOfferings.current) {
+          const packages = allOfferings.current.availablePackages;
+          setRevenueCatProducts(packages);
+        }
+      } catch (error) {
+        console.log('❌ Error fetching RevenueCat products:', error);
+      } finally {
+        setRevenueCatLoading(false);
+      }
+    };
+
+    fetchRevenueCatProducts();
+  }, []);
+
+  // Get active subscription details from RevenueCat
+  const getActiveSubscriptionDetails = () => {
+    if (activeSubscriptions.length === 0) {
+      return null;
+    }
+
+    // Get the first active subscription
+    const activeSubscriptionId = activeSubscriptions[0];
+    
+    // Find the product details from RevenueCat products
+    const activeProduct = revenueCatProducts.find(
+      (pkg: any) => pkg.product.identifier === activeSubscriptionId
+    );
+
+    if (activeProduct) {
+      return {
+        name: activeProduct.product.title,
+        price: activeProduct.product.price,
+        priceString: activeProduct.product.priceString,
+        identifier: activeProduct.product.identifier,
+        description: activeProduct.product.description,
+      };
+    }
+
+    return null;
+  };
+
+  const activeSubscriptionDetails = getActiveSubscriptionDetails();
+  const hasRevenueCatSubscription = activeSubscriptions.length > 0;
+
+  // Get active subscription from old data as fallback
+  const activeSubscription = subscriptions.find((sub: any) => sub.status === 'active');
+
+  // Use RevenueCat subscription if available, otherwise fall back to old data
+  const subscriptionName = activeSubscriptionDetails?.name || 
+    (activeSubscription?.plan?.name === 'Unknown Plan' ? 'Corporate Plan' : activeSubscription?.plan?.name || 'Premium Plan');
+  
+  const subscriptionPrice = activeSubscriptionDetails?.price || activeSubscription?.plan?.price || 300;
+  const subscriptionPriceString = activeSubscriptionDetails?.priceString || `£${subscriptionPrice}`;
+  
+  const subscriptionInterval = activeSubscriptionDetails?.identifier?.includes('weekly') ? 'week' : 
+    (activeSubscription?.plan?.interval === 'N/A' ? 'monthly' : activeSubscription?.plan?.interval || 'month');
 
   return (
     <View style={styles.bannerContainer}>
       {/* Left Section: Text and Price OR Loader */}
       <View style={styles.leftSection}>
-        {loading ? (
+        {(loading || revenueCatLoading) ? (
           <View style={styles.loadingWrapper}>
             <ActivityIndicator size="small" color={Colors.primary} />
             <Text style={styles.loadingText}>
@@ -53,29 +113,20 @@ const Banner = ({navigation}: {navigation: any}) => {
             </Text>
           </View>
         ) : (
-          // <TouchableOpacity
-          //   onPress={() => navigation.navigate('Subscriptions')}>
-          //   <Text style={{textAlign: 'center'}}>Subcriptions</Text>
-          // </TouchableOpacity>
-
           <>
             <View style={styles.priceContainer}>
               <Text style={styles.discountedPrice}>
-                {subscription
-                  ? `${subscriptionName} (£${
-                      subscriptionPrice === 170 ? 180 : subscriptionPrice
-                    }/${subscriptionInterval})`
+                {hasRevenueCatSubscription || subscription
+                  ? `${subscriptionName} (${subscriptionPriceString}/${subscriptionInterval})`
                   : 'Start from £50/week'}
               </Text>
-              {!subscription && (
+              {!(hasRevenueCatSubscription || subscription) && (
                 <Text style={styles.originalPrice}>£180/Monthly</Text>
               )}
             </View>
             <Text style={styles.additionalText}>
-              {subscription
-                ? `Renews on ${new Date(
-                    activeSubscription?.currentPeriodEnd,
-                  ).toLocaleDateString()}`
+              {hasRevenueCatSubscription || subscription
+                ? `Active Subscription - ${activeSubscriptions.length} plan${activeSubscriptions.length > 1 ? 's' : ''}`
                 : 'Subscribe to Contact Customers'}
             </Text>
           </>
@@ -86,9 +137,9 @@ const Banner = ({navigation}: {navigation: any}) => {
       <TouchableOpacity
         style={styles.getNowButton}
         onPress={() => navigation.navigate('Subscriptions')}
-        disabled={loading}>
+        disabled={loading || revenueCatLoading}>
         <Text style={styles.getNowText}>
-          {loading ? '...' : subscription ? 'Manage' : 'Get Now'}
+          {(loading || revenueCatLoading) ? '...' : (hasRevenueCatSubscription || subscription) ? 'Manage' : 'Get Now'}
         </Text>
       </TouchableOpacity>
     </View>
